@@ -6,20 +6,20 @@
 %bcond_without	exiscan	# without exiscan support
 %bcond_with	saexim	# with sa-exim support
 #
-%define		exiscan_version	4.30-16
+%define		exiscan_version	4.31-16
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.30
-Release:	7
+Version:	4.31
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	be53ba6801a019452f06b68c112a2ec1
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
+# Source0-md5:	bebc828a649233db271c37e5f1015989
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.30.tar.bz2
 # Source1-md5:	dceb3ce755543ababd7362437a3c1141
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
@@ -30,7 +30,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	4c46c27757463feb918707fed6c36cee
+# Source8-md5:	98c1545082f4221ada81e41e90ba87b4
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
