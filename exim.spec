@@ -77,12 +77,12 @@ cp -f $RPM_SOURCE_DIR/exim.sc $RPM_BUILD_ROOT/etc/sysconfig/exim
 cp -f $RPM_SOURCE_DIR/exim.lr $RPM_BUILD_ROOT/etc/logrotate.d/exim
 install $RPM_SOURCE_DIR/exim.conf $RPM_BUILD_ROOT/etc
 
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/sendmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/mailq
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/rsmtp
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/rmail
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/runq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/exim
 install  $RPM_BUILD_ROOT/etc/cron.daily
@@ -137,11 +137,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/transport-filter.pl
 %{_mandir}/man8/*
 
-/usr/sbin/sendmail
-/usr/sbin/mailq
-/usr/sbin/rsmtp
-/usr/sbin/runq
-/usr/sbin/rmail
+%{_sbindir}/sendmail
+%{_sbindir}/mailq
+%{_sbindir}/rsmtp
+%{_sbindir}/runq
+%{_sbindir}/rmail
 /etc/cron.daily/exim.cron.db
 /etc/cron.weekly/exim.cron.log
 %{_bindir}/newaliases
