@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.24
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -55,7 +55,7 @@ URL:		http://www.exim.org/
 %{!?_without_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db-devel
-BuildRequires:	openssl-devel >= 0.9.7b
+BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 5.6.0
