@@ -42,21 +42,24 @@ possible.
 %description -l pl
 Agent transferu poczty (MTA) z pojedynczym plikiem konfiguracyjnym.
 Jego zalety to: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków & koperty,
-wielokrotne dostarczanie poczty poprzez podczas jednego po³±czenia lub równoleg³e
-dostarczanie poczty, regularne wyra¿enia w parametrach konfiguracyjnych, weryfikacja
-nadawcy i/lub odbiorcy, selektywne relayowanie, wsparcie dla wirtualnych domen,
-wbudowany system filtrów, mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
+wielokrotne dostarczanie poczty podczas jednego po³±czenia lub równoleg³e
+dostarczanie poczty, wyra¿enia regularne w parametrach konfiguracyjnych,
+weryfikacja nadawcy i/lub odbiorcy, selektywne relayowanie, wsparcie dla
+wirtualnych domen, wbudowany system filtrów, mo¿liwo¶æ odrzucania praw roota
+kiedy jest to mo¿liwe.
 
 %package X11
-Summary:	X windows based Exim administration tool
+Summary:	X Window based Exim administration tool
+Summary(pl):	Narzêdzia administracyjne exima dla X Window
 Group:		X11/Utilities
+Group(pl):	X11/Narzêdzia
 
 %description X11
-X windows based monitor & administration utility for the Exim Mail Transfer
+X Window based monitor & administration utility for the Exim Mail Transfer
 Agent.
 
 %description -l pl X11
-Bazuj±ce na X Windows narzêdzia dla Exima - monitor && narzêdzie administracyjne.
+Bazuj±ce na X Window narzêdzia dla Exima - monitor i program administracyjny.
 
 %prep
 %setup -q -T -b 0
