@@ -28,7 +28,7 @@ BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
 Requires:	openldap
-BuildRoot:	/tmp/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Smail like Mail Transfer Agent with single configuration file. Features:
@@ -163,8 +163,6 @@ fi
 /sbin/install-info --delete %{_infodir}/exim_overview.info	/etc/info-dir
 /sbin/install-info --delete %{_infodir}/exim_filter.info	/etc/info-dir
 /sbin/install-info --delete %{_infodir}/exim.info		/etc/info-dir
-
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
