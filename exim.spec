@@ -5,46 +5,48 @@ Version:	3.16
 Release:	2
 License:	GPL
 Group:		Networking/Daemons
+Group(de):	Netzwerkwesen/Server
 Group(pl):	Sieciowe/Serwery
-URL:		http://www.exim.org/
 Source0:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-texinfo-3.10.tar.gz
-Source2:	exim.init
-Source3:	exim.cron.db
-Source4:	exim.8
+Source2:	%{name}.init
+Source3:	%{name}.cron.db
+Source4:	%{name}.8
 Source5:	analyse-log-errors
-Source6:	eximon.desktop
+Source6:	%{name}on.desktop
 Source8:	Makefile-Linux
-Source9:	exim.aliases
-Source10:	exim.conf
+Source9:	%{name}.aliases
+Source10:	%{name}.conf
 Source11:	newaliases
-Source12:	exim.logrotate
-Source13:	exim.sysconfig
+Source12:	%{name}.logrotate
+Source13:	%{name}.sysconfig
 #Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source14:	exim-FAQ.txt.gz
+Source14:	%{name}-FAQ.txt.gz
 #Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
-Source15:	exim-config.samples.tar.gz
-Patch0:		exim-EDITME.patch
-Patch1:		exim-monitor-EDITME.patch
-Patch2:		exim-texinfo.patch
-Patch3:		exim-use_system_pcre.patch
-Provides:	smtpdaemon
-Obsoletes:	smtpdaemon
-Obsoletes:	sendmail
-Obsoletes:	postfix
-Obsoletes:	zmailer
-Obsoletes:	smail
-Obsoletes:	qmail
-Prereq:		/usr/sbin/useradd
-Prereq:		/usr/sbin/groupadd
-Prereq:		/bin/awk
+Source15:	%{name}-config.samples.tar.gz
+Patch0:		%{name}-EDITME.patch
+Patch1:		%{name}-monitor-EDITME.patch
+Patch2:		%{name}-texinfo.patch
+Patch3:		%{name}-use_system_pcre.patch
+URL:		http://www.exim.org/
 BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
-Requires:	openldap
+Provides:	smtpdaemon
+Prereq:		/usr/sbin/useradd
+Prereq:		/usr/sbin/groupadd
+Prereq:		/bin/awk
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+Obsoletes:	smtpdaemon
+Obsoletes:	sendmail
+Obsoletes:	sendmail-cf
+Obsoletes:	sendmail-doc
+Obsoletes:	postfix
+Obsoletes:	zmailer
+Obsoletes:	smail
+Obsoletes:	qmail
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
@@ -67,8 +69,9 @@ mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
 %package X11
 Summary:	X Window based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X Window
-Group:		X11/Utilities
-Group(pl):	X11/Narzêdzia
+Group:		X11/Applications
+Group(de):	X11/Applikationen
+Group(pl):	X11/Aplikacje
 Requires:	applnk
 
 %description X11
@@ -95,46 +98,33 @@ cp src/EDITME Local/Makefile
 cp exim_monitor/EDITME Local/eximon.conf
 
 %build
-%{__make} "CFLAGS=$RPM_OPT_FLAGS"
+%{__make} CFLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}"
 
-makeinfo --no-split exim-texinfo-*/doc/oview.texinfo
-makeinfo --no-split exim-texinfo-*/doc/spec.texinfo
-makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
+makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
-install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
-install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
-install -d	$RPM_BUILD_ROOT%{_infodir}
-install -d	$RPM_BUILD_ROOT{/usr/X11R6/bin,%{_applnkdir}/System}
+install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail} \
+	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}} \
+	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
+	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
 
-install	build-Linux-pld/exim		$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_fixdb	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_tidydb	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_dbmbuild	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/eximon.bin	$RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/eximon		$RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/exim_dumpdb	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exicyclog	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_lock	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exinext		$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exiwhat		$RPM_BUILD_ROOT%{_bindir}
-install util/exigrep			$RPM_BUILD_ROOT%{_bindir}
-install util/eximstats			$RPM_BUILD_ROOT%{_bindir}
-install util/exiqsumm			$RPM_BUILD_ROOT%{_bindir} 
-install util/unknownuser.sh		$RPM_BUILD_ROOT%{_bindir}
-install util/transport-filter.pl	$RPM_BUILD_ROOT%{_bindir}
-install %{SOURCE5}			.
-install %{SOURCE11}			$RPM_BUILD_ROOT%{_bindir}
-install %{SOURCE3}			$RPM_BUILD_ROOT/etc/cron.daily/
-install %{SOURCE13}			$RPM_BUILD_ROOT/etc/sysconfig/%{name}
-install %{SOURCE2}			$RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install	%{SOURCE12}			$RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE10}			$RPM_BUILD_ROOT%{_sysconfdir}/mail/
-install %{SOURCE4}			$RPM_BUILD_ROOT%{_mandir}/man8/
-install %{SOURCE9}			$RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
-install	*.info				$RPM_BUILD_ROOT%{_infodir}/
+install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuildon.bin,_dumpdb,_lock,ext} \
+	build-Linux-pld/exi{cyclog,next,what} %{SOURCE11} \
+	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
+	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
+
+install %{SOURCE5} .
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily/
+install %{SOURCE13} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install	%{SOURCE12} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/mail/
+install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
+install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
+install	{oview,spec,filter}.info* $RPM_BUILD_ROOT%{_infodir}/
 
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
@@ -146,10 +136,8 @@ ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
-strip $RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
 
-gzip -9nf $RPM_BUILD_ROOT{%{_mandir}/man*/*,%{_infodir}/*} \
-	README* NOTICE LICENCE analyse-log-errors \
+gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}
 
 %pre
@@ -212,9 +200,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE* LICENCE* analyse-log-errors*
-%doc doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}.gz
-%doc doc/{FAQ.txt,config.samples.tar}.gz
+%doc *.gz doc/*.gz
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
