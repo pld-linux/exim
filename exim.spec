@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.21
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -46,6 +46,7 @@ Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
+Patch6:		%{name}4-errno.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires:	mysql-devel}
@@ -136,6 +137,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
+%patch6 -p1
 %{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
