@@ -9,19 +9,19 @@
 %bcond_without	srs	# without srs support
 %bcond_with	saexim	# with sa-exim support
 #
-%define		exiscan_version	4.43-28
+%define		exiscan_version	4.44-28
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.43
-Release:	6
+Version:	4.44
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	f8f646d4920660cb5579becd9265a3bf
+# Source0-md5:	7487274e013b598d97445987d38b2071
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.40.tar.bz2
 # Source1-md5:	cc91bd804ee0f7fd70991e2e6b529033
 Source2:	%{name}.init
@@ -33,15 +33,15 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	b2c629ee8f7edf7c0641e3cff4a602f6
+# Source8-md5:	72ef5567106e89e6cef1cc742ab52525
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	7c695675e5e60693916b787001252d56
+# Source13-md5:	3e183ae1bc13b05341bb3980a3b899d8
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	42c7d5c02d06fdd3d8b6ba124ad9fd05
+# Source14-md5:	b9ce9a90a1b9b516f485452af079a002
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
@@ -52,7 +52,6 @@ Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
-Patch6:		%{name}-CAN-2005-0021.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_spf:BuildRequires:	libspf2-devel}
@@ -155,7 +154,6 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%patch6 -p1
 %{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 %{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
