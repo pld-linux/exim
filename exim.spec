@@ -110,7 +110,7 @@ cp src/EDITME Local/Makefile
 cp exim_monitor/EDITME Local/eximon.conf
 
 %build
-%{__make} CFLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}" \
+%{__make} CFLAGS="%{?debug:-O -g}%{!?debug:$RPM_OPT_FLAGS}" \
 	%{?bcond_on_mysql:LOOKUP_MYSQL=yes} \
 	%{!?bcond_off_pgsql:LOOKUP_PGSQL=yes} \
 	%{!?bcond_off_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
