@@ -43,6 +43,7 @@ BuildRequires:	perl
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	db3-devel
+BuildRequires:	openssl-devel
 Provides:	smtpdaemon
 Prereq:		/usr/sbin/useradd
 Prereq:		/usr/sbin/groupadd
@@ -160,7 +161,7 @@ gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
-	if [ "`getgid postfix`" != "79" ]; then
+	if [ "`getgid exim`" != "79" ]; then
 		echo "Warning: group exim haven't gid=79. Corect this before install exim" 1>&2
 		exit 1
 	fi
