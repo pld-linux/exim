@@ -50,8 +50,8 @@ BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl
 BuildRequires:	texinfo
-PreReq:		/sbin/chkconfig
 PreReq:		rc-scripts
+Requires(post,preun):	/sbin/chkconfig
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
@@ -191,17 +191,13 @@ install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/exim
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 touch $RPM_BUILD_ROOT/etc/security/blacklist.exim
 
-gzip -9nf README* NOTICE LICENCE analyse-log-errors \
-	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt} \
-	util/transport-filter.pl
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
 	if [ "`getgid exim`" != "79" ]; then
-		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
+		echo "Error: group exim doesn't have gid=79. Correct this before installing Exim." 1>&2
 		exit 1
 	fi
 else
@@ -210,7 +206,7 @@ fi
 
 if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
 	if [ "`id -u exim`" != "79" ]; then
-		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
+		echo "Error: user exim doesn't have uid=79. Correct this before installing Exim." 1>&2
 		exit 1
 	fi
 else
@@ -250,8 +246,8 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc *.gz doc/*.gz
-%doc util/*.gz
+%doc README* NOTICE LICENCE analyse-log-errors util/transport-filter.pl
+%doc doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
