@@ -8,7 +8,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.32
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
