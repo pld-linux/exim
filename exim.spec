@@ -72,6 +72,7 @@ Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
 Requires:	pam >= 0.77.3
 Provides:	smtpdaemon
+Obsoletes:	courier
 Obsoletes:	masqmail
 Obsoletes:	omta
 Obsoletes:	postfix
