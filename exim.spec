@@ -54,35 +54,35 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig} \
 	$RPM_BUILD_ROOT/usr/{bin,lib,man/man8,sbin}
 
-install -m4755 -g root -o root build-Linux-i386/exim $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exim_fixdb $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exim_tidydb $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exim_dbmbuild $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/eximon.bin $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/eximon $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exim_dumpdb $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exicyclog $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exim_lock $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exinext $RPM_BUILD_ROOT/usr/bin
-install build-Linux-i386/exiwhat $RPM_BUILD_ROOT/usr/bin
-install util/exigrep $RPM_BUILD_ROOT/usr/bin
-install util/eximstats $RPM_BUILD_ROOT/usr/bin
-install util/exiqsumm $RPM_BUILD_ROOT/usr/bin 
-install util/unknownuser.sh $RPM_BUILD_ROOT/usr/bin
-install util/transport-filter.pl $RPM_BUILD_ROOT/usr/bin
-install $RPM_SOURCE_DIR/analyse-log-errors $RPM_BUILD_ROOT/usr/bin
-install $RPM_SOURCE_DIR/one-line-queuelist $RPM_BUILD_ROOT/usr/bin
-install $RPM_SOURCE_DIR/newaliases $RPM_BUILD_ROOT/usr/bin
+install -m4755 -g root -o root build-Linux-i386/exim $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exim_fixdb $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exim_tidydb $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exim_dbmbuild $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/eximon.bin $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/eximon $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exim_dumpdb $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exicyclog $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exim_lock $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exinext $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-i386/exiwhat $RPM_BUILD_ROOT%{_bindir}
+install util/exigrep $RPM_BUILD_ROOT%{_bindir}
+install util/eximstats $RPM_BUILD_ROOT%{_bindir}
+install util/exiqsumm $RPM_BUILD_ROOT%{_bindir} 
+install util/unknownuser.sh $RPM_BUILD_ROOT%{_bindir}
+install util/transport-filter.pl $RPM_BUILD_ROOT%{_bindir}
+install $RPM_SOURCE_DIR/analyse-log-errors $RPM_BUILD_ROOT%{_bindir}
+install $RPM_SOURCE_DIR/one-line-queuelist $RPM_BUILD_ROOT%{_bindir}
+install $RPM_SOURCE_DIR/newaliases $RPM_BUILD_ROOT%{_bindir}
 cp -f $RPM_SOURCE_DIR/exim.sc $RPM_BUILD_ROOT/etc/sysconfig/exim
 cp -f $RPM_SOURCE_DIR/exim.lr $RPM_BUILD_ROOT/etc/logrotate.d/exim
 install $RPM_SOURCE_DIR/exim.conf $RPM_BUILD_ROOT/etc
 
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/sendmail
-ln -s /usr/bin/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/mailq
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/rsmtp
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/rmail
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/runq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/sendmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/mailq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/rsmtp
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/rmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT/usr/sbin/runq
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/exim
 install  $RPM_BUILD_ROOT/etc/cron.daily
@@ -122,19 +122,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(640,root,root) %config(noreplace) /etc/sysconfig/exim
 %config /etc/logrotate.d/exim
 %attr(754,root,root) /etc/rc.d/init.d/exim
-/usr/bin/exim
-/usr/bin/exim_dumpdb
-/usr/bin/exim_fixdb
-/usr/bin/exim_tidydb
-/usr/bin/exinext
-/usr/bin/exiwhat
-/usr/bin/exim_dbmbuild
-/usr/bin/exicyclog
-/usr/bin/exigrep
-/usr/bin/eximstats
-/usr/bin/exiqsumm
-/usr/bin/unknownuser.sh
-/usr/bin/transport-filter.pl
+%{_bindir}/exim
+%{_bindir}/exim_dumpdb
+%{_bindir}/exim_fixdb
+%{_bindir}/exim_tidydb
+%{_bindir}/exinext
+%{_bindir}/exiwhat
+%{_bindir}/exim_dbmbuild
+%{_bindir}/exicyclog
+%{_bindir}/exigrep
+%{_bindir}/eximstats
+%{_bindir}/exiqsumm
+%{_bindir}/unknownuser.sh
+%{_bindir}/transport-filter.pl
 %{_mandir}/man8/*
 
 /usr/sbin/sendmail
@@ -144,11 +144,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/sbin/rmail
 /etc/cron.daily/exim.cron.db
 /etc/cron.weekly/exim.cron.log
-/usr/bin/newaliases
+%{_bindir}/newaliases
 
 %files X11
-/usr/bin/eximon
-/usr/bin/eximon.bin
+%{_bindir}/eximon
+%{_bindir}/eximon.bin
 
 %changelog
 * Mon May  3 1999 Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
@@ -163,7 +163,7 @@ rm -rf $RPM_BUILD_ROOT
 * Thu Mar 4 1999 Florian Wallner <wallner@speed-link.de>
  - Build package of version 2.12
  - uses logrotate now, though exicyclog still gets installed.
- - all binaries and scripts reside in /usr/bin
+ - all binaries and scripts reside in %{_bindir}
  - config file is now /etc/exim.conf
  - added Procmail Transport and Director to the sample exim.conf.
  - added 'newaliases' and modified the alias director to do a dbm lookup.
