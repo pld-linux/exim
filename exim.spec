@@ -5,19 +5,19 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.20-10
+%define		exiscan_version	4.21-10
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.20
-Release:	6
+Version:	4.21
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	90f9e876b60d00c0a5dd53ece7c85338
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
+# Source0-md5:	16b1290e4c289c7d70294ca447b0a3bc
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.20.tar.bz2
 # Source1-md5:	debc6d3fdd88fd6d9c646ca0495fa92d
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
@@ -28,7 +28,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	e0ea3a68600047832ddadac6684242f8
+# Source8-md5:	b22d3ed3e132ea11069b89ae4269f493
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -38,16 +38,14 @@ Source13:	%{name}4-FAQ.txt.bz2
 # Source13-md5:	6ae34c36679bd423b32643464a06c4fd
 # 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 Source14:	%{name}4-config.samples.tar.bz2
-Source15:	%{name}4-smtp.pamd
 # Source14-md5:	918b390124cfc7515ba262e49bee750f
+Source15:	%{name}4-smtp.pamd
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
-Patch6:		%{name}4-saslauthd.patch
-Patch7:		%{name}-DSEARCH.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires:	mysql-devel}
@@ -139,7 +137,6 @@ desta interface.
 %patch4 -p1
 %patch5 -p0
 %{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
-%patch6 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -147,8 +144,6 @@ install %{SOURCE14} doc/config.samples.tar.bz2
 install -d Local
 cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
-
-%patch7 -p1
 
 %build
 %{__make} \
@@ -263,7 +258,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{!?_without_exiscan:,exiscan-*.txt},README.saslauthd.txt} build-Linux-*/transport-filter.pl 
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{!?_without_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl 
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
