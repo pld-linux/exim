@@ -1,5 +1,5 @@
 # Conditional build:
-# bcond_off_pgsql - build wihtout PostgreSQ support
+# bcond_on_pgsql - build wihtout PostgreSQ support
 # bcond_on_mysql - build with MySQL support
 # bcond_off_ldap - build without LDAP support
 
@@ -7,7 +7,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.20
-Release:	4
+Release:	5
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -37,7 +37,8 @@ Patch4:		%{name}-Makefile-Default.patch
 URL:		http://www.exim.org/
 %{!?bcond_off_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{?bcond_on_mysql:BuildRequires: mysql-devel}
-%{!?bcond_off_pgsql:BuildRequires: postgresql-devel}
+%{?bcond_on_pgsql:BuildRequires: postgresql-devel}
+BuildRequires:	XFree86-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
@@ -113,10 +114,10 @@ cp exim_monitor/EDITME Local/eximon.conf
 %build
 %{__make} CFLAGS="%{?debug:-O -g}%{!?debug:$RPM_OPT_FLAGS}" \
 	%{?bcond_on_mysql:LOOKUP_MYSQL=yes} \
-	%{!?bcond_off_pgsql:LOOKUP_PGSQL=yes} \
+	%{?bcond_on_pgsql:LOOKUP_PGSQL=yes} \
 	%{!?bcond_off_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?bcond_off_ldap:-lldap -llber} %{?bcond_on_mysql:-lmysqlclient} %{!?bcond_off_pgsql:-lpq}" \
-	LOOKUP_INCLUDE="%{!?bcond_off_mysql:-I/usr/include/mysql} %{!?bcond_off_pgsql:-I/usr/include/pgsql}"
+	LOOKUP_LIBS="%{!?bcond_off_ldap:-lldap -llber} %{?bcond_on_mysql:-lmysqlclient} %{?bcond_on_pgsql:-lpq}" \
+	LOOKUP_INCLUDE="%{?bcond_on_mysql:-I/usr/include/mysql} %{?bcond_on_pgsql:-I/usr/include/pgsql}"
 
 makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
 
@@ -169,7 +170,7 @@ else
 	/usr/sbin/groupadd -g 79 -r -f exim
 fi
 
-if [ -n "`/bin/id/id -u exim 2>/dev/null`" ]; then
+if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
 	if [ "`id -u exim`" != "79" ]; then
 		echo "Warning: user exim doesn't have uid=79. Corect this before installing Exim" 1>&2
 		exit 1
