@@ -255,7 +255,7 @@ umask 022
 if [ -f /var/lock/subsys/exim ]; then
 	/etc/rc.d/init.d/%{name} restart >&2
 else
-	%banner %{name} -e << EOF
+	%banner %{name} -e <<EOF
 Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon.
 EOF
 fi
