@@ -22,8 +22,6 @@ Source12:	exim.logrotate
 Source13:	exim.sysconfig
 Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
 Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
-Source16:	exim-profile.sh
-Source17:	exim-profile.csh
 Patch0:		exim-EDITME.patch
 Patch1:		exim-monitor-EDITME.patch
 Patch2:		exim-texinfo.patch
@@ -36,6 +34,7 @@ Obsoletes:	smail
 Obsoletes:	qmail
 Prereq:		/usr/sbin/useradd
 Prereq:		/usr/sbin/groupadd
+Prereq:		/bin/awk
 BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
@@ -99,7 +98,7 @@ makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,profile.d}
+install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
 install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/exim,mail}
 install -d	$RPM_BUILD_ROOT%{_infodir}
@@ -141,9 +140,6 @@ ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 
-install %{SOURCE16} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/exim.sh
-install %{SOURCE17} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/exim.csh
-
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 strip $RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
 
@@ -180,6 +176,13 @@ fi
 newaliases
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
+# Add/modify MAIL variable via pam_env.
+mv -f %{_sysconfdir}/security/pam_env.conf{,.tmp}
+awk '$1 != "MAIL" { print $0; }; END { print "MAIL\t\tDEFAULT=${HOME}/Mail/Mailbox"; }' \
+	< %{_sysconfdir}/security/pam_env.conf.tmp \
+	> %{_sysconfdir}/security/pam_env.conf
+rm -f %{_sysconfdir}/security/pam_env.conf.tmp
+
 %preun
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del %{name}
@@ -191,6 +194,12 @@ fi
 if [ "$1" = "0" ]; then
 	/usr/sbin/userdel exim
 	/usr/sbin/groupdel exim
+	
+	mv -f %{_sysconfdir}/security/pam_env.conf{,.tmp}
+	awk '$1 != "MAIL" { print $0; }' \
+		< %{_sysconfdir}/security/pam_env.conf.tmp \
+		> %{_sysconfdir}/security/pam_env.conf
+	rm -f %{_sysconfdir}/security/pam_env.conf.tmp
 fi
 
 %clean
@@ -226,8 +235,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_libdir}/*
 %attr( 754,root,root) /etc/cron.daily/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
-%attr( 644,exim,root) %ghost %{_var}/log/exim/*
-%attr( 755,root,root) %{_sysconfdir}/profile.d/*
+%attr( 640,exim,root) %ghost %{_var}/log/exim/*
 %{_infodir}/*
 %{_mandir}/man8/*
 
