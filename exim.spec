@@ -3,7 +3,7 @@
 # _without_mysql  - build without MySQL support
 # _without_whoson - build without whoson support
 # _without_ldap   - build without LDAP support
-# _with_exiscan   - build with exiscan support
+# _without_exiscan - build without exiscan support
 
 %define		exiscan_version	4.14-26
 Summary:	University of Cambridge Mail Transfer Agent
@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.14
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -131,7 +131,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%{?_with_exiscan:patch -p1 < exiscan-%{exiscan_version}/exiscan-%{exiscan_version}.patch}
+%{!?_without_exiscan:patch -p1 < exiscan-%{exiscan_version}/exiscan-%{exiscan_version}.patch}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -252,7 +252,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?_with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl 
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{!?_without_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl 
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
