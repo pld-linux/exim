@@ -28,7 +28,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	74cf5b787c7344f3b4ef69b8ab54b0db
+# Source8-md5:	c068c157b7e885bd4ce79d29d4f38469
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
