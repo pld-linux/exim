@@ -1,4 +1,5 @@
 Summary:	University of Cambridge Mail Transfer Agent 
+Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	2.12
 Release:	10
@@ -30,13 +31,25 @@ and/or reciever verification, selective relaying, supports virtual domains,
 built-in mail filtering and can be configured to drop root privilleges when
 possible.
 
+%description -l pl
+Agent transferu poczty (MTA) z pojedynczym plikiem konfiguracyjnym.
+Jego zalety to: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków & koperty,
+wielokrotne dostarczanie poczty poprzez podczas jednego po³±czenia lub równoleg³e
+dostarczanie poczty, regularne wyra¿enia w parametrach konfiguracyjnych, weryfikacja
+nadawcy i/lub odbiorcy, selektywne relayowanie, wsparcie dla wirtualnych domen,
+wbudowany system filtrów, mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
+
 %package X11
 Summary:	X windows based Exim administration tool
+Summary(pl):	Narzêdzia administracyjne Exima
 Group:		X11/Utilities
 
 %description X11
 X windows based monitor & administration utility for the Exim Mail Transfer
 Agent.
+
+%description -l pl X11
+Bazuj±ce na X Windows narzêdzia dla Exima - monitor && narzêdzie administracyjne.
 
 %prep
 %setup -T -b 0
@@ -54,7 +67,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig} \
 	$RPM_BUILD_ROOT/usr/{bin,lib,man/man8,sbin}
 
-install -m4755 -g root -o root build-Linux-i386/exim $RPM_BUILD_ROOT%{_bindir}
+install -m4711 -g root -o root build-Linux-i386/exim $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-i386/exim_fixdb $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-i386/exim_tidydb $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-i386/exim_dbmbuild $RPM_BUILD_ROOT%{_bindir}
