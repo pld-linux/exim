@@ -2,6 +2,7 @@
 %bcond_without	pgsql	# without PostgreSQL support
 %bcond_without	mysql	# without MySQL support
 %bcond_without	whoson	# without whoson support
+%bcond_without	sasl	# without SASL
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
 %bcond_without	spf	# without spf support
@@ -15,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.43
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -58,6 +59,7 @@ URL:		http://www.exim.org/
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
+%{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	XFree86-devel
 BuildRequires:	db-devel
 BuildRequires:	openssl-devel >= 0.9.7d
@@ -179,8 +181,9 @@ X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
+	%{?with_sasl:AUTH_CYRUS_SASL=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
