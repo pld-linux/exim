@@ -1,7 +1,7 @@
 # Conditional build:
-# pgsql - build wihtout PostgreSQ support
-# mysql - build wihtout MySQL support
-# no_ldap - build without LDAP support
+# bcond_off_pgsql - build wihtout PostgreSQ support
+# bcond_off_mysql - build wihtout MySQL support
+# bcond_off_ldap - build without LDAP support
 
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
@@ -35,9 +35,9 @@ Patch2:		%{name}-texinfo.patch
 Patch3:		%{name}-use_system_pcre.patch
 Patch4:		%{name}-Makefile-Default.patch
 URL:		http://www.exim.org/
-%{!?no_ldap:BuildRequires:      openldap-devel >= 2.0.0}
-%{?mysql:BuildRequires: mysql-devel}
-%{?pgsql:BuildRequires: postgresql-devel}
+%{!?bcond_off_ldap:BuildRequires: openldap-devel >= 2.0.0}
+%{!?bcond_off_mysql:BuildRequires: mysql-devel}
+%{!?bcond_off_pgsql:BuildRequires: postgresql-devel}
 BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
@@ -111,11 +111,11 @@ cp exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} CFLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}" \
-	%{?mysql:LOOKUP_MYSQL=yes} \
-	%{?pgsql:LOOKUP_PGSQL=yes} \
-	%{!?no_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?no_ldap:-lldap -llber} %{?mysql:-lmysqlclient} %{?pgsql:-lpq}" \
-	LOOKUP_INCLUDE="%{?mysql:-I/usr/include/mysql} %{?pgsql:-I/usr/include/pgsql}"
+	%{!?bcond_off_mysql:LOOKUP_MYSQL=yes} \
+	%{!?bcond_off_pgsql:LOOKUP_PGSQL=yes} \
+	%{!?bcond_off_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
+	LOOKUP_LIBS="%{!?bcond_off_ldap:-lldap -llber} %{!?bcond_off_mysql:-lmysqlclient} %{!?bcond_off_pgsql:-lpq}" \
+	LOOKUP_INCLUDE="%{!?bcond_off_mysql:-I/usr/include/mysql} %{!?bcond_off_pgsql:-I/usr/include/pgsql}"
 
 makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
 
