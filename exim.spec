@@ -154,7 +154,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %if %{with saexim}
     cd sa-exim-%{saexim_version}
     %{__make} sa-exim.h
-    echo '#define SPAMASSASSIN_CONF "%{_sysconfdir}/mail/sa-exim.conf"' >> sa-exim.h
+    echo '#define SPAMASSASSIN_CONF "%{_sysconfdir}/mail/spamassassin/local.cf"' >> sa-exim.h
     cat sa-exim.c > ../src/local_scan.c
     cat sa-exim.h > ../src/sa-exim.h
     cd ..
