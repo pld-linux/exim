@@ -2,7 +2,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.16
-Release:	1
+Release:	2
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -105,7 +105,7 @@ makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
 rm -rf $RPM_BUILD_ROOT
 install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
 install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
-install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/exim,mail}
+install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d	$RPM_BUILD_ROOT%{_infodir}
 install -d	$RPM_BUILD_ROOT{/usr/X11R6/bin,%{_applnkdir}/System}
 
@@ -240,6 +240,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_libdir}/*
 %attr( 754,root,root) /etc/cron.daily/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
+%attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
 %{_infodir}/*
 %{_mandir}/man8/*
