@@ -5,13 +5,13 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.24-12
+%define		exiscan_version	4.24-13
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.24
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -28,7 +28,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	3cf8b7991a8b72d3accf7348068900a3
+# Source8-md5:	dc4266a5f27859eb6574bf04db297d0d
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -40,6 +40,7 @@ Source13:	%{name}4-FAQ.txt.bz2
 Source14:	%{name}4-config.samples.tar.bz2
 # Source14-md5:	918b390124cfc7515ba262e49bee750f
 Source15:	%{name}4-smtp.pamd
+Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
@@ -53,7 +54,7 @@ URL:		http://www.exim.org/
 %{!?_without_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db3-devel
-BuildRequires:	openssl-devel >= 0.9.6j
+BuildRequires:	openssl-devel >= 0.9.6l
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 5.6.0
@@ -68,6 +69,7 @@ Requires(postun):	/usr/sbin/userdel
 Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
 Requires:	crondaemon
+Requires:	pam >= 0.77.3
 Provides:	smtpdaemon
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	masqmail
