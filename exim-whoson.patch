@@ -1,0 +1,161 @@
+diff -uNr exim-3.31/scripts/MakeLinks exim-3.31-whoson/scripts/MakeLinks
+--- exim-3.31/scripts/MakeLinks	Mon Jul  2 11:46:41 2001
++++ exim-3.31-whoson/scripts/MakeLinks	Wed Jul 18 23:21:46 2001
+@@ -79,6 +79,8 @@
+ ln -s ../../src/lookups/pgsql.c          pgsql.c
+ ln -s ../../src/lookups/testdb.h         testdb.h
+ ln -s ../../src/lookups/testdb.c         testdb.c
++ln -s ../../src/lookups/whoson.h         whoson.h
++ln -s ../../src/lookups/whoson.c         whoson.c
+ cd ..
+ 
+ # Likewise for the code for the directors
+diff -uNr exim-3.31/src/EDITME exim-3.31-whoson/src/EDITME
+--- exim-3.31/src/EDITME	Mon Jul  2 11:46:41 2001
++++ exim-3.31-whoson/src/EDITME	Wed Jul 18 20:38:52 2001
+@@ -577,3 +577,5 @@
+ # USE_TCP_WRAPPERS=yes
+ 
+ # End of EDITME
++
++LOOKUP_WHOSON=yes
+diff -uNr exim-3.31/src/config.h.defaults exim-3.31-whoson/src/config.h.defaults
+--- exim-3.31/src/config.h.defaults	Mon Jul  2 11:46:41 2001
++++ exim-3.31-whoson/src/config.h.defaults	Wed Jul 18 20:39:10 2001
+@@ -106,3 +106,5 @@
+ #define ROOT_UID              0
+ 
+ /* End of config.h.defaults */
++
++#define LOOKUP_WHOSON
+diff -uNr exim-3.31/src/drtables.c exim-3.31-whoson/src/drtables.c
+--- exim-3.31/src/drtables.c	Mon Jul  2 11:46:42 2001
++++ exim-3.31-whoson/src/drtables.c	Wed Jul 18 23:52:33 2001
+@@ -75,6 +75,10 @@
+ #include "lookups/testdb.h"
+ #endif
+ 
++#ifdef LOOKUP_WHOSON
++#include "lookups/whoson.h"
++#endif
++
+ 
+ /* The second field in each item below is a set of bit flags:
+ 
+@@ -325,6 +329,19 @@
+   NULL,                          /* no close function */
+   NULL,                          /* no tidy function */
+   NULL                           /* no quoting function */
++  },
++#endif
++
++#ifdef LOOKUP_WHOSON
++  {
++  "whoson",                      /* lookup name */
++  lookup_querystyle,             /* query-style lookup */
++  whoson_open,                   /* open function */
++  NULL,                          /* check function */
++  whoson_find,                   /* find function */
++  NULL,                          /* no close function */
++  NULL,                          /* no tidy function */
++  NULL                           /* no quoting function */
+   },
+ #endif
+ 
+diff -uNr exim-3.31/src/lookups/Makefile exim-3.31-whoson/src/lookups/Makefile
+--- exim-3.31/src/lookups/Makefile	Mon Jul  2 11:46:43 2001
++++ exim-3.31-whoson/src/lookups/Makefile	Wed Jul 18 21:42:36 2001
+@@ -4,7 +4,7 @@
+ # defined, dummy modules get compiled.
+ 
+ OBJ = cdb.o dbmdb.o dnsdb.o ldap.o lsearch.o mysql.o nis.o nisplus.o pgsql.o \
+-      testdb.o
++      testdb.o whoson.o
+ 
+ lookups.a:       $(OBJ)
+ 		 /bin/rm -f lookups.a
+@@ -25,5 +25,6 @@
+ nisplus.o:       $(HDRS) nisplus.c   nisplus.h
+ pgsql.o:         $(HDRS) pgsql.c     pgsql.h
+ testdb.o:        $(HDRS) testdb.c    testdb.h
++whoson.o:        $(HDRS) whoson.c    whoson.h
+ 
+ # End
+diff -uNr exim-3.31/src/lookups/whoson.c exim-3.31-whoson/src/lookups/whoson.c
+--- exim-3.31/src/lookups/whoson.c	Thu Jan  1 01:00:00 1970
++++ exim-3.31-whoson/src/lookups/whoson.c	Wed Jul 18 23:23:24 2001
+@@ -0,0 +1,57 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
++
++/* Copyright (c) University of Cambridge 1995 - 2001 */
++/* See the file NOTICE for conditions of use and distribution. */
++
++#include <whoson.h>
++
++#include "../exim.h"
++#include "whoson.h"
++
++
++/*************************************************
++*              Open entry point                  *
++*************************************************/
++
++/* See local README for interface description. */
++
++void *
++whoson_open(char *filename, char **errmsg)
++{
++filename = filename;   /* Keep picky compilers happy */
++errmsg = errmsg;
++return (void *)(1);    /* Just return something non-null */
++}
++
++
++
++/*************************************************
++*               Find entry point                 *
++*************************************************/
++
++/* See local README for interface description. */
++
++int
++whoson_find(void *handle, char *filename, char *query, int length,
++  char **result, char **errmsg)
++{
++char buffer[80];
++handle = handle;          /* Keep picky compilers happy */
++filename = filename;
++length = length;
++errmsg = errmsg;
++
++switch (wso_query(query,buffer,80)) {
++case 0:
++  *result = string_copy(buffer);
++  return OK;
++case -1:
++  return DEFER;
++default:
++  return FAIL;
++}
++}
++
++/* End of lookups/whoson.c */
+diff -uNr exim-3.31/src/lookups/whoson.h exim-3.31-whoson/src/lookups/whoson.h
+--- exim-3.31/src/lookups/whoson.h	Thu Jan  1 01:00:00 1970
++++ exim-3.31-whoson/src/lookups/whoson.h	Wed Jul 18 21:43:17 2001
+@@ -0,0 +1,13 @@
++/*************************************************
++*     Exim - an Internet mail transport agent    *
++*************************************************/
++
++/* Copyright (c) University of Cambridge 1995 - 2001 */
++/* See the file NOTICE for conditions of use and distribution. */
++
++/* Header for the whoson lookup */
++
++extern void *whoson_open(char *, char **);
++extern int   whoson_find(void *, char *, char *, int, char **, char **);
++
++/* End of lookups/whoson.h */

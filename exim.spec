@@ -2,12 +2,13 @@
 # _with_pgsql - build wiht PostgreSQ support
 # _with_mysql - build with MySQL support
 # _without_ldap - build without LDAP support
+# _without_whoson - build without WHOSON support
 
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.31
-Release:	1
+Release:	2
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -34,8 +35,10 @@ Patch2:		%{name}-texinfo.patch
 Patch3:		%{name}-use_system_pcre.patch
 Patch4:		%{name}-Makefile-Default.patch
 Patch5:		%{name}-conf.patch
+Patch6:		%{name}-whoson.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
+%{!?_without_whoson:BuildRequires: whoson-devel}
 %{?_with_mysql:BuildRequires: mysql-devel}
 %{?_with_pgsql:BuildRequires: postgresql-devel}
 BuildRequires:	XFree86-devel
@@ -103,6 +106,7 @@ administracyjny.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
+%{!?_without_whoson:%patch6 -p1}
 
 install %{SOURCE13} doc/FAQ.txt.gz
 install %{SOURCE14} doc/config.samples.tar.gz
@@ -116,7 +120,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	%{?_with_mysql:LOOKUP_MYSQL=yes} \
 	%{?_with_pgsql:LOOKUP_PGSQL=yes} \
 	%{!?_without_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{?_with_mysql:-lmysqlclient} %{?_with_pgsql:-lpq}" \
+	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{?_with_mysql:-lmysqlclient} %{?_with_pgsql:-lpq} %{!?_without_whoson:-lwhoson}" \
 	LOOKUP_INCLUDE="%{?_with_mysql:-I/usr/include/mysql} %{?_with_pgsql:-I/usr/include/pgsql}"
 
 makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
