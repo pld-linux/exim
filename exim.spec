@@ -108,8 +108,8 @@ install %{SOURCE14} doc/FAQ.txt.gz
 install %{SOURCE15} doc/config.samples.tar.gz
 
 install -d Local
-cp src/EDITME Local/Makefile
-cp exim_monitor/EDITME Local/eximon.conf
+cp -f src/EDITME Local/Makefile
+cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} CFLAGS="%{rpmcflags}" \
@@ -146,12 +146,12 @@ install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
-ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 
@@ -163,7 +163,7 @@ gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
 	if [ "`getgid exim`" != "79" ]; then
-		echo "Warning: group exim haven't gid=79. Corect this before install exim" 1>&2
+		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
@@ -172,7 +172,7 @@ fi
 
 if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
 	if [ "`id -u exim`" != "79" ]; then
-		echo "Warning: user exim doesn't have uid=79. Corect this before installing Exim" 1>&2
+		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
 		exit 1
 	fi
 else
