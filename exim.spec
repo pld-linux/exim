@@ -12,8 +12,6 @@ Version:	3.35
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
-Group(de):	Netzwerkwesen/Server
-Group(pl):	Sieciowe/Serwery
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-%{version}.tar.bz2
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-texinfo-3.30.tar.bz2
 Source2:	%{name}.init
@@ -104,11 +102,6 @@ Summary:	X11 based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X11
 Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
-Group(de):	X11/Applikationen
-Group(es):	X11/Aplicaciones
-Group(pl):	X11/Aplikacje
-Group(pt_BR):	X11/Aplicações
-Group(pt):	X11/Aplicações
 Requires:	applnk
 
 %description X11
