@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.40
-Release:	0.1
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
