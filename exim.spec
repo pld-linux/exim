@@ -7,7 +7,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.22
-Release:	5
+Release:	6
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -131,7 +131,7 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-pld/exinext \
 	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
-	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh,transport-filter.pl} \
+	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
 install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
@@ -240,7 +240,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_bindir}/eximstats
 %attr( 755,root,root) %{_bindir}/exiqsumm
 %attr( 755,root,root) %{_bindir}/unknownuser.sh
-%attr( 755,root,root) %{_bindir}/transport-filter.pl
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_sbindir}/*
 %attr( 755,root,root) %{_libdir}/*
