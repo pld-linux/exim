@@ -16,15 +16,19 @@ Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
+# Source0-md5: 90f9e876b60d00c0a5dd53ece7c85338
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
+# Source1-md5: debc6d3fdd88fd6d9c646ca0495fa92d
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
 Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
 Source7:	http://duncanthrax.net/exiscan/exiscan-%{exiscan_version}.tar.gz
+# Source7-md5: a18eb772895af7b190d17c5b151d4dd9
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source8:	%{name}4-man-021016.tar.bz2
+# Source8-md5: b552704ebf853a401946038a2b7e8e98
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -33,6 +37,7 @@ Source12:	%{name}.sysconfig
 Source13:	%{name}4-FAQ.txt.bz2
 # 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 Source14:	%{name}4-config.samples.tar.bz2
+# Source14-md5: 918b390124cfc7515ba262e49bee750f
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
