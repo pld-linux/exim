@@ -53,6 +53,8 @@ Provides:	smtpdaemon
 Prereq:		/usr/sbin/useradd
 Prereq:		/usr/sbin/groupadd
 Prereq:		/bin/awk
+Prereq:		/sbin/chkconfig
+Prereq:		rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	smtpdaemon
 Obsoletes:	sendmail
@@ -94,12 +96,11 @@ Requires:	applnk
 X Window based monitor & administration utility for the Exim Mail
 Transfer Agent.
 
-%description -l pl X11
+%description X11 -l pl
 Bazuj±ce na X Window narzêdzia dla Exima - monitor i program
 administracyjny.
 
 %prep
-
 %setup -q -T -b 0
 %setup -q -T -D -a 1
 %patch0 -p1
@@ -170,6 +171,9 @@ gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt} \
 	util/transport-filter.pl
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
 	if [ "`getgid exim`" != "79" ]; then
@@ -219,9 +223,6 @@ if [ "$1" = "0" ]; then
 	/usr/sbin/userdel exim
 	/usr/sbin/groupdel exim
 fi
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
