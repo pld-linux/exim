@@ -9,12 +9,14 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.36
-Release:	5
+Release:	6
 Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-%{version}.tar.bz2
+# Source0-md5:	a18cbe15a2973714fe1aa68dffad63c4
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-texinfo-3.30.tar.bz2
+# Source1-md5:	6400cc7988036991b6bbe7ed9b4d9eeb
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}.8
@@ -25,10 +27,10 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-#Source13:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source13:	%{name}-FAQ.txt.gz
-#Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
-Source14:	%{name}-config.samples.tar.gz
+Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/FAQ.html.bz2
+# Source13-md5:	986a3565d5148339a75ef621bb1d86ac
+Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/config.samples.tar.bz2 
+# Source14-md5:	828d711c2eac144cd625fdaf54d60db5
 Source15:	%{name}.pamd
 Patch0:		%{name}-EDITME.patch
 Patch1:		%{name}-monitor-EDITME.patch
@@ -38,6 +40,7 @@ Patch4:		%{name}-Makefile-Default.patch
 Patch5:		%{name}-conf.patch
 Patch6:		%{name}-whoson.patch
 Patch7:		%{name}-whoson-config.patch
+Patch8:		%{name}-smtp_in.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_whoson:BuildRequires: whoson-devel}
@@ -129,6 +132,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %{!?_without_whoson:%patch6 -p1}
+%patch8 -p1
 
 install %{SOURCE13} doc/FAQ.txt.gz
 install %{SOURCE14} doc/config.samples.tar.gz
