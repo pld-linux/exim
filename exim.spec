@@ -113,7 +113,6 @@ Summary:	X11 based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X11
 Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
-Requires:	applnk
 
 %description X11
 X11 based monitor & administration utility for the Exim Mail Transfer
