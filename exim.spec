@@ -88,12 +88,12 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/exim
 install  $RPM_BUILD_ROOT/etc/cron.daily
 cp -a $RPM_SOURCE_DIR/exim.cron.log $RPM_BUILD_ROOT/etc/cron.weekly
 
-install $RPM_SOURCE_DIR/exim.8 $RPM_BUILD_ROOT/usr/man/man8
+install $RPM_SOURCE_DIR/exim.8 $RPM_BUILD_ROOT%{_mandir}/man8
 install $RPM_SOURCE_DIR/aliases $RPM_BUILD_ROOT/etc/aliases
 
 strip $RPM_BUILD_ROOT/usr/{bin,sbin}/*
 
-gzip -9nf $RPM_BUILD_ROOT/usr/man/man8/*
+gzip -9nf $RPM_BUILD_ROOT%{_mandir}/man8/*
 
 %post
 /sbin/chkconfig --add exim
@@ -135,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/exiqsumm
 /usr/bin/unknownuser.sh
 /usr/bin/transport-filter.pl
-/usr/man/man8/*
+%{_mandir}/man8/*
 
 /usr/sbin/sendmail
 /usr/sbin/mailq
