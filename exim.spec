@@ -4,12 +4,12 @@
 # _without_ldap - build without LDAP support
 # _without_whoson - build without WHOSON support
 
-Summary:	University of Cambridge Mail Transfer Agent 
+Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.34
-Release:	1
+Release:	2
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -44,29 +44,34 @@ URL:		http://www.exim.org/
 %{?_with_mysql:BuildRequires: mysql-devel}
 %{?_with_pgsql:BuildRequires: postgresql-devel}
 BuildRequires:	XFree86-devel
-BuildRequires:	texinfo
-BuildRequires:	perl
-BuildRequires:	pam-devel
-BuildRequires:	pcre-devel
 BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6a
+BuildRequires:	pam-devel
+BuildRequires:	pcre-devel
+BuildRequires:	perl
+BuildRequires:	texinfo
+PreReq:		/sbin/chkconfig
+PreReq:		rc-scripts
+Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Requires(post):	/usr/sbin/groupadd
+Requires(post):	/usr/sbin/useradd
+Requires(post):	fileutils
 Provides:	smtpdaemon
-Prereq:		/usr/sbin/useradd
-Prereq:		/usr/sbin/groupadd
-Prereq:		/bin/awk
-Prereq:		/sbin/chkconfig
-Prereq:		rc-scripts
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	smtpdaemon
+Obsoletes:	masqmail
+Obsoletes:	omta
+Obsoletes:	postfix
+Obsoletes:	qmail
+Obsoletes:	qmail-client
 Obsoletes:	sendmail
 Obsoletes:	sendmail-cf
 Obsoletes:	sendmail-doc
-Obsoletes:	postfix
-Obsoletes:	zmailer
 Obsoletes:	smail
-Obsoletes:	omta
-Obsoletes:	qmail
-Obsoletes:	qmail-client
+Obsoletes:	zmailer
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
@@ -114,7 +119,7 @@ Agent.
 Bazuj±ce na X11 narzêdzia dla Exima - monitor i program
 administracyjny.
 
-%description -l pt_BR X11
+%description X11 -l pt_BR
 O monitor exim é um suplemento opcional ao pacote exim. Ele mostra
 informações sobre o processamento do exim em uma janela X11. O
 administrador pode executar uma série de ações de controle a partir
