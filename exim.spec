@@ -5,18 +5,18 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.21-10
+%define		exiscan_version	4.22-10
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.21
-Release:	2
+Version:	4.22
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	16b1290e4c289c7d70294ca447b0a3bc
+# Source0-md5:	938ae799c08ed1899dd27fd50d48f4e5
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.20.tar.bz2
 # Source1-md5:	debc6d3fdd88fd6d9c646ca0495fa92d
 Source2:	%{name}.init
@@ -28,7 +28,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	b22d3ed3e132ea11069b89ae4269f493
+# Source8-md5:	239fb3db3eeb5da7c816ce2765b5db2a
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -46,7 +46,6 @@ Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
-Patch6:		%{name}4-errno.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires:	mysql-devel}
@@ -137,7 +136,6 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%patch6 -p1
 %{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
