@@ -1,0 +1,160 @@
+diff -ruN exim-3.20.orig/src/EDITME exim-3.20/src/EDITME
+--- exim-3.20.orig/src/EDITME	Sat Nov 25 17:02:47 2000
++++ exim-3.20/src/EDITME	Tue Dec  5 09:28:44 2000
+@@ -92,8 +92,8 @@
+ # appropriate code is included in the binary. You then need to set up the
+ # runtime configuration to make use of the mechanism(s) selected.
+ 
+-# AUTH_CRAM_MD5=yes
+-# AUTH_PLAINTEXT=yes
++AUTH_CRAM_MD5=yes
++AUTH_PLAINTEXT=yes
+ 
+ 
+ # The binary directory: This variable defines where the exim binary will be
+@@ -103,7 +103,7 @@
+ # installed in this directory. There is no default for this variable built into
+ # the source files; it must be set in one of the local configuration files.
+ 
+-BIN_DIRECTORY=/usr/exim/bin
++BIN_DIRECTORY=/usr/bin
+ 
+ 
+ # The default distribution of Exim contains only the plain text form of the
+@@ -114,21 +114,21 @@
+ # your info directory; "make install" will then build the info files and
+ # install them there.
+ 
+-# INFO_DIRECTORY=/usr/local/info
++INFO_DIRECTORY=/usr/share/info
+ 
+ 
+ # The compress command is used by the exicyclog script to compress old log
+ # files. Both the name of the command and the suffix that it adds to files
+ # need to be defined here. See also the EXICYCLOG_MAX configuration.
+ 
+-COMPRESS_COMMAND=/opt/gnu/bin/gzip
++COMPRESS_COMMAND=/bin/gzip
+ COMPRESS_SUFFIX=gz
+ 
+ 
+ # If the exigrep utility is fed compressed log files, it tries to uncompress
+ # them using this command.
+ 
+-ZCAT_COMMAND=/opt/gnu/bin/zcat
++ZCAT_COMMAND=/bin/zcat
+ 
+ 
+ # The runtime configuration file: This variable defines where Exim's runtime
+@@ -137,7 +137,7 @@
+ # location of all other runtime files and directories can be changed in the
+ # runtime configuration file.
+ 
+-CONFIGURE_FILE=/usr/exim/configure
++CONFIGURE_FILE=/etc/mail/exim.conf
+ 
+ 
+ # In some installations there may be multiple machines sharing file systems,
+@@ -148,7 +148,7 @@
+ # period (for example, /usr/exim/configure.host.in.some.domain. If this file
+ # does not exist, then the bare configuration file name is tried.
+ 
+-# CONFIGURE_FILE_USE_NODE=yes
++CONFIGURE_FILE_USE_NODE=yes
+ 
+ 
+ # In some esoteric configurations two different versions of Exim are run,
+@@ -229,8 +229,8 @@
+ # "security" setting, which controls how privilege is released (setuid vs
+ # seteuid).
+ 
+-# EXIM_UID=
+-# EXIM_GID=
++EXIM_UID=79
++EXIM_GID=79
+ 
+ 
+ # Compiling the Exim monitor: If you want to compile the Exim monitor,
+@@ -284,7 +284,7 @@
+ # "panic", or "reject" to form the final file name. For example, some
+ # installations may want something like this:
+ 
+-# LOG_FILE_PATH=/var/log/exim_%slog
++LOG_FILE_PATH=/var/log/exim/%s.log
+ 
+ # which results in files with names /var/log/exim_mainlog, etc. The directory
+ # in which the log files are placed must exist; Exim does not try to create
+@@ -409,7 +410,7 @@
+ # the file name, allowing sites that run two separate daemons to distinguish
+ # them. Some installations may want something like this
+ 
+-# PID_FILE_PATH=/var/lock/exim%s.pid
++PID_FILE_PATH=/var/run/exim%s.pid
+ 
+ # If PID_FILE_PATH is not defined, Exim writes a file in its spool directory
+ # (see SPOOL_DIRECTORY below) with the name "exim-daemon.pid" for the standard
+@@ -458,7 +459,7 @@
+ # uid and gid.
+ 
+ # Many installations will want something like this:
+-# SPOOL_DIRECTORY=/var/spool/exim
++SPOOL_DIRECTORY=/var/spool/exim
+ 
+ # Others may prefer to keep all Exim things under one directory:
+ # SPOOL_DIRECTORY=/usr/exim/spool
+@@ -476,7 +477,7 @@
+ # member of the Exim group, change the value to 0640. This is particularly
+ # relevant if you are going to run the Exim monitor.
+ 
+-# SPOOL_MODE=0600
++SPOOL_MODE=0640
+ 
+ 
+ # If STDERR_FILE is defined then the -df command line option causes Exim to
+@@ -490,9 +491,9 @@
+ # of formats. The code for three specialist formats, maildir, mailstore, and
+ # MBX, is included only when requested by the following settings:
+ 
+-# SUPPORT_MAILDIR=yes
+-# SUPPORT_MAILSTORE=yes
+-# SUPPORT_MBX=yes
++SUPPORT_MAILDIR=yes
++SUPPORT_MAILSTORE=yes
++SUPPORT_MBX=yes
+ 
+ 
+ # Moving frozen messages: If the following is uncommented, Exim is compiled
+@@ -510,11 +511,12 @@
+ # support, which is intended for use in conjunction with the SMTP AUTH
+ # facilities, is included only when requested by the following setting:
+ 
+-# SUPPORT_PAM=yes
++SUPPORT_PAM=yes
+ 
+ # You probably need to add -lpam to EXTRALIBS, and in some releases of
+ # GNU/Linux -ldl is also needed.
+ 
++EXTRALIBS=-lpam -ldl
+ 
+ # Exim can be built to support the SMTP STARTTLS command, which implements
+ # Transport Layer Security using SSL (Secure Sockets Layer). To do this, you
+@@ -522,8 +524,8 @@
+ # code of its own. Uncomment the following lines if you want to build Exim
+ # with TLS support.
+ 
+-# SUPPORT_TLS=yes
+-# TLS_LIBS=-lssl -lcrypto
++SUPPORT_TLS=yes
++TLS_LIBS=-lssl -lcrypto
+ 
+ # If you are running Exim as a server, note that just building it with TLS
+ # support is not usually all you need to do. You normally need to set up a
+@@ -565,7 +567,7 @@
+ # This one is special-purpose, and commonly not required, so do not include
+ # it by default.
+ 
+-# TRANSPORT_LMTP=yes
++TRANSPORT_LMTP=yes
+ 
+ 
+ # TCP wrappers: If you want to use tcpwrappers from within Exim, uncomment

@@ -1,0 +1,90 @@
+--- exim.conf.orig	Mon Jun 18 13:03:23 2001
++++ exim.conf	Sat Jun 30 13:10:36 2001
+@@ -106,7 +106,7 @@
+ # calling its own SMTP port, is locked out by default. If you want to permit
+ # relaying from the local host, you should set
+ #
+-# host_accept_relay = localhost
++host_accept_relay = localhost
+ #
+ # If you want to permit relaying through your host from certain hosts or IP
+ # networks, you need to set the option appropriately, for example
+@@ -196,6 +196,17 @@
+ 
+ timeout_frozen_after = 7d
+ 
++# This option unfrozes frozen messages after specified time. Some critical
++# situations can be temporaty (such as DNS failures).
++
++auto_thaw = 12h
++
++# This emulates sendmails "newaliases". Keep in mind that the alias
++# transport does use lsearch by default. remember to change this,
++# if you want to use DBM-Lookups.
++
++bi_command=/usr/bin/newaliases
++
+ end
+ 
+ 
+@@ -224,9 +235,10 @@
+ # particular group instead of using the sticky bit. The commented options below
+ # show how this can be done.
+ 
++
+ local_delivery:
+   driver = appendfile
+-  file = /var/mail/$local_part
++  file = ${home}/Mail/Mailbox
+   delivery_date_add
+   envelope_to_add
+   return_path_add
+@@ -241,6 +253,21 @@
+ # to complete normally. You can set different transports for aliases and
+ # forwards if you want to - see the references to address_pipe in the directors
+ # section below.
++# Modification by Florian Wallner <wallner@speed-link.de> make use of
++# procmail as director if a user has a .procmailrc to avoid breaking
++# something that worked before.
++
++procmail:
++  driver = pipe
++  command = "/usr/bin/procmail -d ${local_part}"
++#  return_path_add
++#  delivery_date_add
++#  envelope_to_add
++#  check_string = "From "
++#  escape_string = ">From "
++  user = $local_part
++#  group = mail
++#  group = $local_part
+ 
+ address_pipe:
+   driver = pipe
+@@ -292,9 +319,9 @@
+ 
+ system_aliases:
+   driver = aliasfile
+-  file = /etc/aliases
+-  search_type = lsearch
+-# user = exim
++  file = /var/spool/exim/db/aliases
++  search_type = dbm
++  user = exim
+   file_transport = address_file
+   pipe_transport = address_pipe
+ 
+@@ -331,6 +358,13 @@
+ 
+ 
+ # This director matches local user mailboxes.
++
++
++procmail:
++  driver = localuser
++  require_files = ${local_part}:${home}/.procmailrc
++  transport = procmail
++
+ 
+ localuser:
+   driver = localuser
