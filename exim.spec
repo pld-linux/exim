@@ -232,7 +232,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
 	if [ "`/usr/bin/getgid exim`" != 79 ]; then
-		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
+		echo "Warning: group exim doesn't have gid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
