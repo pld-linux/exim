@@ -5,24 +5,24 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.14-26
+%define		exiscan_version	4.20-26
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.14
-Release:	2
-Epoch:		2
+Version:	4.20
+Release:	1
+Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.10.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
 Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
-Source7:	http://duncanthrax.net/exiscan/exiscan-%{exiscan_version}.tar.bz2
+Source7:	http://duncanthrax.net/exiscan/exiscan-%{exiscan_version}.tar.gz
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source8:	%{name}4-man-021016.tar.bz2
 Source9:	%{name}.aliases
