@@ -318,7 +318,11 @@ fi
 %attr(755,root,root) %{_bindir}/unknownuser.sh
 %attr(755,root,root) %{_bindir}/newaliases
 %attr(755,root,root) %{_bindir}/convert4r4
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_sbindir}/mailq
+%attr(755,root,root) %{_sbindir}/rmail
+%attr(755,root,root) %{_sbindir}/rsmtp
+%attr(755,root,root) %{_sbindir}/runq
+%attr(755,root,root) %{_sbindir}/sendmail
 %attr(755,root,root) /usr/lib/sendmail
 %attr(754,root,root) /etc/cron.weekly/exim.cron.db
 %attr(750,exim,root) %dir %{_var}/log/exim
