@@ -36,9 +36,9 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	f1f324a742d61158bfd621268804e502
+# Source13-md5:	8e188230dc95a0117cafd1fd804d2dd8
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	16125ca6f62700b8f4a7163d055a7c84
+# Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
