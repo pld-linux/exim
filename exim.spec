@@ -234,7 +234,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
 %attr( 775,root,mail) %dir %{_var}/mail
-%attr( 700,exim,root) %dir %{_var}/spool/exim
+%attr( 770,root,exim) %dir %{_var}/spool/exim
 %attr( 750,exim,exim) %dir %{_var}/spool/exim/db
 %attr( 700,exim,root) %dir %{_var}/spool/exim/input
 %attr( 750,exim,root) %dir %{_var}/spool/exim/msglog
