@@ -1,11 +1,11 @@
 --- exim.conf	Thu Jul 19 18:24:41 2001
 +++ exim.conf-whoson	Thu Jul 19 18:26:15 2001
-@@ -106,7 +106,7 @@
+@@ -106,7 +106,8 @@
  # calling its own SMTP port, is locked out by default. If you want to permit
  # relaying from the local host, you should set
  #
--host_accept_relay = localhost
-+host_accept_relay = localhost : net-whoson;$key
++# host_accept_relay = localhost : net-whoson;$key
+ host_accept_relay = localhost
  #
  # If you want to permit relaying through your host from certain hosts or IP
  # networks, you need to set the option appropriately, for example
