@@ -52,8 +52,8 @@ URL:		http://www.exim.org/
 %{!?_without_pgsql:BuildRequires:	postgresql-devel}
 %{!?_without_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	XFree86-devel
-BuildRequires:	db-devel
-BuildRequires:	openssl-devel >= 0.9.7b
+BuildRequires:	db3-devel
+BuildRequires:	openssl-devel >= 0.9.6j
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 5.6.0
