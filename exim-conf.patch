@@ -1,5 +1,5 @@
 --- exim.conf.orig	Fri Jan 19 10:32:07 2001
-+++ exim.conf	Wed May 16 20:10:39 2001
++++ exim.conf	Fri May 18 21:41:03 2001
 @@ -106,7 +106,7 @@
  # calling its own SMTP port, is locked out by default. If you want to permit
  # relaying from the local host, you should set
@@ -21,20 +21,10 @@
  end
  
  
-@@ -224,9 +229,20 @@
+@@ -224,9 +229,10 @@
  # particular group instead of using the sticky bit. The commented options below
  # show how this can be done.
  
-+
-+procmail:
-+  driver = pipe
-+  command = "/usr/bin/procmail -d ${local_part}"
-+  return_path_add
-+  check_string = "From "
-+  escape_string = ">From "
-+  user = $local_part
-+  group = $local_part
-+
 +
  local_delivery:
    driver = appendfile
@@ -43,7 +33,7 @@
    delivery_date_add
    envelope_to_add
    return_path_add
-@@ -241,6 +257,21 @@
+@@ -241,6 +247,21 @@
  # to complete normally. You can set different transports for aliases and
  # forwards if you want to - see the references to address_pipe in the directors
  # section below.
@@ -65,7 +55,7 @@
  
  address_pipe:
    driver = pipe
-@@ -292,9 +323,9 @@
+@@ -292,9 +313,9 @@
  
  system_aliases:
    driver = aliasfile
@@ -78,7 +68,7 @@
    file_transport = address_file
    pipe_transport = address_pipe
  
-@@ -331,6 +362,13 @@
+@@ -331,6 +352,13 @@
  
  
  # This director matches local user mailboxes.
