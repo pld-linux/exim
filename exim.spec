@@ -297,34 +297,34 @@ fi
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
 %dir %{_sysconfdir}/mail
-%attr( 640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
-%{?with_saexim:%attr( 640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
-%attr( 754,root,root) /etc/rc.d/init.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
+%{?with_saexim:%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
+%attr(754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
-%attr( 770,root,exim) %dir %{_var}/spool/exim
-%attr( 750,exim,exim) %dir %{_var}/spool/exim/db
-%attr( 700,exim,root) %dir %{_var}/spool/exim/input
-%attr( 750,exim,root) %dir %{_var}/spool/exim/msglog
-%attr( 755,root,root) %{_bindir}/exim_*
-%attr( 755,root,root) %{_bindir}/exinext
-%attr( 755,root,root) %{_bindir}/exiwhat
-%attr( 755,root,root) %{_bindir}/exicyclog
-%attr( 755,root,root) %{_bindir}/exigrep
-%attr( 755,root,root) %{_bindir}/eximstats
-%attr( 755,root,root) %{_bindir}/exiqsumm
-%attr( 755,root,root) %{_bindir}/unknownuser.sh
-%attr( 755,root,root) %{_bindir}/newaliases
-%attr( 755,root,root) %{_bindir}/convert4r4
-%attr( 755,root,root) %{_sbindir}/*
-%attr( 755,root,root) /usr/lib/sendmail
-%attr( 754,root,root) /etc/cron.weekly/exim.cron.db
-%attr( 750,exim,root) %dir %{_var}/log/exim
-%attr( 750,exim,root) %dir %{_var}/log/archiv/exim
-%attr( 640,exim,root) %ghost %{_var}/log/exim/*
-%attr( 640,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/pam.d/smtp
+%attr(770,root,exim) %dir %{_var}/spool/exim
+%attr(750,exim,exim) %dir %{_var}/spool/exim/db
+%attr(700,exim,root) %dir %{_var}/spool/exim/input
+%attr(750,exim,root) %dir %{_var}/spool/exim/msglog
+%attr(755,root,root) %{_bindir}/exim_*
+%attr(755,root,root) %{_bindir}/exinext
+%attr(755,root,root) %{_bindir}/exiwhat
+%attr(755,root,root) %{_bindir}/exicyclog
+%attr(755,root,root) %{_bindir}/exigrep
+%attr(755,root,root) %{_bindir}/eximstats
+%attr(755,root,root) %{_bindir}/exiqsumm
+%attr(755,root,root) %{_bindir}/unknownuser.sh
+%attr(755,root,root) %{_bindir}/newaliases
+%attr(755,root,root) %{_bindir}/convert4r4
+%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) /usr/lib/sendmail
+%attr(754,root,root) /etc/cron.weekly/exim.cron.db
+%attr(750,exim,root) %dir %{_var}/log/exim
+%attr(750,exim,root) %dir %{_var}/log/archiv/exim
+%attr(640,exim,root) %ghost %{_var}/log/exim/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/pam.d/smtp
 %{_infodir}/*
 %{_mandir}/man8/*
 
