@@ -4,8 +4,8 @@
 %bcond_without	whoson	# without whoson support
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
+%bcond_without	spf	# without spf support
 %bcond_with	saexim	# with sa-exim support
-%bcond_with	spf	# with spf support
 #
 %define		exiscan_version	4.34-22
 %define		saexim_version 3.1
