@@ -1,6 +1,35 @@
+diff -uNr exim-3.31/exim-texinfo-3.30/doc/spec.texinfo exim-3.31-whoson/exim-texinfo-3.30/doc/spec.texinfo
+--- exim-3.31/exim-texinfo-3.30/doc/spec.texinfo	Thu Jul 19 18:41:19 2001
++++ exim-3.31-whoson/exim-texinfo-3.30/doc/spec.texinfo	Thu Jul 19 18:40:46 2001
+@@ -3586,6 +3586,7 @@
+ 
+ LOOKUP_DBM=yes
+ LOOKUP_LSEARCH=yes
++LOOKUP_WHOSON=yes
+ @end example
+ 
+ which means that only linear searching and DBM lookups are included by default.
+@@ -3758,6 +3759,17 @@
+ "More about dnsdb" below.
+ 
+ @item
++@dfn{whoson}: This is the lookup type that performs lookups for relay allowed
++dialups using WHOSON (pop before smtp) service. You have to give it an IP
++address of host in question. It returns username associated in WHOSON database
++with queried IP address, or nothing, if given IP is unknown. Primary use is:
++
++@example
++
++host_relay_accept = localhost : net-whoson;$key
++@end example
++
++@item
+ @dfn{testdb}: This is a lookup type which is for use in debugging Exim. It is
+ not likely to be useful in normal operation.
+ @end itemize
 diff -uNr exim-3.31/scripts/MakeLinks exim-3.31-whoson/scripts/MakeLinks
 --- exim-3.31/scripts/MakeLinks	Mon Jul  2 11:46:41 2001
-+++ exim-3.31-whoson/scripts/MakeLinks	Wed Jul 18 23:21:46 2001
++++ exim-3.31-whoson/scripts/MakeLinks	Thu Jul 19 18:28:52 2001
 @@ -79,6 +79,8 @@
  ln -s ../../src/lookups/pgsql.c          pgsql.c
  ln -s ../../src/lookups/testdb.h         testdb.h
@@ -11,9 +40,9 @@ diff -uNr exim-3.31/scripts/MakeLinks exim-3.31-whoson/scripts/MakeLinks
  
  # Likewise for the code for the directors
 diff -uNr exim-3.31/src/EDITME exim-3.31-whoson/src/EDITME
---- exim-3.31/src/EDITME	Mon Jul  2 11:46:41 2001
-+++ exim-3.31-whoson/src/EDITME	Wed Jul 18 20:38:52 2001
-@@ -577,3 +577,5 @@
+--- exim-3.31/src/EDITME	Thu Jul 19 18:41:19 2001
++++ exim-3.31-whoson/src/EDITME	Thu Jul 19 18:28:52 2001
+@@ -578,3 +578,5 @@
  # USE_TCP_WRAPPERS=yes
  
  # End of EDITME
@@ -21,7 +50,7 @@ diff -uNr exim-3.31/src/EDITME exim-3.31-whoson/src/EDITME
 +LOOKUP_WHOSON=yes
 diff -uNr exim-3.31/src/config.h.defaults exim-3.31-whoson/src/config.h.defaults
 --- exim-3.31/src/config.h.defaults	Mon Jul  2 11:46:41 2001
-+++ exim-3.31-whoson/src/config.h.defaults	Wed Jul 18 20:39:10 2001
++++ exim-3.31-whoson/src/config.h.defaults	Thu Jul 19 18:28:52 2001
 @@ -106,3 +106,5 @@
  #define ROOT_UID              0
  
@@ -30,7 +59,7 @@ diff -uNr exim-3.31/src/config.h.defaults exim-3.31-whoson/src/config.h.defaults
 +#define LOOKUP_WHOSON
 diff -uNr exim-3.31/src/drtables.c exim-3.31-whoson/src/drtables.c
 --- exim-3.31/src/drtables.c	Mon Jul  2 11:46:42 2001
-+++ exim-3.31-whoson/src/drtables.c	Wed Jul 18 23:52:33 2001
++++ exim-3.31-whoson/src/drtables.c	Thu Jul 19 18:28:52 2001
 @@ -75,6 +75,10 @@
  #include "lookups/testdb.h"
  #endif
@@ -64,7 +93,7 @@ diff -uNr exim-3.31/src/drtables.c exim-3.31-whoson/src/drtables.c
  
 diff -uNr exim-3.31/src/lookups/Makefile exim-3.31-whoson/src/lookups/Makefile
 --- exim-3.31/src/lookups/Makefile	Mon Jul  2 11:46:43 2001
-+++ exim-3.31-whoson/src/lookups/Makefile	Wed Jul 18 21:42:36 2001
++++ exim-3.31-whoson/src/lookups/Makefile	Thu Jul 19 18:28:52 2001
 @@ -4,7 +4,7 @@
  # defined, dummy modules get compiled.
  
@@ -83,7 +112,7 @@ diff -uNr exim-3.31/src/lookups/Makefile exim-3.31-whoson/src/lookups/Makefile
  # End
 diff -uNr exim-3.31/src/lookups/whoson.c exim-3.31-whoson/src/lookups/whoson.c
 --- exim-3.31/src/lookups/whoson.c	Thu Jan  1 01:00:00 1970
-+++ exim-3.31-whoson/src/lookups/whoson.c	Wed Jul 18 23:23:24 2001
++++ exim-3.31-whoson/src/lookups/whoson.c	Thu Jul 19 18:28:52 2001
 @@ -0,0 +1,57 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *
@@ -144,7 +173,7 @@ diff -uNr exim-3.31/src/lookups/whoson.c exim-3.31-whoson/src/lookups/whoson.c
 +/* End of lookups/whoson.c */
 diff -uNr exim-3.31/src/lookups/whoson.h exim-3.31-whoson/src/lookups/whoson.h
 --- exim-3.31/src/lookups/whoson.h	Thu Jan  1 01:00:00 1970
-+++ exim-3.31-whoson/src/lookups/whoson.h	Wed Jul 18 21:43:17 2001
++++ exim-3.31-whoson/src/lookups/whoson.h	Thu Jul 19 18:28:52 2001
 @@ -0,0 +1,13 @@
 +/*************************************************
 +*     Exim - an Internet mail transport agent    *

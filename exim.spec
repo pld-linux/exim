@@ -36,6 +36,7 @@ Patch3:		%{name}-use_system_pcre.patch
 Patch4:		%{name}-Makefile-Default.patch
 Patch5:		%{name}-conf.patch
 Patch6:		%{name}-whoson.patch
+Patch7:		%{name}-whoson-config.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_whoson:BuildRequires: whoson-devel}
@@ -148,6 +149,7 @@ install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install src/configure.default $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
 cd $RPM_BUILD_ROOT%{_sysconfdir}/mail
 patch -p0 < %{PATCH5}
+%{!?_without_whoson:patch -p0 < %{PATCH7}}
 cd -
 install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
