@@ -171,27 +171,54 @@ gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 	util/transport-filter.pl
 
 %pre
-GID=79; %groupadd
-UID=79; HOMEDIR=/var/spool/exim; COMMENT="Exim pseudo user"; %useradd
+if [ -n "`/usr/bin/getgid exim`" ]; then
+	if [ "`getgid exim`" != "79" ]; then
+		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/groupadd -g 79 -r -f exim
+fi
+
+if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
+	if [ "`id -u exim`" != "79" ]; then
+		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
+fi
 
 %post
 umask 022
-DESC="exim daemon"; %chkconfig_add
+/sbin/chkconfig --add %{name}
+if [ -f /var/lock/subsys/exim ]; then
+	/etc/rc.d/init.d/%{name} restart >&2
+else
+	echo "Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon."
+fi
 
 if [ ! -f /etc/mail/mailname ]; then
 	rm -f /etc/mail/mailname && hostname -f > /etc/mail/mailname
 	chmod 644 /etc/mail/mailname
 fi
 newaliases
-%fix_info_dir
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
 %preun
-%chkconfig_del
+if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/exim ]; then
+		/etc/rc.d/init.d/exim stop >&2
+	fi
+	/sbin/chkconfig --del %{name}
+fi
 
 %postun
-%fix_info_dir
-%userdel
-%groupdel
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
+if [ "$1" = "0" ]; then
+	/usr/sbin/userdel exim
+	/usr/sbin/groupdel exim
+fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
