@@ -232,7 +232,7 @@ if [ ! -f /etc/mail/mailname ]; then
 	rm -f /etc/mail/mailname && hostname -f > /etc/mail/mailname
 	chmod 644 /etc/mail/mailname
 fi
-newaliases
+
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
 %preun
