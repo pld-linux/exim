@@ -74,7 +74,7 @@ makeinfo --no-split --output exim_overview.info	exim-texinfo-*/doc/oview.texinfo
 makeinfo --no-split --output exim.info		exim-texinfo-*/doc/spec.texinfo
 makeinfo --no-split --output exim_filter.info	exim-texinfo-*/doc/filter.texinfo
 
-make "CFLAGS=$RPM_OPT_FLAGS"
+%{__make} "CFLAGS=$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
