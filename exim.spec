@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.20
-Release:	3
+Release:	4
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -36,6 +36,7 @@ Source13:	%{name}4-FAQ.txt.bz2
 # Source13-md5:	6ae34c36679bd423b32643464a06c4fd
 # 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 Source14:	%{name}4-config.samples.tar.bz2
+Source15:	%{name}4-smtp.pamd
 # Source14-md5:	918b390124cfc7515ba262e49bee750f
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
@@ -44,6 +45,7 @@ Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
 Patch6:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
+Patch7:		%{name}4-saslauthd.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires: mysql-devel}
@@ -135,6 +137,7 @@ desta interface.
 %patch4 -p1
 %patch5 -p0
 %{!?_without_exiscan:bzip2 -d -c %{PATCH6} | patch -p1}
+%patch7 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -159,7 +162,7 @@ makeinfo --force exim-texinfo-*/doc/*.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,pam.d}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
@@ -181,6 +184,7 @@ install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
 install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
+install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
@@ -283,6 +287,7 @@ fi
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
+%attr( 640,root,root) %{_sysconfdir}/pam.d/smtp
 %{_infodir}/*
 %{_mandir}/man8/*
 
