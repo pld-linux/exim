@@ -146,10 +146,10 @@ if [ ! -f /etc/mail/mailname ]; then
 	chmod 644 /etc/mail/mailname
 fi
 newaliases
-[ -x /usr/sbin/fix-info-dir ] && /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
 
 %preun
-[ -x /usr/sbin/fix-info-dir ] && /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del %{name}
 	/etc/rc.d/init.d/%{name} stop >&2
