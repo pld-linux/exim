@@ -16,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.42
-Release:	0.1
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -43,7 +43,6 @@ Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 # Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
 Source15:	%{name}4-smtp.pamd
-# Source15-md5:	70005b790c4eaf059622e29bf1021bd5
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
 # Source17-md5:	34892f195384c127f7c40c461a9ef421
