@@ -67,6 +67,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
+BuildRequires:	rpmbuild(macros) >= 1.159
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
@@ -79,7 +80,9 @@ Requires(post):	fileutils
 Requires(post):	/bin/hostname
 Requires(post,preun):	/sbin/chkconfig
 Requires:	pam >= 0.77.3
+Provides:	group(exim)
 Provides:	smtpdaemon
+Provides:	user(exim)
 Obsoletes:	courier
 Obsoletes:	masqmail
 Obsoletes:	nullmailer
@@ -234,21 +237,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
-	if [ "`getgid exim`" != "79" ]; then
+	if [ "`/usr/bin/getgid exim`" != 79 ]; then
 		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/groupadd -g 79 -r -f exim
+	/usr/sbin/groupadd -g 79 exim 1>&2
 fi
 
 if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
-	if [ "`id -u exim`" != "79" ]; then
-		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
+	if [ "`/bin/id -u exim`" != 79 ]; then
+		echo "Warning: user exim doesn't have uid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
+	/usr/sbin/useradd -u 79 -d /var/spool/exim -s /bin/false \
+		-c "Exim pseudo user" -g exim exim 1>&2
 fi
 
 %post
@@ -278,8 +282,8 @@ fi
 %postun
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 if [ "$1" = "0" ]; then
-	/usr/sbin/userdel exim
-	/usr/sbin/groupdel exim
+	%userremove exim
+	%groupremove exim
 fi
 
 %triggerpostun -- exim  < 3.90
