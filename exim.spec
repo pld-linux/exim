@@ -137,7 +137,7 @@ install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
 install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
 
 install %{SOURCE5} .
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily/
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly/
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
