@@ -9,15 +9,6 @@
  #
  # If you want to permit relaying through your host from certain hosts or IP
  # networks, you need to set the option appropriately, for example
-@@ -172,7 +172,7 @@
- 
- # rbl_domains = rbl.maps.vix.com
- # rbl_domains = rbl.maps.vix.com:dul.maps.vix.com
--
-+# rbl_domains = blackholes.mail-abuse.org:relays.mail-abuse.org
- 
- # If you want Exim to support the "percent hack" for all your local domains,
- # uncomment the following line. This is the feature by which mail addressed
 @@ -196,6 +196,17 @@
  
  timeout_frozen_after = 7d
