@@ -34,7 +34,6 @@ Obsoletes:	smail
 Obsoletes:	qmail
 Prereq:		/usr/sbin/useradd
 Prereq:		/usr/sbin/groupadd
-Prereq:		/usr/sbin/fix-info-dir
 BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
