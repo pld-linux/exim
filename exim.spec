@@ -34,6 +34,7 @@ BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
+BuildRequires:	db3-devel
 Provides:	smtpdaemon
 Prereq:		/usr/sbin/useradd
 Prereq:		/usr/sbin/groupadd
@@ -83,6 +84,9 @@ Bazuj±ce na X Window narzêdzia dla Exima - monitor i program
 administracyjny.
 
 %prep
+#%set_MAIL qwe
+#exit 1
+
 %setup -q -T -b 0
 %setup -q -T -D -a 1
 %patch0 -p1
@@ -109,7 +113,8 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
 	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
 
-install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuildon.bin,_dumpdb,_lock,ext} \
+install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
+	build-Linux-pld/exinext \
 	build-Linux-pld/exi{cyclog,next,what} %{SOURCE11} \
 	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
 	$RPM_BUILD_ROOT%{_bindir}
@@ -124,7 +129,7 @@ install	%{SOURCE12} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/mail/
 install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
-install	{oview,spec,filter}.info* $RPM_BUILD_ROOT%{_infodir}/
+install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
