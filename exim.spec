@@ -1,7 +1,7 @@
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
-Version:	3.15
+Version:	3.16
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
@@ -25,6 +25,7 @@ Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.
 Patch0:		exim-EDITME.patch
 Patch1:		exim-monitor-EDITME.patch
 Patch2:		exim-texinfo.patch
+Patch3:		exim-use_system_pcre.patch
 Provides:	smtpdaemon
 Obsoletes:	smtpdaemon
 Obsoletes:	sendmail
@@ -39,6 +40,7 @@ BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
+BuildRequires:	pcre-devel
 Requires:	openldap
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -81,6 +83,7 @@ administracyjny.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p0
+%patch3 -p1
 
 install %{SOURCE14} doc
 install %{SOURCE15} doc
