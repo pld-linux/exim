@@ -1,7 +1,12 @@
+# Conditional build:
+# pgsql - build wihtout PostgreSQ support
+# mysql - build wihtout MySQL support
+# no_ldap - build without LDAP support
+
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
-Version:	3.16
+Version:	3.20
 Release:	2
 License:	GPL
 Group:		Networking/Daemons
@@ -28,8 +33,11 @@ Patch0:		%{name}-EDITME.patch
 Patch1:		%{name}-monitor-EDITME.patch
 Patch2:		%{name}-texinfo.patch
 Patch3:		%{name}-use_system_pcre.patch
+Patch4:		%{name}-Makefile-Default.patch
 URL:		http://www.exim.org/
-BuildRequires:	openldap-devel
+%{!?no_ldap:BuildRequires:      openldap-devel >= 2.0.0}
+%{?mysql:BuildRequires: mysql-devel}
+%{?pgsql:BuildRequires: postgresql-devel}
 BuildRequires:	texinfo
 BuildRequires:	perl
 BuildRequires:	pam-devel
@@ -85,8 +93,6 @@ Bazuj±ce na X Window narzêdzia dla Exima - monitor i program
 administracyjny.
 
 %prep
-#%set_MAIL qwe
-#exit 1
 
 %setup -q -T -b 0
 %setup -q -T -D -a 1
@@ -94,6 +100,7 @@ administracyjny.
 %patch1 -p1
 %patch2 -p0
 %patch3 -p1
+%patch4 -p1
 
 install %{SOURCE14} doc/FAQ.txt.gz
 install %{SOURCE15} doc/config.samples.tar.gz
@@ -103,7 +110,12 @@ cp src/EDITME Local/Makefile
 cp exim_monitor/EDITME Local/eximon.conf
 
 %build
-%{__make} CFLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}"
+%{__make} CFLAGS="%{!?debug:$RPM_OPT_FLAGS}%{?debug:-O -g}" \
+	%{?mysql:LOOKUP_MYSQL=yes} \
+	%{?pgsql:LOOKUP_PGSQL=yes} \
+	%{!?no_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
+	LOOKUP_LIBS="%{!?no_ldap:-lldap -llber} %{?mysql:-lmysqlclient} %{?pgsql:-lpq}" \
+	LOOKUP_INCLUDE="%{?mysql:-I/usr/include/mysql} %{?pgsql:-I/usr/include/pgsql}"
 
 makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
 
