@@ -114,7 +114,7 @@ cp exim_monitor/EDITME Local/eximon.conf
 	%{?bcond_on_mysql:LOOKUP_MYSQL=yes} \
 	%{!?bcond_off_pgsql:LOOKUP_PGSQL=yes} \
 	%{!?bcond_off_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?bcond_off_ldap:-lldap -llber} %{!?bcond_off_mysql:-lmysqlclient} %{!?bcond_off_pgsql:-lpq}" \
+	LOOKUP_LIBS="%{!?bcond_off_ldap:-lldap -llber} %{?bcond_on_mysql:-lmysqlclient} %{!?bcond_off_pgsql:-lpq}" \
 	LOOKUP_INCLUDE="%{!?bcond_off_mysql:-I/usr/include/mysql} %{!?bcond_off_pgsql:-I/usr/include/pgsql}"
 
 makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
