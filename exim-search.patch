@@ -1,0 +1,11 @@
+--- exim-4.11/src/search.c.org	Mon Dec  9 11:42:55 2002
++++ exim-4.11/src/search.c	Thu Dec 12 22:40:55 2002
+@@ -65,7 +65,7 @@
+ while (top > bot)
+   {
+   int mid = (top + bot)/2;
+-  int c = Ustrncmp(name, lookup_list[mid].name, len);
++  int c = Ustrcmp(name, lookup_list[mid].name);
+   if (c == 0)
+     {
+     if (lookup_list[mid].find != NULL) return mid;
