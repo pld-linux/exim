@@ -27,6 +27,8 @@ Source6:	%{name}on.desktop
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
+Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
+# Source8-md5:	e0ea3a68600047832ddadac6684242f8
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -44,9 +46,8 @@ Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
-Patch6:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-Patch7:		%{name}4-saslauthd.patch
-Patch8:		%{name}-DSEARCH.patch
+Patch6:		%{name}4-saslauthd.patch
+Patch7:		%{name}-DSEARCH.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires: mysql-devel}
@@ -137,8 +138,8 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%{!?_without_exiscan:bzip2 -d -c %{PATCH6} | patch -p1}
-%patch7 -p1
+%{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
+%patch6 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -147,7 +148,7 @@ install -d Local
 cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
-%patch8 -p1
+%patch7 -p1
 
 %build
 %{__make} \
