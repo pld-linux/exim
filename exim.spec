@@ -5,20 +5,20 @@
 %bcond_without	ldap		# build without LDAP support
 %bcond_without	exiscan		# build without exiscan support
 #
-%define		exiscan_version	4.34-22
+%define		exiscan_version	4.40-23
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.34
-Release:	0.2
+Version:	4.40
+Release:	0.1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	bab611edc153867334b1c7cffd8fe3c0
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.30.tar.bz2
-# Source1-md5:	dceb3ce755543ababd7362437a3c1141
+# Source0-md5:	af6db81a995046e1e30bcfda6ed0b357
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.40.tar.bz2
+# Source1-md5:	cc91bd804ee0f7fd70991e2e6b529033
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -34,9 +34,9 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	60be625d8a2c91219554ec31b15a8d18
+# Source13-md5:	8e188230dc95a0117cafd1fd804d2dd8
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	73b68438e0032ca63185c9aa38f44bd8
+# Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
