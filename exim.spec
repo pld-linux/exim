@@ -56,9 +56,9 @@ Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires:	/usr/sbin/groupdel
-Requires:	/usr/sbin/userdel
 Requires(post):	fileutils
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 Provides:	smtpdaemon
 Obsoletes:	smtpdaemon
 Obsoletes:	masqmail
