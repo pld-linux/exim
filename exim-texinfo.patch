@@ -15,7 +15,7 @@ diff -urN exim-texinfo-3.10.orig/doc/filter.texinfo exim-texinfo-3.10/doc/filter
 +@format
 +@dircategory Daemons :
 +@direntry
-+* Exim: (exim_filter).			Message Transfer Agent: Filters
++* Exim Filters: (exim_filter).		Message Transfer Agent
 +@end direntry
 +@end format
 +@end ifinfo
@@ -39,7 +39,7 @@ diff -urN exim-texinfo-3.10.orig/doc/oview.texinfo exim-texinfo-3.10/doc/oview.t
 +@format
 +@dircategory Daemons :
 +@direntry
-+* Exim: (exim_oview).			Message Transfer Agent: Overview
++* Exim Overview: (exim_oview).		Message Transfer Agent
 +@end direntry
 +@end format
 +@end ifinfo
@@ -63,7 +63,7 @@ diff -urN exim-texinfo-3.10.orig/doc/spec.texinfo exim-texinfo-3.10/doc/spec.tex
 +@format
 +@dircategory Daemons :
 +@direntry
-+* Exim: (exim).			Message Transfer Agent: Specification
++* Exim: (exim).				Message Transfer Agent
 +@end direntry
 +@end format
 +@end ifinfo
