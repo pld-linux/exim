@@ -3,13 +3,15 @@
 # _without_mysql  - build without MySQL support
 # _without_whoson - build without whoson support
 # _without_ldap   - build without LDAP support
+# _with_exiscan   - build with exiscan support
 
+%define		exiscan_version	4.10-16
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.10
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -20,6 +22,9 @@ Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
 Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
+Source7:	http://duncanthrax.net/exiscan/exiscan-%{exiscan_version}.tar.gz
+# 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
+Source8:	%{name}4-man-021016.tar.bz2
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -33,6 +38,7 @@ Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
+Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires: mysql-devel}
@@ -118,12 +124,14 @@ desta interface.
 
 %prep
 %setup -q -T -b 0
-%setup -q -T -D -a 1
+%setup -q -T -D -a 1 -a 7 -a 8
 %patch0 -p1
 %patch1 -p1
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
+%patch5 -p0
+%{?_with_exiscan:patch -p1 < exiscan-%{exiscan_version}/exiscan-%{exiscan_version}.patch}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -167,7 +175,7 @@ install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
-install doc/exim.8 $RPM_BUILD_ROOT%{_mandir}/man8/
+install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 
@@ -243,7 +251,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt} build-Linux-*/transport-filter.pl
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?_with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl 
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
