@@ -53,7 +53,7 @@ URL:		http://www.exim.org/
 %{!?_without_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db3-devel
-BuildRequires:	openssl-devel
+BuildRequires:	openssl-devel >= 0.9.6j
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 5.6.0
