@@ -1,5 +1,5 @@
 # Conditional build:
-# bcond_on_pgsql - build wihtout PostgreSQ support
+# bcond_on_pgsql - build wiht PostgreSQ support
 # bcond_on_mysql - build with MySQL support
 # bcond_off_ldap - build without LDAP support
 
@@ -7,7 +7,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.22
-Release:	3
+Release:	4
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -21,19 +21,19 @@ Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
 Source8:	Makefile-Linux
 Source9:	%{name}.aliases
-Source10:	%{name}.conf
-Source11:	newaliases
-Source12:	%{name}.logrotate
-Source13:	%{name}.sysconfig
-#Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source14:	%{name}-FAQ.txt.gz
-#Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
-Source15:	%{name}-config.samples.tar.gz
+Source10:	newaliases
+Source11:	%{name}.logrotate
+Source12:	%{name}.sysconfig
+#Source13:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
+Source13:	%{name}-FAQ.txt.gz
+#Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
+Source14:	%{name}-config.samples.tar.gz
 Patch0:		%{name}-EDITME.patch
 Patch1:		%{name}-monitor-EDITME.patch
 Patch2:		%{name}-texinfo.patch
 Patch3:		%{name}-use_system_pcre.patch
 Patch4:		%{name}-Makefile-Default.patch
+Patch5:		%{name}-conf.patch
 URL:		http://www.exim.org/
 %{!?bcond_off_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{?bcond_on_mysql:BuildRequires: mysql-devel}
@@ -104,8 +104,8 @@ administracyjny.
 %patch3 -p1
 %patch4 -p1
 
-install %{SOURCE14} doc/FAQ.txt.gz
-install %{SOURCE15} doc/config.samples.tar.gz
+install %{SOURCE13} doc/FAQ.txt.gz
+install %{SOURCE14} doc/config.samples.tar.gz
 
 install -d Local
 cp -f src/EDITME Local/Makefile
@@ -130,7 +130,7 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 
 install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-pld/exinext \
-	build-Linux-pld/exi{cyclog,next,what} %{SOURCE11} \
+	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
 	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh,transport-filter.pl} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
@@ -138,10 +138,13 @@ install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily/
-install %{SOURCE13} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install	%{SOURCE12} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/mail/
+install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+install src/configure.default $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
+cd $RPM_BUILD_ROOT%{_sysconfdir}/mail
+patch -p0 < %{PATCH5}
+cd -
 install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
@@ -195,13 +198,6 @@ fi
 newaliases
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
-# Add/modify MAIL variable via pam_env.
-mv -f %{_sysconfdir}/security/pam_env.conf{,.tmp}
-awk '$1 != "MAIL" { print $0; }; END { print "MAIL\t\tDEFAULT=${HOME}/Mail/Mailbox"; }' \
-	< %{_sysconfdir}/security/pam_env.conf.tmp \
-	> %{_sysconfdir}/security/pam_env.conf
-rm -f %{_sysconfdir}/security/pam_env.conf.tmp
-
 %preun
 if [ "$1" = "0" ]; then
 	if [ -f /var/lock/subsys/exim ]; then
@@ -215,12 +211,6 @@ fi
 if [ "$1" = "0" ]; then
 	/usr/sbin/userdel exim
 	/usr/sbin/groupdel exim
-	
-	mv -f %{_sysconfdir}/security/pam_env.conf{,.tmp}
-	awk '$1 != "MAIL" { print $0; }' \
-		< %{_sysconfdir}/security/pam_env.conf.tmp \
-		> %{_sysconfdir}/security/pam_env.conf
-	rm -f %{_sysconfdir}/security/pam_env.conf.tmp
 fi
 
 %clean
