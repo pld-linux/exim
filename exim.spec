@@ -1,5 +1,5 @@
 # Conditional build:
-# _without_pgsql  - build wihtout PostgreSQ support
+# _without_pgsql  - build wihtout PostgreSQL support
 # _without_mysql  - build without MySQL support
 # _without_whoson - build without whoson support
 # _without_ldap   - build without LDAP support
@@ -46,7 +46,7 @@ URL:		http://www.exim.org/
 %{!?_without_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db-devel
-BuildRequires:	openssl-devel >= 0.9.7
+BuildRequires:	openssl-devel
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl
