@@ -15,7 +15,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.43
-Release:	0.1
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -54,7 +54,7 @@ Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_spf:BuildRequires:	libspf2-devel}
-%{?with_srs:BuildRequires:	libsrs_alt-devel}
+%{?with_srs:BuildRequires:	libsrs_alt-devel >= 0.5}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -64,6 +64,7 @@ BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
+BuildRequires:	readline-devel
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
