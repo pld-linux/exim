@@ -56,8 +56,8 @@ Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires(post):	/usr/sbin/groupadd
-Requires(post):	/usr/sbin/useradd
+Requires:	/usr/sbin/groupdel
+Requires:	/usr/sbin/userdel
 Requires(post):	fileutils
 Provides:	smtpdaemon
 Obsoletes:	smtpdaemon
