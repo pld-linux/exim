@@ -8,7 +8,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.33
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -120,6 +120,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} CFLAGS="%{rpmcflags}" \
+	LOOKUP_CDB=yes \
 	%{?_with_mysql:LOOKUP_MYSQL=yes} \
 	%{?_with_pgsql:LOOKUP_PGSQL=yes} \
 	%{!?_without_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
