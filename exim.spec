@@ -3,7 +3,7 @@
 %bcond_without	mysql 	# without MySQL support
 %bcond_without	whoson 	# without whoson support
 %bcond_without	ldap	# without LDAP support
-%bcond_without	exiscan	# without exiscan support 
+%bcond_without	exiscan	# without exiscan support
 #
 %define		exiscan_version	4.30-14
 Summary:	University of Cambridge Mail Transfer Agent
@@ -17,7 +17,7 @@ License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
 # Source0-md5:	be53ba6801a019452f06b68c112a2ec1
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.30.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
 # Source1-md5:	dceb3ce755543ababd7362437a3c1141
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
@@ -149,8 +149,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
 	LOOKUP_CDB=yes \
-	XLFLAGS=-L/usr/X11R6/%{_lib} \
-	X11_LD_LIB=/usr/X11R6/%{_lib} \
+XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
+X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
@@ -164,7 +164,7 @@ makeinfo --force exim-texinfo-*/doc/*.texinfo
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_desktopdir},%{_pixmapsdir}}
 
@@ -188,7 +188,7 @@ install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_prefix}/lib/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
@@ -283,7 +283,7 @@ fi
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_bindir}/convert4r4
 %attr( 755,root,root) %{_sbindir}/*
-%attr( 755,root,root) %{_libdir}/*
+%attr( 755,root,root) %{_prefix}/lib/sendmail
 %attr( 754,root,root) /etc/cron.weekly/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
