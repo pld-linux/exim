@@ -1,10 +1,10 @@
 # Conditional build:
-# _without_pgsql  - build without PostgreSQL support
-# _without_mysql  - build without MySQL support
-# _without_whoson - build without whoson support
-# _without_ldap   - build without LDAP support
-# _without_exiscan - build without exiscan support
-
+%bcond_without	pgsql 	# without PostgreSQL support
+%bcond_without	mysql 	# without MySQL support
+%bcond_without	whoson 	# without whoson support
+%bcond_without	ldap	# without LDAP support
+%bcond_without	exiscan	# without exiscan support 
+#
 %define		exiscan_version	4.24-13
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
@@ -48,10 +48,10 @@ Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
-%{!?_without_ldap:BuildRequires:	openldap-devel >= 2.0.0}
-%{!?_without_mysql:BuildRequires:	mysql-devel}
-%{!?_without_pgsql:BuildRequires:	postgresql-devel}
-%{!?_without_whoson:BuildRequires:	whoson-devel}
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
+%{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_pgsql:BuildRequires:	postgresql-devel}
+%{?with_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -137,7 +137,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%{!?_without_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
+%{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -151,12 +151,12 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
 	LOOKUP_CDB=yes \
-	%{!?_without_mysql:LOOKUP_MYSQL=yes} \
-	%{!?_without_pgsql:LOOKUP_PGSQL=yes} \
-	%{!?_without_whoson:LOOKUP_WHOSON=yes} \
-	%{!?_without_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{!?_without_mysql:-lmysqlclient} %{!?_without_pgsql:-lpq} %{!?_without_whoson:-lwhoson}" \
-	LOOKUP_INCLUDE="%{!?_without_mysql:-I%{_includedir}/mysql} %{!?_without_pgsql:-I%{_includedir}/pgsql}"
+	%{?with_mysql:LOOKUP_MYSQL=yes} \
+	%{?with_pgsql:LOOKUP_PGSQL=yes} \
+	%{?with_whoson:LOOKUP_WHOSON=yes} \
+	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson}" \
+	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
 
@@ -261,7 +261,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{!?_without_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
