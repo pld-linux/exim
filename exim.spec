@@ -1,9 +1,9 @@
 Summary:	University of Cambridge Mail Transfer Agent 
-Summary(pl):    Agent Transferu Poczty Uniwersytetu w Cambridge
+Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
 Version:	3.02
 Release:	2
-Copyright:	GPL
+License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
 URL:		http://www.exim.org/
@@ -31,22 +31,22 @@ Requires:	openldap
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Smail like Mail Transfer Agent with single configuration file. Features:
-flexible retry algorithms, header & envelope rewriting, multiple deliveries
-down single connection or multiple deliveries in parallel, regular
-expressions in configuration parameters, file lookups, supports sender
-and/or reciever verification, selective relaying, supports virtual domains,
-built-in mail filtering and can be configured to drop root privilleges when
-possible.
+Smail like Mail Transfer Agent with single configuration file.
+Features: flexible retry algorithms, header & envelope rewriting,
+multiple deliveries down single connection or multiple deliveries in
+parallel, regular expressions in configuration parameters, file
+lookups, supports sender and/or reciever verification, selective
+relaying, supports virtual domains, built-in mail filtering and can be
+configured to drop root privilleges when possible.
 
 %description -l pl
 Agent transferu poczty (MTA) z pojedynczym plikiem konfiguracyjnym.
-Jego zalety: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków & koperty,
-wielokrotne dostarczanie poczty podczas jednego po³±czenia lub równoleg³e
-dostarczanie poczty, wyra¿enia regularne w parametrach konfiguracyjnych,
-weryfikacja nadawcy i/lub odbiorcy, selektywne relayowanie, wsparcie dla
-wirtualnych domen, wbudowany system filtrów, mo¿liwo¶æ odrzucania praw roota
-kiedy jest to mo¿liwe.
+Jego zalety: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków &
+koperty, wielokrotne dostarczanie poczty podczas jednego po³±czenia
+lub równoleg³e dostarczanie poczty, wyra¿enia regularne w parametrach
+konfiguracyjnych, weryfikacja nadawcy i/lub odbiorcy, selektywne
+relayowanie, wsparcie dla wirtualnych domen, wbudowany system filtrów,
+mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
 
 %package X11
 Summary:	X Window based Exim administration tool
@@ -55,29 +55,30 @@ Group:		X11/Utilities
 Group(pl):	X11/Narzêdzia
 
 %description X11
-X Window based monitor & administration utility for the Exim Mail Transfer
-Agent.
+X Window based monitor & administration utility for the Exim Mail
+Transfer Agent.
 
 %description -l pl X11
-Bazuj±ce na X Window narzêdzia dla Exima - monitor i program administracyjny.
+Bazuj±ce na X Window narzêdzia dla Exima - monitor i program
+administracyjny.
 
 %prep
 %setup -q -T -b 0
 %setup -q -T -D -a 1
-install -d	Local
-install		%{SOURCE6}	Local/Makefile
-install		%{SOURCE7}	Local/
-install		%{SOURCE8}	Local/
+install -d Local
+install %{SOURCE6} Local/Makefile
+install %{SOURCE7} %{SOURCE8} Local/
 
 %build
-makeinfo	--no-split --output exim_overview.info	exim-texinfo-*/doc/oview.texinfo
-makeinfo	--no-split --output exim.info		exim-texinfo-*/doc/spec.texinfo
-makeinfo	--no-split --output exim_filter.info	exim-texinfo-*/doc/filter.texinfo
-make            "CFLAGS=$RPM_OPT_FLAGS"
+makeinfo --no-split --output exim_overview.info	exim-texinfo-*/doc/oview.texinfo
+makeinfo --no-split --output exim.info		exim-texinfo-*/doc/spec.texinfo
+makeinfo --no-split --output exim_filter.info	exim-texinfo-*/doc/filter.texinfo
+
+make "CFLAGS=$RPM_OPT_FLAGS"
 
 %install
-rm -rf		$RPM_BUILD_ROOT
-install -d	$RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
+rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
 install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/exim,mail}
 install -d	$RPM_BUILD_ROOT%{_infodir}
@@ -105,21 +106,22 @@ install %{SOURCE3}					$RPM_BUILD_ROOT/etc/cron.daily/
 install %{SOURCE13}					$RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2}                                      $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE12}					$RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE10}					$RPM_BUILD_ROOT/etc/mail/
+install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/mail/
 install %{SOURCE4}                                      $RPM_BUILD_ROOT%{_mandir}/man8/
-install %{SOURCE9}					$RPM_BUILD_ROOT/etc/mail/aliases
+install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info						$RPM_BUILD_ROOT%{_infodir}/
 
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_libdir}/sendmail
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_sbindir}/mailq
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_sbindir}/rsmtp
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_sbindir}/rmail
-ln -s	%{_bindir}/exim					$RPM_BUILD_ROOT%{_sbindir}/runq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
+ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
-touch		$RPM_BUILD_ROOT%{_var}/log/exim/{mainlog,rejectlog,paniclog,processlog}
-strip		$RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
-gzip -9nf       $RPM_BUILD_ROOT%{_mandir}/man*/*	$RPM_BUILD_ROOT%{_infodir}/*
+touch $RPM_BUILD_ROOT%{_var}/log/exim/{mainlog,rejectlog,paniclog,processlog}
+strip $RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
+
+gzip -9nf $RPM_BUILD_ROOT{%{_mandir}/man*/*,%{_infodir}/*}
 
 %pre
 %{_sbindir}/groupadd -f -g 79 exim
@@ -144,25 +146,14 @@ if [ ! -f /etc/mail/mailname ]; then
 	chmod 644 /etc/mail/mailname
 fi
 newaliases
-
-/sbin/install-info --section="Exim" \
-     --entry "* Overview: (exim_overview).   Overview of the Exim system" \
-     %{_infodir}/exim_overview.info.gz /etc/info-dir
-/sbin/install-info --section="Exim" \
-     --entry "* User guide: (exim).          Exim manual" \
-     %{_infodir}/exim.info.gz  /etc/info-dir
-/sbin/install-info --section="Exim" \
-     --entry "* Filtering: (exim_filter).    Filtering mail with Exim" \
-     %{_infodir}/exim_filter.info.gz   /etc/info-dir
+[ -x /usr/sbin/fix-info-dir ] && /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
 
 %preun
+[ -x /usr/sbin/fix-info-dir ] && /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del %{name}
 	/etc/rc.d/init.d/%{name} stop >&2
 fi
-/sbin/install-info --delete %{_infodir}/exim_overview.info	/etc/info-dir
-/sbin/install-info --delete %{_infodir}/exim_filter.info	/etc/info-dir
-/sbin/install-info --delete %{_infodir}/exim.info		/etc/info-dir
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -170,8 +161,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors exim-texinfo-*/doc/*
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/mail/exim.conf
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/mail/aliases
+%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
+%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
 %attr( 644,root,root) /etc/logrotate.d/exim
 %attr( 754,root,root) /etc/rc.d/init.d/exim
@@ -192,15 +183,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_bindir}/transport-filter.pl
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_sbindir}/*
-%attr( 644,root,root) %{_infodir}/*
 %attr( 754,root,root) /etc/cron.daily/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 644,exim,root) %ghost %{_var}/log/exim/mainlog
 %attr( 644,exim,root) %ghost %{_var}/log/exim/rejectlog
 %attr( 644,exim,root) %ghost %{_var}/log/exim/paniclog
 %attr( 644,exim,root) %ghost %{_var}/log/exim/processlog
+%{_infodir}/*
 %{_mandir}/man8/*
 
 %files X11
+%defattr(644,root,root,755)
 %attr( 755,root,root) %{_bindir}/eximon
 %attr( 755,root,root) %{_bindir}/eximon.bin
