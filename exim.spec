@@ -9,7 +9,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.35
-Release:	2
+Release:	3
 Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
@@ -154,13 +154,13 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
 	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
 
-install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
-	build-Linux-pld/exinext \
-	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
+install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
+	build-Linux-*/exinext \
+	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
 	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
 	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-*/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-*/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly/
