@@ -13,7 +13,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.33
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -59,7 +59,7 @@ BuildRequires:	db-devel
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
-BuildRequires:	perl-devel >= 5.6.0
+BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
