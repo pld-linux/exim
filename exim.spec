@@ -5,13 +5,13 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.22-12
+%define		exiscan_version	4.24-12
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.22
-Release:	4
+Version:	4.24
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -112,7 +112,6 @@ Summary:	X11 based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X11
 Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
-Requires:	applnk
 
 %description X11
 X11 based monitor & administration utility for the Exim Mail Transfer
@@ -136,7 +135,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
+%{!?_without_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -265,7 +264,6 @@ fi
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
 %attr( 754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
-%attr(1777,root,mail) %dir %{_var}/mail
 %attr( 770,root,exim) %dir %{_var}/spool/exim
 %attr( 750,exim,exim) %dir %{_var}/spool/exim/db
 %attr( 700,exim,root) %dir %{_var}/spool/exim/input
