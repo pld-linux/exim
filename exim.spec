@@ -160,7 +160,8 @@ makeinfo --force exim-texinfo-*/doc/*.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,pam.d}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
+install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
@@ -174,7 +175,7 @@ install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
 install build-Linux-*/eximon $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
 
 install %{SOURCE5} .
-install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly/
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
@@ -280,11 +281,11 @@ fi
 %attr( 755,root,root) %{_bindir}/convert4r4
 %attr( 755,root,root) %{_sbindir}/*
 %attr( 755,root,root) %{_libdir}/*
-%attr( 754,root,root) %{_sysconfdir}/cron.weekly/exim.cron.db
+%attr( 754,root,root) /etc/cron.weekly/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
-%attr( 640,root,root) %{_sysconfdir}/pam.d/smtp
+%attr( 640,root,root) /etc/pam.d/smtp
 %{_infodir}/*
 %{_mandir}/man8/*
 
