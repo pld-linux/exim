@@ -1,0 +1,33 @@
+# Exim: OS-specific make file for Linux. This is for modern Linuxes,
+# which use libc6.
+
+BASENAME_COMMAND=look_for_it
+CC=gcc
+CFLAGS=
+
+DBMLIB = -ldb
+USE_DB = yes
+
+LIBS = -lnsl
+LIBRESOLV = -lresolv
+
+X11=/usr/X11R6
+XINCLUDE=-I$(X11)/include
+XLFLAGS=-L$(X11)/lib -lSM -lICE
+X11_LD_LIB=$(X11)/lib
+
+EXIWHAT_PS_ARG=ax
+EXIWHAT_EGREP_ARG='/exim( |$$)'
+EXIWHAT_KILL_ARG=-USR1
+
+# PLD goodies
+HAVE_IPV6=yes
+LOOKUP_LDAP=yes
+LOOKUP_NIS=yes
+LOOKUP_NISPLUS=yes
+EXIM_PERL=perl.o
+#USE_TCP_WRAPPERS=yes
+#EXTRALIBS=-lwrap
+EXTRALIBS=-lldap -llber
+
+# End
