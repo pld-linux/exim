@@ -1,9 +1,10 @@
 # Conditional build:
-# _without_pgsql  - build wihtout PostgreSQL support
+# _without_pgsql  - build without PostgreSQL support
 # _without_mysql  - build without MySQL support
 # _without_whoson - build without whoson support
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
+# _with_db3	- build with db3 instead od db(4) - it works on RA
 
 %define		exiscan_version	4.14-26
 Summary:	University of Cambridge Mail Transfer Agent
@@ -45,7 +46,8 @@ URL:		http://www.exim.org/
 %{!?_without_pgsql:BuildRequires: postgresql-devel}
 %{!?_without_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
-BuildRequires:	db-devel
+%{!?_with_db3:BuildRequires:	db-devel}
+%{?_with_db3:BuildRequires:     db3-devel}
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
