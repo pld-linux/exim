@@ -38,30 +38,35 @@ URL:		http://www.exim.org/
 %{!?_with_pgsql:BuildRequires: postgresql-devel}
 %{!?_with_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
-BuildRequires:	texinfo
-BuildRequires:	perl
+BuildRequires:	db3-devel
+BuildRequires:	openssl-devel >= 0.9.6a
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
-BuildRequires:	db3-devel
+BuildRequires:	perl
 BuildRequires:	perl-devel >= 5.6.0
-BuildRequires:	openssl-devel >= 0.9.6a
+BuildRequires:	texinfo
 Provides:	smtpdaemon
-Prereq:		/usr/sbin/useradd
-Prereq:		/usr/sbin/groupadd
-Prereq:		/bin/awk
-Prereq:		/sbin/chkconfig
-Prereq:		rc-scripts
+PreReq:		/sbin/chkconfig
+PreReq:		rc-scripts
+Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Requires(post):	fileutils
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-Obsoletes:	smtpdaemon
+Obsoletes:	masqmail
+Obsoletes:	omta
+Obsoletes:	postfix
+Obsoletes:	qmail
+Obsoletes:	qmail-client
 Obsoletes:	sendmail
 Obsoletes:	sendmail-cf
 Obsoletes:	sendmail-doc
-Obsoletes:	postfix
-Obsoletes:	zmailer
 Obsoletes:	smail
-Obsoletes:	omta
-Obsoletes:	qmail
-Obsoletes:	qmail-client
+Obsoletes:	smtpdaemon
+Obsoletes:	zmailer
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
