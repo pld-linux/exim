@@ -1,5 +1,5 @@
---- exim.conf.orig	Fri Jan 19 10:32:07 2001
-+++ exim.conf	Fri May 18 21:41:03 2001
+--- exim.conf.orig	Mon Jun 18 13:03:23 2001
++++ exim.conf	Sat Jun 30 13:10:36 2001
 @@ -106,7 +106,7 @@
  # calling its own SMTP port, is locked out by default. If you want to permit
  # relaying from the local host, you should set
@@ -9,7 +9,16 @@
  #
  # If you want to permit relaying through your host from certain hosts or IP
  # networks, you need to set the option appropriately, for example
-@@ -196,6 +196,11 @@
+@@ -172,7 +172,7 @@
+ 
+ # rbl_domains = rbl.maps.vix.com
+ # rbl_domains = rbl.maps.vix.com:dul.maps.vix.com
+-
++# rbl_domains = blackholes.mail-abuse.org:relays.mail-abuse.org
+ 
+ # If you want Exim to support the "percent hack" for all your local domains,
+ # uncomment the following line. This is the feature by which mail addressed
+@@ -196,6 +196,17 @@
  
  timeout_frozen_after = 7d
  
@@ -18,10 +27,16 @@
 +
 +auto_thaw = 12h
 +
++# This emulates sendmails "newaliases". Keep in mind that the alias
++# transport does use lsearch by default. remember to change this,
++# if you want to use DBM-Lookups.
++
++bi_command=/usr/bin/newaliases
++
  end
  
  
-@@ -224,9 +229,10 @@
+@@ -224,9 +235,10 @@
  # particular group instead of using the sticky bit. The commented options below
  # show how this can be done.
  
@@ -33,7 +48,7 @@
    delivery_date_add
    envelope_to_add
    return_path_add
-@@ -241,6 +247,21 @@
+@@ -241,6 +253,21 @@
  # to complete normally. You can set different transports for aliases and
  # forwards if you want to - see the references to address_pipe in the directors
  # section below.
@@ -55,7 +70,7 @@
  
  address_pipe:
    driver = pipe
-@@ -292,9 +313,9 @@
+@@ -292,9 +319,9 @@
  
  system_aliases:
    driver = aliasfile
@@ -68,7 +83,7 @@
    file_transport = address_file
    pipe_transport = address_pipe
  
-@@ -331,6 +352,13 @@
+@@ -331,6 +358,13 @@
  
  
  # This director matches local user mailboxes.
