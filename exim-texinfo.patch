@@ -1,0 +1,72 @@
+diff -urN exim-texinfo-3.10.orig/doc/filter.texinfo exim-texinfo-3.10/doc/filter.texinfo
+--- exim-texinfo-3.10.orig/doc/filter.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.10/doc/filter.texinfo	Wed Jul 19 16:09:50 2000
+@@ -4,10 +4,19 @@
+ @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
+ @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
+ @c %**start of header
+-@setfilename filter.info
++@setfilename exim_filter.info
+ @settitle Exim Filter Specification
+ @paragraphindent 0
+ @c %**end of header
++
++@ifinfo
++@format
++@dircategory Daemons :
++@direntry
++* Exim: (exim_filter).			Message Transfer Agent: Filters
++@end direntry
++@end format
++@end ifinfo
+ 
+ @titlepage
+ @title The Exim Mail Transfer Agent
+diff -urN exim-texinfo-3.10.orig/doc/oview.texinfo exim-texinfo-3.10/doc/oview.texinfo
+--- exim-texinfo-3.10.orig/doc/oview.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.10/doc/oview.texinfo	Wed Jul 19 16:09:06 2000
+@@ -4,10 +4,19 @@
+ @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
+ @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
+ @c %**start of header
+-@setfilename oview.info
++@setfilename exim_oview.info
+ @settitle Exim Overview
+ @paragraphindent 0
+ @c %**end of header
++
++@ifinfo
++@format
++@dircategory Daemons :
++@direntry
++* Exim: (exim_oview).			Message Transfer Agent: Overview
++@end direntry
++@end format
++@end ifinfo
+ 
+ @titlepage
+ @title The Exim Mail Transfer Agent
+diff -urN exim-texinfo-3.10.orig/doc/spec.texinfo exim-texinfo-3.10/doc/spec.texinfo
+--- exim-texinfo-3.10.orig/doc/spec.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.10/doc/spec.texinfo	Wed Jul 19 16:07:52 2000
+@@ -4,10 +4,19 @@
+ @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
+ @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
+ @c %**start of header
+-@setfilename spec.info
++@setfilename exim.info
+ @settitle Exim Specification
+ @paragraphindent 0
+ @c %**end of header
++
++@ifinfo
++@format
++@dircategory Daemons :
++@direntry
++* Exim: (exim).			Message Transfer Agent: Specification
++@end direntry
++@end format
++@end ifinfo
+ 
+ @titlepage
+ @title The Exim Mail Transfer Agent
