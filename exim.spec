@@ -67,7 +67,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.159
+BuildRequires:	rpmbuild(macros) >= 1.176
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
@@ -261,7 +261,9 @@ umask 022
 if [ -f /var/lock/subsys/exim ]; then
 	/etc/rc.d/init.d/%{name} restart >&2
 else
-	echo "Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon."
+	%banner %{name} -e << EOF
+Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon.
+EOF
 fi
 
 if [ ! -f /etc/mail/mailname ]; then
