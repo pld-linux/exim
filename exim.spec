@@ -27,8 +27,9 @@ Source6:	%{name}on.desktop
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
-Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	02e5e6f92b98b44d4048fc9dee6f2705
+# Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
+Source8:	exiscan-acl-%{exiscan_version}.patch.bz2
+# Source8-md5:	c33a91f584eb0501185d7caef9e4b464
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -136,7 +137,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
-%{!?_without_exiscan:bzip2 -d -c %{SOURCE8} | patch -p1}
+%{!?_without_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
