@@ -78,7 +78,7 @@ cp -f $RPM_SOURCE_DIR/exim.lr $RPM_BUILD_ROOT/etc/logrotate.d/exim
 install $RPM_SOURCE_DIR/exim.conf $RPM_BUILD_ROOT/etc
 
 ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/sendmail
-ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/lib/sendmail
+ln -s /usr/bin/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
 ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/mailq
 ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/rsmtp
 ln -s /usr/bin/exim $RPM_BUILD_ROOT/usr/sbin/rmail
