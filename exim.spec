@@ -20,8 +20,8 @@ License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
 # Source0-md5:	af6db81a995046e1e30bcfda6ed0b357
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.30.tar.bz2
-# Source1-md5:	dceb3ce755543ababd7362437a3c1141
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.40.tar.bz2
+# Source1-md5:	cc91bd804ee0f7fd70991e2e6b529033
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
