@@ -63,6 +63,7 @@ Obsoletes:	sendmail-doc
 Obsoletes:	postfix
 Obsoletes:	zmailer
 Obsoletes:	smail
+Obsoletes:	omta
 Obsoletes:	qmail
 Obsoletes:	qmail-client
 
