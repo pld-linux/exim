@@ -4,24 +4,22 @@
 %bcond_without	whoson	# without whoson support
 %bcond_without	sasl	# without SASL
 %bcond_without	ldap	# without LDAP support
-%bcond_without	exiscan	# without exiscan support
 %bcond_with	saexim	# with sa-exim support
 #
-%define		exiscan_version	4.44-28
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.44
+Version:	4.50
 Release:	0.1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	7487274e013b598d97445987d38b2071
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.40.tar.bz2
-# Source1-md5:	cc91bd804ee0f7fd70991e2e6b529033
+# Source0-md5:	7844eff82171872f6b3971a4183368d9
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.50.tar.bz2
+# Source1-md5:	a12993436e9943083e3ce5b76cf96b11
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -30,16 +28,14 @@ Source6:	%{name}on.desktop
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
-Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	72ef5567106e89e6cef1cc742ab52525
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	ff781bd31fb1d574c8b9d33f4bfd34a7
+# Source13-md5:	7c695675e5e60693916b787001252d56
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	4b93321938a800caa6127c48ad60a42b
+# Source14-md5:	42c7d5c02d06fdd3d8b6ba124ad9fd05
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
@@ -49,7 +45,6 @@ Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
-Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_mysql:BuildRequires:	mysql-devel}
@@ -147,9 +142,7 @@ desta interface.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
 
-%{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 %{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
@@ -287,7 +280,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt} build-Linux-*/transport-filter.pl
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %{?with_saexim:%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
 %attr(644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
