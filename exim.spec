@@ -4,8 +4,10 @@
 %bcond_without	whoson 	# without whoson support
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
+%bcond_with	saexim # with sa-exim support
 #
 %define		exiscan_version	4.30-14
+%define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
@@ -39,6 +41,8 @@ Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.t
 # Source14-md5:	73b68438e0032ca63185c9aa38f44bd8
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
+Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
+# Source17-md5:	34892f195384c127f7c40c461a9ef421
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
@@ -136,6 +140,7 @@ desta interface.
 %patch4 -p1
 %patch5 -p0
 %{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
+%{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -145,6 +150,16 @@ cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
+
+%if %{with saexim}
+    cd sa-exim-%{saexim_version}
+    %{__make} sa-exim.h
+    echo '#define SPAMASSASSIN_CONF "%{_sysconfdir}/mail/sa-exim.conf"' >> sa-exim.h
+    cat sa-exim.c > ../src/local_scan.c
+    cat sa-exim.h > ../src/sa-exim.h
+    cd ..
+%endif
+
 %{__make} \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
@@ -186,6 +201,8 @@ install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
+
+%{?with_saexim:install sa-exim-%{saexim_version}/sa-exim.conf $RPM_BUILD_ROOT/%{_sysconfdir}/mail/sa-exim.conf}
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT/usr/lib/sendmail
@@ -263,6 +280,7 @@ fi
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
+%{?with_saexim:%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
