@@ -41,6 +41,7 @@ Source13:	%{name}4-FAQ.txt.bz2
 Source14:	%{name}4-config.samples.tar.bz2
 # Source14-md5:	918b390124cfc7515ba262e49bee750f
 Source15:	%{name}4-smtp.pamd
+Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
@@ -165,7 +166,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,pam.d}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
-install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
+install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_desktopdir},%{_pixmapsdir}}
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
@@ -193,7 +194,8 @@ ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
-install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
+install %{SOURCE6} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE16} $RPM_BUILD_ROOT%{_pixmapsdir}
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
@@ -293,4 +295,5 @@ fi
 %files X11
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_prefix}/X11R6/bin/*
-%{_applnkdir}/System/*
+%{_desktopdir}/%{name}on.desktop
+%{_pixmapsdir}/%{name}on.png
