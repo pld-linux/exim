@@ -5,6 +5,7 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
 %bcond_without	spf	# without spf support
+%bcond_without	srs	# without srs support
 %bcond_with	saexim	# with sa-exim support
 #
 %define		exiscan_version	4.41-24
@@ -14,7 +15,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.41
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -52,7 +53,8 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
-%{?with_spf:BuildRequires:	libspf_alt-devel}
+%{?with_spf:BuildRequires:	libspf2-devel}
+%{?with_srs:BuildRequires:	libsrs_alt-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -168,7 +170,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %{__make} -j1 \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} %{?with_spf:-DSPF}" \
+	CFLAGS="%{rpmcflags} %{?with_spf:-DSPF} %{?with_srs:-DSRS}" \
 	LOOKUP_CDB=yes \
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
@@ -176,7 +178,7 @@ X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf_alt}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
