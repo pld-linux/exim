@@ -5,15 +5,16 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
 %bcond_with	saexim	# with sa-exim support
+%bcond_with	spf	# with spf support
 #
-%define		exiscan_version	4.34-21
+%define		exiscan_version	4.34-22
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.34
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -30,7 +31,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	2bcb93612e8def81758026bf47c5bb12
+# Source8-md5:	74cf5b787c7344f3b4ef69b8ab54b0db
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -51,6 +52,7 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
+%{?with_spf:BuildRequires:	libspf_alt-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -166,7 +168,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %{__make} -j1 \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags}" \
+	CFLAGS="%{rpmcflags} %{?with_spf:-DSPF}" \
 	LOOKUP_CDB=yes \
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
@@ -174,7 +176,7 @@ X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf_alt}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
