@@ -74,6 +74,7 @@ Requires:	pam >= 0.77.3
 Provides:	smtpdaemon
 Obsoletes:	courier
 Obsoletes:	masqmail
+Obsoletes:	nullmailer
 Obsoletes:	omta
 Obsoletes:	postfix
 Obsoletes:	qmail
