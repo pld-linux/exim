@@ -49,7 +49,6 @@ BuildRequires:  db-devel
 BuildRequires:	openssl-devel >= 0.9.7b
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
-BuildRequires:	perl
 BuildRequires:	perl-devel >= 5.6.0
 BuildRequires:	texinfo
 PreReq:		rc-scripts
