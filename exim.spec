@@ -9,7 +9,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.36
-Release:	4
+Release:	5
 Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
@@ -156,9 +156,8 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
-	build-Linux-*/exinext \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
-	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
+	util/{exigrep,eximstats,exiqsumm,unknownuser.sh} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
 install build-Linux-*/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
