@@ -1,0 +1,173 @@
+diff -urN exim-3.32.org/src/daemon.c exim-3.32/src/daemon.c
+--- exim-3.32.org/src/daemon.c	Mon Aug 13 20:01:02 2001
++++ exim-3.32/src/daemon.c	Mon Aug 13 20:01:27 2001
+@@ -689,26 +689,62 @@
+       listen_socket_count++;
+     }
+ 
+-  /* Otherwise set up one address item with a null address, implying listening
+-  on all interfaces. In an IPv6 world, we set up a second address for listening
+-  on all IPv6 interfaces. Some IPv6 stacks will pick up incoming IPv4 calls on
+-  an IPv6 wildcard socket, but some won't (there are security issues). Using
+-  two sockets should work in all cases. We identify an IPv6 wildcard address by
+-  the string ":". */
++  /* Otherwise we set up things to listen on all interfaces. In an IPv4 world,
++  this is just a single, empty address. On systems with IPv6, several different
++  implementation approaches have been taken. This code is now supposed to work
++  with all of them. The point of difference is whether an IPv6 socket that is
++  listening on all interfaces will receive incoming IPv4 calls or not.
++
++  . On Solaris, an IPv6 socket will accept IPv4 calls, and give them as mapped
++    addresses. However, if an IPv4 socket is also listening on all interfaces,
++    calls are directed to the appropriate socket.
++
++  . On (some versions of) Linux, an IPv6 socket will accept IPv4 calls, and
++    give them as mapped addresses, but an attempt also to listen on an IPv4
++    socket on all interfaces causes an error.
++
++  . On OpenBSD, an IPv6 socket will not accept IPv4 calls. You have to set up
++    two sockets if you want to accept both kinds of call.
++
++  . FreeBSD is like OpenBSD, but it has the IPV6_V6ONLY socket option, which
++    can be turned off, to make it behave like the versions of Linux described
++    above.
++
++  . I heard a report that the USAGI IPv6 stack for Linux has implemented
++    IPV6_V6ONLY.
++
++  So, what we do is as follows:
++
++   (1) At this point we set up two addresses, one containing ":" to indicate
++   an IPv6 wildcard address, and an empty one to indicate an IPv4 wildcard
++   address.
++
++   (2) Later, when we create the IPv6 socket, we set IPV6_V6ONLY if that option
++   is defined.
++
++   (3) We listen on the v6 socket first. If that fails, there is a serious
++   error.
++
++   (4) We listen on the v4 socket second. If that fails with the error
++   EADDRINUSE, assume we are in the situation where just a single socket is
++   permitted, and ignore the error. */
+ 
+   else
+     {
+     addresses = store_get(sizeof(ip_address_item));
+-    addresses->next = NULL;
+-    addresses->address[0] = 0;
+-    listen_socket_count = 1;
+ 
+     #if HAVE_IPV6
+     addresses->next = store_get(sizeof(ip_address_item));
++    addresses->address[0] = ':';
++    addresses->address[1] = 0;
+     addresses->next->next = NULL;
+-    addresses->next->address[0] = ':';
+-    addresses->next->address[1] = 0;
+-    listen_socket_count++;
++    addresses->next->address[0] = 0;
++    listen_socket_count = 2;
++
++    #else
++    addresses->next = NULL;
++    addresses->address[0] = 0;
++    listen_socket_count = 1;
+     #endif  /* HAVE_IPV6 */
+     }
+ 
+@@ -726,10 +762,12 @@
+   #endif
+ 
+   /* For each IP address, create a socket and bind it to the appropriate
+-  port. Some IPv6 stacks can handle IPv4 addresses on IPv6 sockets using
+-  the mapping facilities. However, some don't do this because of security
+-  concerns. Therefore, we use IPv4 sockets for IPv4 addresses even in an
+-  IPv6 world. */
++  port. See comments above about IPv6 sockets that may or may not accept IPv4
++  calls when listening on all interfaces. We also have to cope with the case of
++  a system with IPv6 libraries, but no IPv6 support in the kernel. In this
++  case, we must ignore failure to create an IPv6 socket for wildcard listening.
++  The second socket (IPv4) should then get used instead - we have to shuffle
++  it down into first place. */
+ 
+   for (ipa = addresses, sk = 0; sk < listen_socket_count; ipa = ipa->next, sk++)
+     {
+@@ -738,8 +776,37 @@
+ 
+     listen_sockets[sk] = socket(af, SOCK_STREAM, 0);
+     if (listen_sockets[sk] < 0)
+-      log_write(0, LOG_PANIC_DIE, "IPv%c socket creation failed: %s",
+-        (af == AF_INET6)? '6' : '4', strerror(errno));
++      {
++      /* Just log failure for an IPv6 wildcard socket */
++
++      if (af == AF_INET6 && local_interfaces == NULL)
++        {
++        log_write(0, LOG_MAIN, "Failed to create IPv6 socket for wildcard "
++          "listening (%s): falling back to IPv4", strerror(errno));
++
++        addresses = addresses->next;   /* Chop IPv6 off the list */
++        sk--;                          /* Back up the count */
++        listen_socket_count--;         /* Reduce the total */
++        continue;                      /* With the IPv4 socket */
++        }
++
++      /* Not a failure to create an IPv6 socket for wildcard listening */
++
++      else
++        log_write(0, LOG_PANIC_DIE, "IPv%c socket creation failed: %s",
++          (af == AF_INET6)? '6' : '4', strerror(errno));
++      }
++
++    /* If this is an IPv6 wildcard socket, set IPV6_V6ONLY if that option is
++    available. */
++
++    #ifdef IPV6_V6ONLY
++    if (local_interfaces == NULL && af == AF_INET6 &&
++        setsockopt(listen_sockets[sk], SOL_SOCKET, IPV6_V6ONLY, (char *)(&on),
++          sizeof(on)) < 0)
++      log_write(0, LOG_PANIC_DIE, "setting IPV6_V6ONLY on socket failed: %s",
++        strerror(errno));
++    #endif  /* IPV6_V6ONLY */
+ 
+     /* Set SO_REUSEADDR so that the daemon can be restarted while a connection
+     is being handled.  Without this, a connection will prevent reuse of the
+@@ -853,10 +920,35 @@
+     }
+ 
+   /* Start listening on the bound sockets, establishing the maximum backlog of
+-  connections that is allowed. */
++  connections that is allowed. In an IPv6 environment, if listen() fails with
++  the error EADDRINUSE and we are doing wildcard listening and this is the
++  second (i.e last) socket, ignore the error on the grounds that we must be
++  in a system where the IPv6 socket accepts both kinds of call. */
+ 
+   for (sk = 0; sk < listen_socket_count; sk++)
+-    listen(listen_sockets[sk], smtp_connect_backlog);
++    {
++    if (listen(listen_sockets[sk], smtp_connect_backlog) < 0)
++      {
++      if (errno == EADDRINUSE && local_interfaces == NULL && sk > 0)
++        {
++        DEBUG(9) debug_printf("wildcard IPv4 listen() failed after IPv6 "
++          "listen() success; EADDRINUSE ignored\n");
++        close(listen_sockets[sk]);
++        listen_socket_count--;       /* OK because we know we are in the */
++        break;                       /* last iteration of this loop */
++        }
++      else
++        {
++        int skf;
++        for (ipa = addresses, skf = 0; skf < sk; ipa = ipa->next, skf++);
++        log_write(0, LOG_PANIC_DIE, "listen() failed on interface %s: %s",
++          (ipa->address[0] == 0)? "(any IPv4)" :
++          (ipa->address[0] == ':' && ipa->address[1] == ':')? "(any IPv6)" :
++          ipa->address,
++          strerror(errno));
++        }
++      }
++    }
+   }
+ 
+ /* Set up the handler for SIGHUP, which causes a restart of the daemon. */
