@@ -1,0 +1,41 @@
+diff -urN exim-3.32.org/src/daemon.c exim-3.32/src/daemon.c
+--- exim-3.32.org/src/daemon.c	Tue Aug  7 23:32:54 2001
++++ exim-3.32/src/daemon.c	Tue Aug  7 23:31:08 2001
+@@ -698,18 +698,18 @@
+ 
+   else
+     {
++    #if HAVE_IPV6
+     addresses = store_get(sizeof(ip_address_item));
+     addresses->next = NULL;
+-    addresses->address[0] = 0;
++    addresses->address[0] = ':';
++    addresses->address[1] = 0;
+     listen_socket_count = 1;
++    #endif /* HAVE_IPV6 */
+ 
+-    #if HAVE_IPV6
+     addresses->next = store_get(sizeof(ip_address_item));
+     addresses->next->next = NULL;
+-    addresses->next->address[0] = ':';
+-    addresses->next->address[1] = 0;
++    addresses->next->address[0] = 0;
+     listen_socket_count++;
+-    #endif  /* HAVE_IPV6 */
+     }
+ 
+   /* Get a vector to remember all the sockets in */
+@@ -856,7 +856,11 @@
+   connections that is allowed. */
+ 
+   for (sk = 0; sk < listen_socket_count; sk++)
+-    listen(listen_sockets[sk], smtp_connect_backlog);
++    if (listen(listen_sockets[sk], smtp_connect_backlog) < 0)
++      {
++	close(listen_sockets[sk]);
++	listen_socket_count--;
++      }
+   }
+ 
+ /* Set up the handler for SIGHUP, which causes a restart of the daemon. */
+
