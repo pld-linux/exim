@@ -22,6 +22,8 @@ Source12:	exim.logrotate
 Source13:	exim.sysconfig
 Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
 Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
+Source16:	exim-profile.sh
+Source17:	exim-profile.csh
 Patch0:		exim-EDITME.patch
 Patch1:		exim-monitor-EDITME.patch
 Patch2:		exim-texinfo.patch
@@ -97,38 +99,38 @@ makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
+install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,profile.d}
 install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/exim,mail}
 install -d	$RPM_BUILD_ROOT%{_infodir}
 install -d	$RPM_BUILD_ROOT{/usr/X11R6/bin,%{_applnkdir}/System}
 
-install	build-Linux-pld/exim				$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_fixdb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_tidydb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_dbmbuild			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/eximon.bin			$RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/eximon				$RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/exim_dumpdb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exicyclog			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exim_lock			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exinext				$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/exiwhat				$RPM_BUILD_ROOT%{_bindir}
-install util/exigrep					$RPM_BUILD_ROOT%{_bindir}
-install util/eximstats					$RPM_BUILD_ROOT%{_bindir}
-install util/exiqsumm					$RPM_BUILD_ROOT%{_bindir} 
-install util/unknownuser.sh				$RPM_BUILD_ROOT%{_bindir}
-install util/transport-filter.pl			$RPM_BUILD_ROOT%{_bindir}
-install %{SOURCE5}					.
-install %{SOURCE11}					$RPM_BUILD_ROOT%{_bindir}
-install %{SOURCE3}					$RPM_BUILD_ROOT/etc/cron.daily/
-install %{SOURCE13}					$RPM_BUILD_ROOT/etc/sysconfig/%{name}
-install %{SOURCE2}                                      $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install	%{SOURCE12}					$RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/mail/
-install %{SOURCE4}                                      $RPM_BUILD_ROOT%{_mandir}/man8/
-install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
-install	*.info						$RPM_BUILD_ROOT%{_infodir}/
+install	build-Linux-pld/exim		$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_fixdb	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_tidydb	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_dbmbuild	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/eximon.bin	$RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/eximon		$RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/exim_dumpdb	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exicyclog	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_lock	$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exinext		$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exiwhat		$RPM_BUILD_ROOT%{_bindir}
+install util/exigrep			$RPM_BUILD_ROOT%{_bindir}
+install util/eximstats			$RPM_BUILD_ROOT%{_bindir}
+install util/exiqsumm			$RPM_BUILD_ROOT%{_bindir} 
+install util/unknownuser.sh		$RPM_BUILD_ROOT%{_bindir}
+install util/transport-filter.pl	$RPM_BUILD_ROOT%{_bindir}
+install %{SOURCE5}			.
+install %{SOURCE11}			$RPM_BUILD_ROOT%{_bindir}
+install %{SOURCE3}			$RPM_BUILD_ROOT/etc/cron.daily/
+install %{SOURCE13}			$RPM_BUILD_ROOT/etc/sysconfig/%{name}
+install %{SOURCE2}			$RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install	%{SOURCE12}			$RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+install %{SOURCE10}			$RPM_BUILD_ROOT%{_sysconfdir}/mail/
+install %{SOURCE4}			$RPM_BUILD_ROOT%{_mandir}/man8/
+install %{SOURCE9}			$RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
+install	*.info				$RPM_BUILD_ROOT%{_infodir}/
 
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
@@ -139,6 +141,8 @@ ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 
+install %{SOURCE16} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/exim.sh
+install %{SOURCE17} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/exim.csh
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 strip $RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
@@ -223,6 +227,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 754,root,root) /etc/cron.daily/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 644,exim,root) %ghost %{_var}/log/exim/*
+%attr( 755,root,root) %{_sysconfdir}/profile.d/*
 %{_infodir}/*
 %{_mandir}/man8/*
 
