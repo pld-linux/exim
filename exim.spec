@@ -33,12 +33,10 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-# 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-Source13:	%{name}4-FAQ.txt.bz2
-# Source13-md5:	6ae34c36679bd423b32643464a06c4fd
-# 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-Source14:	%{name}4-config.samples.tar.bz2
-# Source14-md5:	918b390124cfc7515ba262e49bee750f
+Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
+# Source13-md5:	60be625d8a2c91219554ec31b15a8d18
+Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
+# Source14-md5:	73b68438e0032ca63185c9aa38f44bd8
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
