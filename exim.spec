@@ -164,7 +164,7 @@ makeinfo --force exim-texinfo-*/doc/*.texinfo
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,/usr/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_desktopdir},%{_pixmapsdir}}
 
@@ -188,7 +188,7 @@ install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_prefix}/lib/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT/usr/lib/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
@@ -283,7 +283,7 @@ fi
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_bindir}/convert4r4
 %attr( 755,root,root) %{_sbindir}/*
-%attr( 755,root,root) %{_prefix}/lib/sendmail
+%attr( 755,root,root) /usr/lib/sendmail
 %attr( 754,root,root) /etc/cron.weekly/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
