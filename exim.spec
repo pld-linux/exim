@@ -9,7 +9,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.36
-Release:	1
+Release:	2
 Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
@@ -29,6 +29,7 @@ Source12:	%{name}.sysconfig
 Source13:	%{name}-FAQ.txt.gz
 #Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
 Source14:	%{name}-config.samples.tar.gz
+Source15:	%{name}.pamd
 Patch0:		%{name}-EDITME.patch
 Patch1:		%{name}-monitor-EDITME.patch
 Patch2:		%{name}-texinfo.patch
@@ -149,7 +150,7 @@ makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail} \
+install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail,pam.d,security} \
 	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}} \
 	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
 	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
@@ -185,7 +186,10 @@ ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 
+install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/exim
+
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
+touch $RPM_BUILD_ROOT/etc/security/blacklist.exim
 
 gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt} \
@@ -252,6 +256,8 @@ fi
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/pam.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/security/blacklist.exim
 %attr( 754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
 %attr(1777,root,mail) %dir %{_var}/mail
