@@ -6,6 +6,7 @@
 
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
+Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.33
 Release:	3
@@ -85,21 +86,36 @@ konfiguracyjnych, weryfikacja nadawcy i/lub odbiorcy, selektywne
 relayowanie, wsparcie dla wirtualnych domen, wbudowany system filtrów,
 mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
 
+%description -l pt_BR
+O exim é um agente de transporte de correio eletrônico (MTA),
+desenvolvido na Universidade de Cambridge para uso em sistemas Unix
+conectados a Internet. Similar em estilo ao smail 3, suas facilidades
+são mais extensivas e em particular ele tem opções para verificação do
+remetente e destinatário, para recusar mensagens de máquinas, redes ou
+remetentes específicos.
+
 %package X11
-Summary:	X Window based Exim administration tool
-Summary(pl):	Narzêdzia administracyjne exima dla X Window
+Summary:	X11 based Exim administration tool
+Summary(pl):	Narzêdzia administracyjne exima dla X11
+Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
 Group(de):	X11/Applikationen
 Group(pl):	X11/Aplikacje
 Requires:	applnk
 
 %description X11
-X Window based monitor & administration utility for the Exim Mail
-Transfer Agent.
+X11 based monitor & administration utility for the Exim Mail Transfer
+Agent.
 
 %description X11 -l pl
-Bazuj±ce na X Window narzêdzia dla Exima - monitor i program
+Bazuj±ce na X11 narzêdzia dla Exima - monitor i program
 administracyjny.
+
+%description -l pt_BR X11
+O monitor exim é um suplemento opcional ao pacote exim. Ele mostra
+informações sobre o processamento do exim em uma janela X11. O
+administrador pode executar uma série de ações de controle a partir
+desta interface.
 
 %prep
 %setup -q -T -b 0
