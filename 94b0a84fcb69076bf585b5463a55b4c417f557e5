@@ -1,0 +1,2 @@
+- /var/mail removed from here (it belongs to FHS)
+  changed local delivery to work with mail group
