@@ -9,7 +9,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	3.36
-Release:	2
+Release:	3
 Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
@@ -260,7 +260,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/security/blacklist.exim
 %attr( 754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
-%attr(1777,root,mail) %dir %{_var}/mail
 %attr( 770,root,exim) %dir %{_var}/spool/exim
 %attr( 750,exim,exim) %dir %{_var}/spool/exim/db
 %attr( 700,exim,root) %dir %{_var}/spool/exim/input
