@@ -5,20 +5,20 @@
 # _without_ldap   - build without LDAP support
 # _without_exiscan - build without exiscan support
 
-%define		exiscan_version	4.20-08
+%define		exiscan_version	4.20-09
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.20
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
-# Source0-md5:	90f9e876b60d00c0a5dd53ece7c85338
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source1-md5:	debc6d3fdd88fd6d9c646ca0495fa92d
+# Source0-md5:	90f9e876b60d00c0a5dd53ece7c85338
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
+# Source1-md5:	debc6d3fdd88fd6d9c646ca0495fa92d
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -26,19 +26,19 @@ Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
 # 20021016: http://www.logic.univie.ac.at/~ametzler/debian/exim4manpages/
 Source7:	%{name}4-man-021016.tar.bz2
-# Source7-md5: b552704ebf853a401946038a2b7e8e98
+# Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source9:	%{name}.aliases
 Source10:	newaliases
-# Source11-md5:	c58826def40346daeee6709d88f48309
 Source11:	%{name}.logrotate
-# Source12-md5:	caafa78d68a914657798633a592999bd
+# Source11-md5:	c58826def40346daeee6709d88f48309
 Source12:	%{name}.sysconfig
+# Source12-md5:	caafa78d68a914657798633a592999bd
 # 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	6ae34c36679bd423b32643464a06c4fd
 Source13:	%{name}4-FAQ.txt.bz2
+# Source13-md5:	6ae34c36679bd423b32643464a06c4fd
 # 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	918b390124cfc7515ba262e49bee750f
 Source14:	%{name}4-config.samples.tar.bz2
+# Source14-md5:	918b390124cfc7515ba262e49bee750f
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
