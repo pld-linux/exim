@@ -160,7 +160,7 @@ if [ -n "`id -u exim 2>/dev/null`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
+	/usr/sbin/useradd -u 79 -r -m -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
 	if [ -f /var/db/passwd.db ]; then
 		/usr/bin/update-db 1>&2
 	fi
