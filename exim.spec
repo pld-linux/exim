@@ -1,10 +1,10 @@
 # Conditional build:
-%bcond_without	pgsql 	# without PostgreSQL support
-%bcond_without	mysql 	# without MySQL support
-%bcond_without	whoson 	# without whoson support
+%bcond_without	pgsql	# without PostgreSQL support
+%bcond_without	mysql	# without MySQL support
+%bcond_without	whoson	# without whoson support
 %bcond_without	ldap	# without LDAP support
 %bcond_without	exiscan	# without exiscan support
-%bcond_with	saexim # with sa-exim support
+%bcond_with	saexim	# with sa-exim support
 #
 %define		exiscan_version	4.30-14
 %define		saexim_version 3.1
@@ -72,7 +72,6 @@ Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
 Requires:	pam >= 0.77.3
 Provides:	smtpdaemon
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	masqmail
 Obsoletes:	omta
 Obsoletes:	postfix
@@ -84,6 +83,7 @@ Obsoletes:	sendmail-doc
 Obsoletes:	smail
 Obsoletes:	smtpdaemon
 Obsoletes:	zmailer
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
