@@ -159,8 +159,16 @@ gzip -9nf README* NOTICE LICENCE analyse-log-errors \
 	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}
 
 %pre
-/usr/sbin/groupadd -g 79 -r -f exim
-if [ -n "`id -u exim 2>/dev/null`" ]; then
+if [ -n "`/usr/bin/getgid exim`" ]; then
+	if [ "`getgid postfix`" != "79" ]; then
+		echo "Warning: group exim haven't gid=79. Corect this before install exim" 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/groupadd -g 79 -r -f exim
+fi
+
+if [ -n "`/bin/id/id -u exim 2>/dev/null`" ]; then
 	if [ "`id -u exim`" != "79" ]; then
 		echo "Warning: user exim doesn't have uid=79. Corect this before installing Exim" 1>&2
 		exit 1
@@ -168,10 +176,11 @@ if [ -n "`id -u exim 2>/dev/null`" ]; then
 else
 	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
 fi
+
 %post
 umask 022
 /sbin/chkconfig --add %{name}
-if [ -r /var/run/exim*.pid ]; then
+if [ -f /var/lock/subsys/exim ]; then
 	/etc/rc.d/init.d/%{name} restart >&2
 else
 	echo "Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon."
@@ -193,8 +202,10 @@ rm -f %{_sysconfdir}/security/pam_env.conf.tmp
 
 %preun
 if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/exim ]; then
+		/etc/rc.d/init.d/exim stop >&2
+	fi
 	/sbin/chkconfig --del %{name}
-	/etc/rc.d/init.d/%{name} stop >&2
 fi
 
 %postun
