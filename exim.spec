@@ -1,14 +1,14 @@
 # Conditional build:
-# _with_pgsql - build wiht PostgreSQ support
-# _with_mysql - build with MySQL support
-# _with_whoson- build with whoson support
-# _without_ldap - build without LDAP support
+# _without_pgsql  - build wihtout PostgreSQ support
+# _without_mysql  - build without MySQL support
+# _without_whoson - build without whoson support
+# _without_ldap   - build without LDAP support
 
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.01
+Version:	4.02
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
@@ -23,9 +23,9 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-#Source13:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
+# 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
 Source13:	%{name}-FAQ.txt.bz2
-#Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
+# 20020326: ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 Source14:	%{name}-config.samples.tar.bz2
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
@@ -34,33 +34,39 @@ Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
-%{?_with_mysql:BuildRequires: mysql-devel}
-%{?_with_pgsql:BuildRequires: postgresql-devel}
-%{?_with_whoson:BuildRequires: whoson-devel}
+%{!?_with_mysql:BuildRequires: mysql-devel}
+%{!?_with_pgsql:BuildRequires: postgresql-devel}
+%{!?_with_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
-BuildRequires:	texinfo
-BuildRequires:	perl
-BuildRequires:	pam-devel
-BuildRequires:	pcre-devel
 BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6a
+BuildRequires:	pam-devel
+BuildRequires:	pcre-devel
+BuildRequires:	perl
+BuildRequires:	perl-devel >= 5.6.0
+BuildRequires:	texinfo
 Provides:	smtpdaemon
-Prereq:		/usr/sbin/useradd
-Prereq:		/usr/sbin/groupadd
-Prereq:		/bin/awk
-Prereq:		/sbin/chkconfig
-Prereq:		rc-scripts
+PreReq:		/sbin/chkconfig
+PreReq:		rc-scripts
+Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Requires(post):	fileutils
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-Obsoletes:	smtpdaemon
+Obsoletes:	masqmail
+Obsoletes:	omta
+Obsoletes:	postfix
+Obsoletes:	qmail
+Obsoletes:	qmail-client
 Obsoletes:	sendmail
 Obsoletes:	sendmail-cf
 Obsoletes:	sendmail-doc
-Obsoletes:	postfix
-Obsoletes:	zmailer
 Obsoletes:	smail
-Obsoletes:	omta
-Obsoletes:	qmail
-Obsoletes:	qmail-client
+Obsoletes:	smtpdaemon
+Obsoletes:	zmailer
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
@@ -126,32 +132,34 @@ cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
-%{__make} CFLAGS="%{rpmcflags}" \
+%{__make} \
+	CC="%{__cc}" \
+	CFLAGS="%{rpmcflags}" \
 	LOOKUP_CDB=yes \
-	%{?_with_mysql:LOOKUP_MYSQL=yes} \
-	%{?_with_pgsql:LOOKUP_PGSQL=yes} \
-	%{?_with_whoson:LOOKUP_WHOSON=yes} \
+	%{!?_without_mysql:LOOKUP_MYSQL=yes} \
+	%{!?_without_pgsql:LOOKUP_PGSQL=yes} \
+	%{!?_without_whoson:LOOKUP_WHOSON=yes} \
 	%{!?_without_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{?_with_mysql:-lmysqlclient} %{?_with_pgsql:-lpq} %{?_with_whoson:-lwhoson}" \
-	LOOKUP_INCLUDE="%{?_with_mysql:-I%{_includedir}/mysql} %{?_with_pgsql:-I%{_includedir}/pgsql}"
+	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{!?_without_mysql:-lmysqlclient} %{!?_without_pgsql:-lpq} %{!?_without_whoson:-lwhoson}" \
+	LOOKUP_INCLUDE="%{!?_without_mysql:-I%{_includedir}/mysql} %{!?_without_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail} \
-	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}} \
-	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
-$RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
+install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
+install -d $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
 
-install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
-	build-Linux-pld/exinext \
-	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
-	build-Linux-pld/{exigrep,eximstats,exiqsumm,exiqsumm,convert4r4} \
+install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
+	build-Linux-*/exinext \
+	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
+	build-Linux-*/{exigrep,eximstats,exiqsumm,exiqsumm,convert4r4} \
 	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
-install build-Linux-pld/eximon $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
+install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
+install build-Linux-*/eximon $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/
@@ -175,8 +183,8 @@ install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
 gzip -9nf README* NOTICE LICENCE analyse-log-errors \
-	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim4.upgrade} \
-	build-Linux-pld/transport-filter.pl
+	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt} \
+	build-Linux-*/transport-filter.pl
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -236,7 +244,7 @@ if [ -f /etc/mail/exim.conf ]; then
 	mv /etc/mail/exim.conf /etc/mail/exim.conf.3
 	/usr/bin/convert4r4 < /etc/mail/exim.conf.3 > /etc/mail/exim.conf
 fi
-	
+
 %files
 %defattr(644,root,root,755)
 %doc *.gz doc/*.gz doc/*.bz2
