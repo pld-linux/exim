@@ -35,9 +35,9 @@ Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
-%{!?_with_mysql:BuildRequires: mysql-devel}
-%{!?_with_pgsql:BuildRequires: postgresql-devel}
-%{!?_with_whoson:BuildRequires: whoson-devel}
+%{!?_without_mysql:BuildRequires: mysql-devel}
+%{!?_without_pgsql:BuildRequires: postgresql-devel}
+%{!?_without_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6a
