@@ -1,32 +1,44 @@
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
-Version:	3.02
-Release:	2
+Version:	3.15
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
 URL:		http://www.exim.org/
 Source0:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-%{version}.tar.gz
-Source1:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-texinfo-3.00.tar.gz
+Source1:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-texinfo-3.10.tar.gz
 Source2:	exim.init
 Source3:	exim.cron.db
 Source4:	exim.8
 Source5:	analyse-log-errors
-Source6:	one-line-queuelist
-Source6:	EDITME
-Source7:	Makefile-Linux
-Source8:	eximon.conf
+Source6:	eximon.desktop
+Source8:	Makefile-Linux
 Source9:	exim.aliases
 Source10:	exim.conf
 Source11:	newaliases
 Source12:	exim.logrotate
 Source13:	exim.sysconfig
+Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
+Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
+Patch0:		exim-EDITME.patch
+Patch1:		exim-monitor-EDITME.patch
+Patch2:		exim-texinfo.patch
 Provides:	smtpdaemon
-Conflicts:	smtpdaemon
+Obsoletes:	smtpdaemon
+Obsoletes:	sendmail
+Obsoletes:	postfix
+Obsoletes:	zmailer
+Obsoletes:	smail
+Obsoletes:	qmail
+Prereq:		/usr/sbin/useradd
+Prereq:		/usr/sbin/groupadd
+Prereq:		/usr/sbin/fix-info-dir
 BuildRequires:	openldap-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
+BuildRequires:	pam-devel
 Requires:	openldap
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -53,6 +65,7 @@ Summary:	X Window based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X Window
 Group:		X11/Utilities
 Group(pl):	X11/Narzêdzia
+Requires:	applnk
 
 %description X11
 X Window based monitor & administration utility for the Exim Mail
@@ -65,42 +78,49 @@ administracyjny.
 %prep
 %setup -q -T -b 0
 %setup -q -T -D -a 1
+%patch0 -p1
+%patch1 -p1
+%patch2 -p0
+
+install %{SOURCE14} doc
+install %{SOURCE15} doc
+
 install -d Local
-install %{SOURCE6} Local/Makefile
-install %{SOURCE7} %{SOURCE8} Local/
+cp src/EDITME Local/Makefile
+cp exim_monitor/EDITME Local/eximon.conf
 
 %build
-makeinfo --no-split --output exim_overview.info	exim-texinfo-*/doc/oview.texinfo
-makeinfo --no-split --output exim.info		exim-texinfo-*/doc/spec.texinfo
-makeinfo --no-split --output exim_filter.info	exim-texinfo-*/doc/filter.texinfo
-
 %{__make} "CFLAGS=$RPM_OPT_FLAGS"
+
+makeinfo --no-split exim-texinfo-*/doc/oview.texinfo
+makeinfo --no-split exim-texinfo-*/doc/spec.texinfo
+makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
+install -d	$RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail}
 install -d	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}}
 install -d	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/exim,mail}
 install -d	$RPM_BUILD_ROOT%{_infodir}
+install -d	$RPM_BUILD_ROOT{/usr/X11R6/bin,%{_applnkdir}/System}
 
-install	build-Linux-i386/exim				$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exim_fixdb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exim_tidydb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exim_dbmbuild			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/eximon.bin			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/eximon				$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exim_dumpdb			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exicyclog			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exim_lock			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exinext			$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-i386/exiwhat			$RPM_BUILD_ROOT%{_bindir}
+install	build-Linux-pld/exim				$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_fixdb			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_tidydb			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_dbmbuild			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/eximon.bin			$RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/eximon				$RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/exim_dumpdb			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exicyclog			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exim_lock			$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exinext				$RPM_BUILD_ROOT%{_bindir}
+install build-Linux-pld/exiwhat				$RPM_BUILD_ROOT%{_bindir}
 install util/exigrep					$RPM_BUILD_ROOT%{_bindir}
 install util/eximstats					$RPM_BUILD_ROOT%{_bindir}
 install util/exiqsumm					$RPM_BUILD_ROOT%{_bindir} 
 install util/unknownuser.sh				$RPM_BUILD_ROOT%{_bindir}
 install util/transport-filter.pl			$RPM_BUILD_ROOT%{_bindir}
 install %{SOURCE5}					.
-install %{SOURCE6}					$RPM_BUILD_ROOT%{_bindir}
 install %{SOURCE11}					$RPM_BUILD_ROOT%{_bindir}
 install %{SOURCE3}					$RPM_BUILD_ROOT/etc/cron.daily/
 install %{SOURCE13}					$RPM_BUILD_ROOT/etc/sysconfig/%{name}
@@ -118,25 +138,34 @@ ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
 ln -s %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
-touch $RPM_BUILD_ROOT%{_var}/log/exim/{mainlog,rejectlog,paniclog,processlog}
+install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
+
+
+touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 strip $RPM_BUILD_ROOT%{_bindir}/* 2> /dev/null|| :
 
-gzip -9nf $RPM_BUILD_ROOT{%{_mandir}/man*/*,%{_infodir}/*}
+gzip -9nf $RPM_BUILD_ROOT{%{_mandir}/man*/*,%{_infodir}/*} \
+	README* NOTICE LICENCE analyse-log-errors \
+	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}
 
 %pre
-%{_sbindir}/groupadd -f -g 79 exim
-%{_sbindir}/useradd -M -g exim -d /var/spool/exim/ -u 79 -s /bin/false exim 2> /dev/null
-
-%postun
-%{_sbindir}/userdel exim 2> /dev/null
-%{_sbindir}/groupdel exim 2> /dev/null
-
+/usr/sbin/groupadd -g 79 -r -f exim
+if [ -n "`id -u exim 2>/dev/null`" ]; then
+	if [ "`id -u exim`" != "79" ]; then
+		echo "Warning: user exim doesn't have uid=79. Corect this before installing Exim" 1>&2
+		exit 1
+	fi
+else
+	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
+	if [ -f /var/db/passwd.db ]; then
+		/usr/bin/update-db 1>&2
+	fi
+fi
 %post
 umask 022
 /sbin/chkconfig --add %{name}
 if [ -r /var/run/exim*.pid ]; then
-	/etc/rc.d/init.d/%{name} stop >&2
-	/etc/rc.d/init.d/%{name} start >&2
+	/etc/rc.d/init.d/%{name} restart >&2
 else
 	echo "Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon."
 fi
@@ -146,7 +175,7 @@ if [ ! -f /etc/mail/mailname ]; then
 	chmod 644 /etc/mail/mailname
 fi
 newaliases
-[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
 %preun
 if [ "$1" = "0" ]; then
@@ -155,14 +184,20 @@ if [ "$1" = "0" ]; then
 fi
 
 %postun
-[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir %{_infodir} >/dev/null 2>&1
+[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
+if [ "$1" = "0" ]; then
+	/usr/sbin/userdel exim
+	/usr/sbin/groupdel exim
+fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors exim-texinfo-*/doc/*
+%doc README* NOTICE* LICENCE* analyse-log-errors*
+%doc doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt}.gz
+%doc doc/{FAQ.txt,config.samples.tar}.gz
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
@@ -185,16 +220,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_bindir}/transport-filter.pl
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_sbindir}/*
+%attr( 755,root,root) %{_libdir}/*
 %attr( 754,root,root) /etc/cron.daily/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
-%attr( 644,exim,root) %ghost %{_var}/log/exim/mainlog
-%attr( 644,exim,root) %ghost %{_var}/log/exim/rejectlog
-%attr( 644,exim,root) %ghost %{_var}/log/exim/paniclog
-%attr( 644,exim,root) %ghost %{_var}/log/exim/processlog
+%attr( 644,exim,root) %ghost %{_var}/log/exim/*
 %{_infodir}/*
 %{_mandir}/man8/*
 
 %files X11
 %defattr(644,root,root,755)
-%attr( 755,root,root) %{_bindir}/eximon
-%attr( 755,root,root) %{_bindir}/eximon.bin
+%attr(755,root,root) /usr/X11R6/bin/*
+%{_applnkdir}/System/*
