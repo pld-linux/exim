@@ -4,8 +4,8 @@ Name:		exim
 Version:	3.02
 Release:	1
 Copyright:	GPL
-Group:		Daemons
-Group(pl):	Serwery
+Group:		Networking/Daemons
+Group(pl):	Sieciowe/Serwery
 URL:		http://www.exim.org/
 Source0:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-texinfo-3.00.tar.gz
@@ -41,7 +41,7 @@ possible.
 
 %description -l pl
 Agent transferu poczty (MTA) z pojedynczym plikiem konfiguracyjnym.
-Jego zalety to: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków & koperty,
+Jego zalety: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków & koperty,
 wielokrotne dostarczanie poczty podczas jednego po³±czenia lub równoleg³e
 dostarczanie poczty, wyra¿enia regularne w parametrach konfiguracyjnych,
 weryfikacja nadawcy i/lub odbiorcy, selektywne relayowanie, wsparcie dla
