@@ -1,8 +1,17 @@
-Binary files exim-3.15.orig/doc/FAQ.txt.gz and exim-3.15/doc/FAQ.txt.gz differ
-Binary files exim-3.15.orig/doc/config.samples.tar.gz and exim-3.15/doc/config.samples.tar.gz differ
-diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
---- exim-3.15.orig/src/EDITME	Wed Jun 14 09:57:40 2000
-+++ exim-3.15/src/EDITME	Wed Jul 19 17:24:12 2000
+diff -ruN exim-3.20.orig/src/EDITME exim-3.20/src/EDITME
+--- exim-3.20.orig/src/EDITME	Sat Nov 25 17:02:47 2000
++++ exim-3.20/src/EDITME	Tue Dec  5 09:28:44 2000
+@@ -92,8 +92,8 @@
+ # appropriate code is included in the binary. You then need to set up the
+ # runtime configuration to make use of the mechanism(s) selected.
+ 
+-# AUTH_CRAM_MD5=yes
+-# AUTH_PLAINTEXT=yes
++AUTH_CRAM_MD5=yes
++AUTH_PLAINTEXT=yes
+ 
+ 
+ # The binary directory: This variable defines where the exim binary will be
 @@ -103,7 +103,7 @@
  # installed in this directory. There is no default for this variable built into
  # the source files; it must be set in one of the local configuration files.
@@ -75,33 +84,7 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  # which results in files with names /var/log/exim_mainlog, etc. The directory
  # in which the log files are placed must exist; Exim does not try to create
-@@ -336,7 +336,7 @@
- 
- # LOOKUP_CDB=yes
- # LOOKUP_DNSDB=yes
--# LOOKUP_LDAP=yes
-+LOOKUP_LDAP=yes
- # LOOKUP_MYSQL=yes
- # LOOKUP_NIS=yes
- # LOOKUP_NISPLUS=yes
-@@ -350,6 +350,7 @@
- 
- # LOOKUP_INCLUDE=-I /usr/local/ldap/include -I /usr/local/mysql/include -I /usr/local/pgsql/include
- # LOOKUP_LIBS=-L/usr/local/lib -lldap -llber -lmysqlclient -lpq
-+LOOKUP_LIBS=-lldap -llber
- 
- # If you have set LDAP=yes, you should set LDAP_LIB_TYPE to indicate which LDAP
- # library you have. Unfortunately, though most of their functions are the
-@@ -358,7 +359,7 @@
- # SDK library, and the library that comes with Solaris 7. Uncomment whichever
- # of these you are using.
- 
--# LDAP_LIB_TYPE=UMICHIGAN
-+LDAP_LIB_TYPE=UMICHIGAN
- # LDAP_LIB_TYPE=NETSCAPE
- # LDAP_LIB_TYPE=SOLARIS7
- 
-@@ -407,7 +408,7 @@
+@@ -409,7 +410,7 @@
  # the file name, allowing sites that run two separate daemons to distinguish
  # them. Some installations may want something like this
  
@@ -110,7 +93,7 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  # If PID_FILE_PATH is not defined, Exim writes a file in its spool directory
  # (see SPOOL_DIRECTORY below) with the name "exim-daemon.pid" for the standard
-@@ -456,7 +457,7 @@
+@@ -458,7 +459,7 @@
  # uid and gid.
  
  # Many installations will want something like this:
@@ -119,7 +102,7 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  # Others may prefer to keep all Exim things under one directory:
  # SPOOL_DIRECTORY=/usr/exim/spool
-@@ -474,7 +475,7 @@
+@@ -476,7 +477,7 @@
  # member of the Exim group, change the value to 0640. This is particularly
  # relevant if you are going to run the Exim monitor.
  
@@ -128,7 +111,7 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  
  # If STDERR_FILE is defined then the -df command line option causes Exim to
-@@ -488,9 +489,9 @@
+@@ -490,9 +491,9 @@
  # of formats. The code for three specialist formats, maildir, mailstore, and
  # MBX, is included only when requested by the following settings:
  
@@ -141,7 +124,7 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  
  # Moving frozen messages: If the following is uncommented, Exim is compiled
-@@ -508,10 +509,12 @@
+@@ -510,11 +511,12 @@
  # support, which is intended for use in conjunction with the SMTP AUTH
  # facilities, is included only when requested by the following setting:
  
@@ -150,8 +133,28 @@ diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
  
  # You probably need to add -lpam to EXTRALIBS, and in some releases of
  # GNU/Linux -ldl is also needed.
-+
+ 
 +EXTRALIBS=-lpam -ldl
  
+ # Exim can be built to support the SMTP STARTTLS command, which implements
+ # Transport Layer Security using SSL (Secure Sockets Layer). To do this, you
+@@ -522,8 +524,8 @@
+ # code of its own. Uncomment the following lines if you want to build Exim
+ # with TLS support.
  
- # Included transports: These variables determine which individual transport
+-# SUPPORT_TLS=yes
+-# TLS_LIBS=-lssl -lcrypto
++SUPPORT_TLS=yes
++TLS_LIBS=-lssl -lcrypto
+ 
+ # If you are running Exim as a server, note that just building it with TLS
+ # support is not usually all you need to do. You normally need to set up a
+@@ -565,7 +567,7 @@
+ # This one is special-purpose, and commonly not required, so do not include
+ # it by default.
+ 
+-# TRANSPORT_LMTP=yes
++TRANSPORT_LMTP=yes
+ 
+ 
+ # TCP wrappers: If you want to use tcpwrappers from within Exim, uncomment
