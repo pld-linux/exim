@@ -243,7 +243,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_sbindir}/*
 %attr( 755,root,root) %{_libdir}/*
-%attr( 754,root,root) /etc/cron.daily/exim.cron.db
+%attr( 754,root,root) /etc/cron.weekly/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
