@@ -317,7 +317,7 @@ fi
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
-%attr( 640,root,root) /etc/pam.d/smtp
+%attr( 640,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/pam.d/smtp
 %{_infodir}/*
 %{_mandir}/man8/*
 
