@@ -4,14 +4,19 @@
 %bcond_without	whoson		# build without whoson support
 %bcond_without	ldap		# build without LDAP support
 %bcond_without	exiscan		# build without exiscan support
+%bcond_with	spf		# build with SPF support
+%bcond_with	srs		# build with SRS support
+%bcond_with	saexim		# build with sa-exim support
+
 #
 %define		exiscan_version	4.41-25
+%define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.41
-Release:	1.1
+Release:	1.3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -39,6 +44,8 @@ Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.t
 # Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
+Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
+# Source15-md5:	34892f195384c127f7c40c461a9ef421
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
@@ -50,6 +57,8 @@ URL:		http://www.exim.org/
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
+%{?with_spf:BuildRequires:	libspf2-devel}
+%{?with_srs:BuildRequires:	libsrs_alt-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6k
@@ -137,6 +146,7 @@ desta interface.
 %patch4 -p1
 %patch5 -p0
 %{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
+%{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -146,15 +156,25 @@ cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
+
+%if %{with saexim}
+    cd sa-exim-%{saexim_version}
+    %{__make} -j1 sa-exim.h
+    echo '#define SPAMASSASSIN_CONF "%{_sysconfdir}/mail/spamassassin/local.cf"' >> sa-exim.h
+    cat sa-exim.c > ../src/local_scan.c
+    cat sa-exim.h > ../src/sa-exim.h
+    cd ..
+%endif
+
 %{__make} \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags}" \
+	CFLAGS="%{rpmcflags} %{?with_spf:-DSPF} %{?with_srs:-DSRS}" \
 	LOOKUP_CDB=yes \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
@@ -185,6 +205,8 @@ install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
+
+%{?with_saexim:install sa-exim-%{saexim_version}/sa-exim.conf $RPM_BUILD_ROOT/%{_sysconfdir}/mail/sa-exim.conf}
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_libdir}/sendmail
@@ -261,6 +283,7 @@ fi
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
+%{?with_saexim:%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
