@@ -100,7 +100,10 @@ Summary(pl):	Narzêdzia administracyjne exima dla X11
 Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
 Group(de):	X11/Applikationen
+Group(es):	X11/Aplicaciones
 Group(pl):	X11/Aplikacje
+Group(pt_BR):	X11/Aplicações
+Group(pt):	X11/Aplicações
 Requires:	applnk
 
 %description X11
