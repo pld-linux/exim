@@ -1,27 +1,25 @@
 # Conditional build:
-%bcond_without	pgsql		# build without PostgreSQL support
-%bcond_without	mysql		# build without MySQL support
-%bcond_without	whoson		# build without whoson support
-%bcond_without	ldap		# build without LDAP support
-%bcond_without	exiscan		# build without exiscan support
-%bcond_with	spf		# build with SPF support
-%bcond_with	srs		# build with SRS support
-%bcond_with	saexim		# build with sa-exim support
-
+%bcond_without	pgsql	# without PostgreSQL support
+%bcond_without	mysql	# without MySQL support
+%bcond_without	whoson	# without whoson support
+%bcond_without	sasl	# without SASL
+%bcond_without	ldap	# without LDAP support
+%bcond_without	exiscan	# without exiscan support
+%bcond_with	saexim	# with sa-exim support
 #
-%define		exiscan_version	4.42-27
+%define		exiscan_version	4.43-28
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.42
+Version:	4.43
 Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	eb6a06e70a78a03200b4e4aefbb7b0aa
+# Source0-md5:	f8f646d4920660cb5579becd9265a3bf
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.40.tar.bz2
 # Source1-md5:	cc91bd804ee0f7fd70991e2e6b529033
 Source2:	%{name}.init
@@ -33,15 +31,15 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	bc81a47009d24433a282e5c3a668fcb3
+# Source8-md5:	b2c629ee8f7edf7c0641e3cff4a602f6
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	8e188230dc95a0117cafd1fd804d2dd8
+# Source13-md5:	7c695675e5e60693916b787001252d56
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
+# Source14-md5:	42c7d5c02d06fdd3d8b6ba124ad9fd05
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
@@ -57,14 +55,13 @@ URL:		http://www.exim.org/
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
-%{?with_spf:BuildRequires:	libspf2-devel}
-%{?with_srs:BuildRequires:	libsrs_alt-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6k
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
+BuildRequires:	readline-devel
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
@@ -74,11 +71,16 @@ Requires(pre):	/usr/sbin/useradd
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(post):	fileutils
+Requires(post):	/bin/hostname
 Requires(post,preun):	/sbin/chkconfig
 Requires:	crondaemon
 Requires:	pam >= 0.77.3
+Provides:	group(exim)
 Provides:	smtpdaemon
+Provides:	user(exim)
+Obsoletes:	courier
 Obsoletes:	masqmail
+Obsoletes:	nullmailer
 Obsoletes:	omta
 Obsoletes:	postfix
 Obsoletes:	qmail
@@ -88,6 +90,7 @@ Obsoletes:	sendmail-cf
 Obsoletes:	sendmail-doc
 Obsoletes:	smail
 Obsoletes:	smtpdaemon
+Obsoletes:	ssmtp
 Obsoletes:	zmailer
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -145,6 +148,7 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p0
+
 %{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 %{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
@@ -166,15 +170,16 @@ cp -f exim_monitor/EDITME Local/eximon.conf
     cd ..
 %endif
 
-%{__make} \
+%{__make} -j1 \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} %{?with_spf:-DSPF} %{?with_srs:-DSRS}" \
 	LOOKUP_CDB=yes \
+	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
+	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
@@ -224,21 +229,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 if [ -n "`/usr/bin/getgid exim`" ]; then
-	if [ "`getgid exim`" != "79" ]; then
+	if [ "`/usr/bin/getgid exim`" != 79 ]; then
 		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/groupadd -g 79 -r -f exim
+	/usr/sbin/groupadd -g 79 exim 1>&2
 fi
 
 if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
-	if [ "`id -u exim`" != "79" ]; then
-		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
+	if [ "`/bin/id -u exim`" != 79 ]; then
+		echo "Warning: user exim doesn't have uid=79. Correct this before installing exim" 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
+	/usr/sbin/useradd -u 79 -d /var/spool/exim -s /bin/false \
+		-c "Exim pseudo user" -g exim exim 1>&2
 fi
 
 %post
@@ -282,34 +288,34 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt%{?with_exiscan:,exiscan-*.txt}} build-Linux-*/transport-filter.pl
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
-%{?with_saexim:%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
-%attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
-%attr( 754,root,root) /etc/rc.d/init.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
+%{?with_saexim:%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/sa-exim.conf}
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
+%attr(644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/exim
+%attr(754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
-%attr( 770,root,exim) %dir %{_var}/spool/exim
-%attr( 750,exim,exim) %dir %{_var}/spool/exim/db
-%attr( 700,exim,root) %dir %{_var}/spool/exim/input
-%attr( 750,exim,root) %dir %{_var}/spool/exim/msglog
-%attr( 755,root,root) %{_bindir}/exim_*
-%attr( 755,root,root) %{_bindir}/exinext
-%attr( 755,root,root) %{_bindir}/exiwhat
-%attr( 755,root,root) %{_bindir}/exicyclog
-%attr( 755,root,root) %{_bindir}/exigrep
-%attr( 755,root,root) %{_bindir}/eximstats
-%attr( 755,root,root) %{_bindir}/exiqsumm
-%attr( 755,root,root) %{_bindir}/unknownuser.sh
-%attr( 755,root,root) %{_bindir}/newaliases
-%attr( 755,root,root) %{_bindir}/convert4r4
-%attr( 755,root,root) %{_sbindir}/*
-%attr( 755,root,root) %{_libdir}/*
-%attr( 754,root,root) /etc/cron.weekly/exim.cron.db
-%attr( 750,exim,root) %dir %{_var}/log/exim
-%attr( 750,exim,root) %dir %{_var}/log/archiv/exim
-%attr( 640,exim,root) %ghost %{_var}/log/exim/*
-%attr( 640,root,root) /etc/pam.d/smtp
+%attr(770,root,exim) %dir %{_var}/spool/exim
+%attr(750,exim,exim) %dir %{_var}/spool/exim/db
+%attr(700,exim,root) %dir %{_var}/spool/exim/input
+%attr(750,exim,root) %dir %{_var}/spool/exim/msglog
+%attr(755,root,root) %{_bindir}/exim_*
+%attr(755,root,root) %{_bindir}/exinext
+%attr(755,root,root) %{_bindir}/exiwhat
+%attr(755,root,root) %{_bindir}/exicyclog
+%attr(755,root,root) %{_bindir}/exigrep
+%attr(755,root,root) %{_bindir}/eximstats
+%attr(755,root,root) %{_bindir}/exiqsumm
+%attr(755,root,root) %{_bindir}/unknownuser.sh
+%attr(755,root,root) %{_bindir}/newaliases
+%attr(755,root,root) %{_bindir}/convert4r4
+%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_libdir}/*
+%attr(754,root,root) /etc/cron.weekly/exim.cron.db
+%attr(750,exim,root) %dir %{_var}/log/exim
+%attr(750,exim,root) %dir %{_var}/log/archiv/exim
+%attr(640,exim,root) %ghost %{_var}/log/exim/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/pam.d/smtp
 %{_infodir}/*
 %{_mandir}/man8/*
 
