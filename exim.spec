@@ -8,7 +8,7 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	3.953
+Version:	4.00
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
@@ -17,8 +17,8 @@ Group(es):	Red/Servidores
 Group(fr):	Réseau/Serveurs
 Group(pl):	Sieciowe/Serwery
 Group(pt):	Rede/Server
-Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/Testing/%{name}-%{version}.tar.bz2
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/Testing/%{name}-texinfo-3.951.tar.bz2
+Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/exim-4.00.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/exim-texinfo-4.00.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -29,9 +29,9 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 #Source13:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source13:	%{name}-FAQ.txt.gz
-#Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
-Source14:	%{name}-config.samples.tar.gz
+Source13:	%{name}-FAQ.txt.bz2 
+#Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
+Source14:	%{name}-config.samples.tar.bz2
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
