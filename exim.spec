@@ -52,14 +52,9 @@ BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 5.6.0
 BuildRequires:	texinfo
 PreReq:		rc-scripts
-Requires(pre):	/bin/id
-Requires(pre):	/usr/bin/getgid
-Requires(pre):	/usr/sbin/groupadd
-Requires(pre):	/usr/sbin/useradd
+Requires(pre):	user-exim
 Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
-Requires(postun):	/usr/sbin/groupdel
-Requires(postun):	/usr/sbin/userdel
 Provides:	smtpdaemon
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	masqmail
@@ -192,25 +187,6 @@ touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
-if [ -n "`/usr/bin/getgid exim`" ]; then
-	if [ "`getgid exim`" != "79" ]; then
-		echo "Warning: group exim haven't gid=79. Correct this before installing exim" 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/groupadd -g 79 -r -f exim
-fi
-
-if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
-	if [ "`id -u exim`" != "79" ]; then
-		echo "Warning: user exim doesn't have uid=79. Correct this before installing Exim" 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/useradd -u 79 -r -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim 1>&2
-fi
-
 %post
 umask 022
 /sbin/chkconfig --add %{name}
@@ -237,10 +213,6 @@ fi
 
 %postun
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
-if [ "$1" = "0" ]; then
-	/usr/sbin/userdel exim
-	/usr/sbin/groupdel exim
-fi
 
 %triggerpostun -- exim  < 3.90
 if [ -f /etc/mail/exim.conf ]; then
