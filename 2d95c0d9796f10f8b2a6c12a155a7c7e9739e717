@@ -1,0 +1,1 @@
+- in %pre s/postfix/exim/ in getgid test, and added openssl-devel to BuildReq
