@@ -20,8 +20,10 @@ Source10:	exim.conf
 Source11:	newaliases
 Source12:	exim.logrotate
 Source13:	exim.sysconfig
-Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
+#Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
+Source14:	exim-FAQ.txt.gz
+#Source15:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
+Source15:	exim-config.samples.tar.gz
 Patch0:		exim-EDITME.patch
 Patch1:		exim-monitor-EDITME.patch
 Patch2:		exim-texinfo.patch
@@ -85,8 +87,8 @@ administracyjny.
 %patch2 -p0
 %patch3 -p1
 
-install %{SOURCE14} doc
-install %{SOURCE15} doc
+install %{SOURCE14} doc/FAQ.txt.gz
+install %{SOURCE15} doc/config.samples.tar.gz
 
 install -d Local
 cp src/EDITME Local/Makefile
