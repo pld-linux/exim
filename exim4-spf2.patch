@@ -1,0 +1,15 @@
+--- src/spf.h~	2004-08-02 22:33:25.679145784 +0200
++++ src/spf.h	2004-08-02 22:34:34.029754912 +0200
+@@ -10,9 +10,9 @@
+ 
+ #ifdef SPF
+ 
+-#include <spf_alt/spf.h>
+-#include <spf_alt/spf_dns_resolv.h>
+-#include <spf_alt/spf_dns_cache.h>
++#include <spf2/spf.h>
++#include <spf2/spf_dns_resolv.h>
++#include <spf2/spf_dns_cache.h>
+ 
+ typedef struct spf_result_id {
+   uschar *name;
