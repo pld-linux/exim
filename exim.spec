@@ -149,6 +149,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
 	LOOKUP_CDB=yes \
+	XLFLAGS=-L/usr/X11R6/%{_lib} \
+	X11_LD_LIB=/usr/X11R6/%{_lib} \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
