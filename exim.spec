@@ -19,7 +19,7 @@ Source10:	exim.conf
 Source11:	newaliases
 Source12:	exim.lorrotate
 Provides:	smtpdaemon
-BuildRoot:	/tmp/%{name}-%version}root
+BuildRoot:	/tmp/%{name}-%{version}-root
 
 %description
 Smail like Mail Transfer Agent with single configuration file. Features:
