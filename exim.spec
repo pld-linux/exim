@@ -129,8 +129,7 @@ administrador pode executar uma série de ações de controle a partir
 desta interface.
 
 %prep
-%setup -q -T -b 0
-%setup -q -T -D -a 1 -a 7
+%setup -q -a1 -a7
 %patch0 -p1
 %patch1 -p1
 %patch2 -p0
