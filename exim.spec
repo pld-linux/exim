@@ -11,7 +11,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.20
-Release:	4
+Release:	5
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -46,6 +46,7 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
 Patch6:		http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
 Patch7:		%{name}4-saslauthd.patch
+Patch8:		%{name}-DSEARCH.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_mysql:BuildRequires: mysql-devel}
@@ -145,6 +146,8 @@ install %{SOURCE14} doc/config.samples.tar.bz2
 install -d Local
 cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
+
+%patch8 -p1
 
 %build
 %{__make} \
