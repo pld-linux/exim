@@ -48,6 +48,7 @@ Obsoletes:	postfix
 Obsoletes:	zmailer
 Obsoletes:	smail
 Obsoletes:	qmail
+Obsoletes:	qmail-client
 
 %description
 Smail like Mail Transfer Agent with single configuration file.
