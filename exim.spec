@@ -118,8 +118,8 @@ desta interface.
 %patch3 -p1
 %patch4 -p1
 
-install %{SOURCE13} doc/FAQ.txt.gz
-install %{SOURCE14} doc/config.samples.tar.gz
+install %{SOURCE13} doc/FAQ.txt.bz2
+install %{SOURCE14} doc/config.samples.tar.bz2
 
 install -d Local
 cp -f src/EDITME Local/Makefile
@@ -147,7 +147,7 @@ $RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
 install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-pld/exinext \
 	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
-	build-Linux-pld/{exigrep,eximstats,exiqsumm,exiqsumm} \
+	build-Linux-pld/{exigrep,eximstats,exiqsumm,exiqsumm,convert4r4} \
 	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
@@ -175,7 +175,7 @@ install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
 gzip -9nf README* NOTICE LICENCE analyse-log-errors \
-	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt} \
+	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim4.upgrade} \
 	build-Linux-pld/transport-filter.pl
 
 %clean
@@ -233,8 +233,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc *.gz doc/*.gz
-%doc util/*.gz
+%doc *.gz doc/*.gz doc/*.bz2
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/exim.conf
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/mail/aliases
 %attr( 644,root,root) %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/exim
@@ -255,6 +254,7 @@ fi
 %attr( 755,root,root) %{_bindir}/exiqsumm
 %attr( 755,root,root) %{_bindir}/unknownuser.sh
 %attr( 755,root,root) %{_bindir}/newaliases
+%attr( 755,root,root) %{_bindir}/convert4r4
 %attr( 755,root,root) %{_sbindir}/*
 %attr( 755,root,root) %{_libdir}/*
 %attr( 754,root,root) %{_sysconfdir}/cron.weekly/exim.cron.db
