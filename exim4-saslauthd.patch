@@ -1,0 +1,742 @@
+diff -urP exim-4.20.orig/doc/README.saslauthd.txt exim-4.20/doc/README.saslauthd.txt
+--- exim-4.20.orig/doc/README.saslauthd.txt	1970-01-01 01:00:00.000000000 +0100
++++ exim-4.20/doc/README.saslauthd.txt	2003-07-09 02:46:14.000000000 +0200
+@@ -0,0 +1,31 @@
++This is sample configuration for enabling authorization mechanism in
++Exim-4.20 using saslauthd from pacakge cyrus-sasl-saslauthd-2.x (note:
++not from cyrus-sasl-saslauthd-1.5.27, that provides *pwcheck* daemon):
++
++-8<-cut-here---------------------------------------------------------
++
++begin authenticators
++
++plain:
++  driver = plaintext
++  public_name = PLAIN
++  server_condition = ${if saslauthd{$1:$3:smtp}{1}{0}}
++  server_set_id = $2
++
++login:
++  driver = plaintext
++  public_name = LOGIN
++  server_prompts = "Username:: : Password::"
++  server_condition = ${if saslauthd{$1:$2:smtp}{1}{0}}
++  server_set_id = $1
++
++-8<-cut-here---------------------------------------------------------
++
++Orginal patch has been developed by Alexander Sabourenkov <lists at lxnt.info>
++and can be find on <http://lxnt.info/stuff/saslauthd.diff>. The syntax of 
++of saslauthd condition is simmilar to pwcheck:
++
++${if saslauthd{{<username>}{<password>}[{<servicename>}[{<realm>}]]}{1}{0}}
++
++Baseciq <baseciq@pld-linux.org>
++
+diff -urP exim-4.20.orig/doc/README.saslauthd.txt~ exim-4.20/doc/README.saslauthd.txt~
+--- exim-4.20.orig/doc/README.saslauthd.txt~	1970-01-01 01:00:00.000000000 +0100
++++ exim-4.20/doc/README.saslauthd.txt~	2003-07-09 02:34:46.000000000 +0200
+@@ -0,0 +1,31 @@
++This is sample configuration for enabling authorization mechanism in
++Exim-4.20 using saslauthd (not pwcheck!) from pacakge 
++cyrus-sasl-saslauthd-2.x:
++
++-8<-cut-here---------------------------------------------------------
++
++begin authenticators
++
++plain:
++  driver = plaintext
++  public_name = PLAIN
++  server_condition = ${if saslauthd{$1:$3:smtp}{1}{0}}
++  server_set_id = $2
++
++login:
++  driver = plaintext
++  public_name = LOGIN
++  server_prompts = "Username:: : Password::"
++  server_condition = ${if saslauthd{$1:$2:smtp}{1}{0}}
++  server_set_id = $1
++
++-8<-cut-here---------------------------------------------------------
++
++Orginal patch has been developed by Alexander Sabourenkov <lists at lxnt.info>
++and can be find on <http://lxnt.info/stuff/saslauthd.diff>. The syntax of 
++of saslauthd condition is simmilar to pwcheck:
++
++${if saslauthd{{<username>}{<password>}[{<servicename>}[{<realm>}]]}{1}{0}}
++
++Baseciq <baseciq@pld-linux.org>
++
+diff -urP exim-4.20.orig/src/auths/call_pwcheck.c exim-4.20/src/auths/call_pwcheck.c
+--- exim-4.20.orig/src/auths/call_pwcheck.c	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/auths/call_pwcheck.c	2003-07-09 02:04:37.000000000 +0200
+@@ -13,7 +13,7 @@
+ *          External entry point                  *
+ *************************************************/
+ 
+-/* This function calls the Cyrus-SASL authentication daemon, passing over a
++/* This function calls a Cyrus-SASL authentication daemon, pwcheck, passing over a
+ colon-separated user name and password. As this is called from the string
+ expander, the string will always be in dynamic store and can be overwritten.
+ 
+@@ -50,7 +50,7 @@
+   DEBUG(D_auth) debug_printf("pwcheck: success (%s)\n", reply);
+   return OK;
+ 
+-  case PWCHECK_BAD:
++  case PWCHECK_NO:
+   DEBUG(D_auth) debug_printf("pwcheck: access denied (%s)\n", reply);
+   return FAIL;
+ 
+@@ -61,4 +61,75 @@
+   }
+ }
+ 
++/*************************************************
++*          External entry point                  *
++*************************************************/
++
++/* This function calls a Cyrus-SASL authentication daemon, saslauthd,
++passing over a colon-separated user name and password. As this is called
++from the string expander, the string will always be in dynamic store and
++can be overwritten.
++
++Arguments:
++  s        a colon-separated username:password[:servicename[:realm]] string
++  errptr   where to point an error message
++
++Returns:   OK if authentication succeeded
++           FAIL if authentication failed
++           ERROR some other error condition
++*/
++
++
++int
++auth_call_saslauthd(uschar *s, uschar **errptr)
++{
++uschar *reply = NULL;
++uschar *pw = Ustrchr(s, ':');
++uschar *service, *realm;
++
++if (pw == NULL)
++  {
++  *errptr = US"saslauthd: malformed input - missing colon";
++  return ERROR;
++  }
++
++*pw++ = 0;   /* Separate user and password */
++service = Ustrchr(pw, ':');
++if (service != NULL )
++  {
++  *service++ = 0;
++  realm = Ustrchr(service, ':');
++  if ( realm != NULL )
++    *realm++ = 0;
++  else
++    realm = "";
++  }
++else
++  {
++  service = "";
++  realm = "";
++  }
++
++
++DEBUG(D_auth)
++  debug_printf("Running saslauthd authentication for user \"%s\"\n", s);
++
++switch (saslauthd_verify_password(CS s, CS pw, CS service, CS realm, (const char **)(&reply)))
++  {
++  case PWCHECK_OK:
++  DEBUG(D_auth) debug_printf("saslauthd: success (%s)\n", reply);
++  return OK;
++
++  case PWCHECK_NO:
++  DEBUG(D_auth) debug_printf("saslauthd: access denied (%s)\n", reply);
++  return FAIL;
++
++  default:
++  DEBUG(D_auth) debug_printf("saslauthd: query failed (%s)\n", reply);
++  *errptr = reply;
++  return ERROR;
++  }
++}
++
++
+ /* End of call_pwcheck.c */
+diff -urP exim-4.20.orig/src/auths/pwcheck.c exim-4.20/src/auths/pwcheck.c
+--- exim-4.20.orig/src/auths/pwcheck.c	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/auths/pwcheck.c	2003-07-09 02:04:37.000000000 +0200
+@@ -45,7 +45,7 @@
+ 
+ /*
+  * Taken from Cyrus-SASL library and adapted by Alexander S. Sabourenkov
+- * Oct 2001 - Apr 2002. Slightly modified by Philip Hazel.
++ * Oct 2001 - Apr 2003. Slightly modified by Philip Hazel.
+  *
+  * screwdriver@lxnt.info
+  *
+@@ -55,6 +55,17 @@
+ #include "../exim.h"
+ #include "pwcheck.h"
+ 
++#if defined(CYRUS_PWCHECK_SOCKET) || defined(CYRUS_SASLAUTHD_SOCKET)
++
++#include <sys/uio.h>
++
++static int retry_read(int, void *, unsigned );
++static int retry_writev(int, struct iovec *, int );
++static int read_string(int, uschar **);
++static int write_string(int, const uschar *, int);
++
++#endif
++
+ /* A dummy function that always fails if pwcheck support is not
+ wanted. */
+ 
+@@ -73,65 +84,6 @@
+ /* This is the real function */
+ 
+ #else
+-#include <sys/uio.h>
+-
+-
+- /* taken from cyrus-sasl file checkpw.c */
+- /*
+-  * Keep calling the writev() system call with 'fd', 'iov', and 'iovcnt'
+-  * until all the data is written out or an error occurs.
+-  */
+- static int retry_writev(int fd, struct iovec *iov, int iovcnt)
+- {
+-     int n;
+-     int i;
+-     int written = 0;
+-     static int iov_max =
+- #ifdef MAXIOV
+-       MAXIOV
+- #else
+- #ifdef IOV_MAX
+-       IOV_MAX
+- #else
+-       8192
+- #endif
+- #endif
+-       ;
+-
+-     for (;;) {
+-       while (iovcnt && iov[0].iov_len == 0) {
+-	   iov++;
+-	   iovcnt--;
+-       }
+-
+-       if (!iovcnt) return written;
+-
+-       n = writev(fd, iov, iovcnt > iov_max ? iov_max : iovcnt);
+-       if (n == -1) {
+-	   if (errno == EINVAL && iov_max > 10) {
+-	       iov_max /= 2;
+-	       continue;
+-	   }
+-	   if (errno == EINTR) continue;
+-	   return -1;
+-       }
+-
+-       written += n;
+-
+-       for (i = 0; i < iovcnt; i++) {
+-	   if (iov[i].iov_len > n) {
+-	       iov[i].iov_base = (char *)iov[i].iov_base + n;
+-	       iov[i].iov_len -= n;
+-	       break;
+-	   }
+-	   n -= iov[i].iov_len;
+-	   iov[i].iov_len = 0;
+-       }
+-
+-       if (i == iovcnt) return written;
+-     }
+- }
+-
+ 
+  /* taken from cyrus-sasl file checkpw.c */
+  /* pwcheck daemon-authenticated login */
+@@ -139,18 +91,15 @@
+ 				  const char *passwd,
+ 				  const char **reply)
+  {
+-     int s;
++     int s, start, r, n;
+      struct sockaddr_un srvaddr;
+-     int r;
+-     struct iovec iov[10];
++     struct iovec iov[2];
+      static char response[1024];
+-     int start, n;
+-     /* char pwpath[1024];   is not used - PH */
+ 
+      if (reply) { *reply = NULL; }
+ 
+      s = socket(AF_UNIX, SOCK_STREAM, 0);
+-     if (s == -1) return errno;
++     if (s == -1) { return PWCHECK_FAIL; }
+ 
+      memset((char *)&srvaddr, 0, sizeof(srvaddr));
+      srvaddr.sun_family = AF_UNIX;
+@@ -185,9 +134,307 @@
+ 
+      response[start] = '\0';
+      if (reply) { *reply = response; }
+-     return PWCHECK_BAD;
++     return PWCHECK_NO;
+  }
+ 
+ #endif
+ 
++
++ /* A dummy function that always fails if saslauthd support is not
++wanted. */
++
++#ifndef CYRUS_SASLAUTHD_SOCKET
++int saslauthd_verify_password(const char *userid,
++			    const char *passwd,
++                const char *service,
++                const char *realm,
++			    const char **reply)
++{
++userid = userid;  /* Keep picky compilers happy */
++passwd = passwd;
++service = service;
++realm = realm;
++*reply = "saslauthd support is not included in this Exim binary";
++return PWCHECK_FAIL;
++}
++
++
++/* This is the real function */
++
++#else
++ /* written from scratch  */
++ /* saslauthd daemon-authenticated login */
++
++int saslauthd_verify_password(const char *userid,
++			    const char *password,
++                const char *service,
++                const char *realm,
++			    const char **reply)
++{
++     uschar *daemon_reply;
++     int s, r;
++     struct sockaddr_un srvaddr;
++
++    DEBUG(D_auth)
++        debug_printf("saslauthd userid='%s' password='%s' servicename='%s'"
++                     " realm='%s'\n", userid, password, service, realm );
++
++    if (reply)
++        *reply = NULL;
++
++    s = socket(AF_UNIX, SOCK_STREAM, 0);
++    if (s == -1) {
++        if (reply)
++            *reply = strerror(errno);
++       return PWCHECK_FAIL;
++    }
++
++    memset((char *)&srvaddr, 0, sizeof(srvaddr));
++    srvaddr.sun_family = AF_UNIX;
++    strncpy(srvaddr.sun_path, CYRUS_SASLAUTHD_SOCKET,
++            sizeof(srvaddr.sun_path));
++    r = connect(s, (struct sockaddr *)&srvaddr, sizeof(srvaddr));
++    if (r == -1) {
++        DEBUG(D_auth)
++            debug_printf("Cannot connect to saslauthd daemon (at '%s'): %s\n",
++                         CYRUS_SASLAUTHD_SOCKET, strerror(errno));
++       if (reply)
++           *reply = string_sprintf("cannot connect to saslauthd daemon at "
++                                   "%s: %s", strerror(errno));
++       return PWCHECK_FAIL;
++    }
++
++    if ( write_string(s, userid, strlen(userid)) < 0) {
++        DEBUG(D_auth)
++            debug_printf("Failed to send userid to saslauthd daemon \n");
++        close(s);
++        return PWCHECK_FAIL;
++    }
++
++    if ( write_string(s, password, strlen(password)) < 0) {
++        DEBUG(D_auth)
++            debug_printf("Failed to send password to saslauthd daemon \n");
++        close(s);
++        return PWCHECK_FAIL;
++    }
++
++    memset(password, 0, strlen(password));
++
++    if ( write_string(s, service, strlen(service)) < 0) {
++        DEBUG(D_auth)
++            debug_printf("Failed to send service name to saslauthd daemon \n");
++        close(s);
++        return PWCHECK_FAIL;
++    }
++
++    if ( write_string(s, realm, strlen(realm)) < 0) {
++        DEBUG(D_auth)
++            debug_printf("Failed to send realm to saslauthd daemon \n");
++        close(s);
++        return PWCHECK_FAIL;
++    }
++
++    if ( read_string(s, &daemon_reply ) < 2) {
++        DEBUG(D_auth)
++            debug_printf("Corrupted answer '%s' received. \n", daemon_reply);
++        close(s);
++        return PWCHECK_FAIL;
++    }
++
++    close(s);
++
++    DEBUG(D_auth)
++        debug_printf("Answer '%s' received. \n", daemon_reply);
++
++    *reply = daemon_reply;
++
++    if ( (daemon_reply[0] == 'O') && (daemon_reply[1] == 'K') )
++        return PWCHECK_OK;
++
++    if ( (daemon_reply[0] == 'N') && (daemon_reply[1] == 'O') )
++        return PWCHECK_NO;
++
++    return PWCHECK_FAIL;
++}
++
++#endif
++
++
++/* helper functions */
++#if defined(CYRUS_PWCHECK_SOCKET) || defined(CYRUS_SASLAUTHD_SOCKET)
++
++#define MAX_REQ_LEN 1024
++
++/* written from scratch */
++
++/* FUNCTION: read_string */
++
++/* SYNOPSIS
++ * read a sasld-style counted string into
++ * store-allocated buffer, set pointer to the buffer,
++ * return number of bytes read or -1 on failure.
++ * END SYNOPSIS */
++
++static int read_string(int fd, uschar **retval) {
++    unsigned short count;
++    int rc;
++
++    rc = (retry_read(fd, &count, sizeof(count)) < (int) sizeof(count));
++    if (!rc) {
++        count = ntohs(count);
++        if (count > MAX_REQ_LEN) {
++            return -1;
++        } else {
++            *retval = store_get(count + 1);
++            rc = (retry_read(fd, *retval, count) < (int) count);
++            (*retval)[count] = '\0';
++            return count;
++        }
++    }
++}
++
++
++/* FUNCTION: write_string */
++
++/* SYNOPSIS
++ * write a sasld-style counted string into given fd
++ * written bytes on success, -1 on failure.
++ * END SYNOPSIS */
++
++static int write_string(int fd, const uschar *string, int len) {
++    unsigned short count;
++    int rc;
++    struct iovec iov[2];
++
++    count = htons(len);
++
++    iov[0].iov_base = (void *) &count;
++    iov[0].iov_len = sizeof(count);
++    iov[1].iov_base = (void *) string;
++    iov[1].iov_len = len;
++
++    rc = retry_writev(fd, iov, 2);
++
++    return rc;
++}
++
++
++/* taken from cyrus-sasl file saslauthd/saslauthd-unix.c  */
++
++/* FUNCTION: retry_read */
++
++/* SYNOPSIS
++ * Keep calling the read() system call with 'fd', 'buf', and 'nbyte'
++ * until all the data is read in or an error occurs.
++ * END SYNOPSIS */
++static int retry_read(int fd, void *inbuf, unsigned nbyte)
++{
++    int n;
++    int nread = 0;
++    char *buf = (char *)inbuf;
++
++    if (nbyte == 0) return 0;
++
++    for (;;) {
++	n = read(fd, buf, nbyte);
++	if (n == 0) {
++	    /* end of file */
++	    return -1;
++	}
++	if (n == -1) {
++	    if (errno == EINTR) continue;
++	    return -1;
++	}
++
++	nread += n;
++
++	if (n >= (int) nbyte) return nread;
++
++	buf += n;
++	nbyte -= n;
++    }
++}
++
++/* END FUNCTION: retry_read */
++
++/* FUNCTION: retry_writev */
++
++/* SYNOPSIS
++ * Keep calling the writev() system call with 'fd', 'iov', and 'iovcnt'
++ * until all the data is written out or an error occurs.
++ * END SYNOPSIS */
++
++static int	/* R: bytes written, or -1 on error */
++retry_writev (
++  /* PARAMETERS */
++  int fd,				/* I: fd to write on */
++  struct iovec *iov,			/* U: iovec array base
++					 *    modified as data written */
++  int iovcnt				/* I: number of iovec entries */
++  /* END PARAMETERS */
++  )
++{
++    /* VARIABLES */
++    int n;				/* return value from writev() */
++    int i;				/* loop counter */
++    int written;			/* bytes written so far */
++    static int iov_max;			/* max number of iovec entries */
++    /* END VARIABLES */
++
++    /* initialization */
++#ifdef MAXIOV
++    iov_max = MAXIOV;
++#else /* ! MAXIOV */
++# ifdef IOV_MAX
++    iov_max = IOV_MAX;
++# else /* ! IOV_MAX */
++    iov_max = 8192;
++# endif /* ! IOV_MAX */
++#endif /* ! MAXIOV */
++    written = 0;
++
++    for (;;) {
++
++	while (iovcnt && iov[0].iov_len == 0) {
++	    iov++;
++	    iovcnt--;
++	}
++
++	if (!iovcnt) {
++	    return written;
++	}
++
++	n = writev(fd, iov, iovcnt > iov_max ? iov_max : iovcnt);
++	if (n == -1) {
++	    if (errno == EINVAL && iov_max > 10) {
++		iov_max /= 2;
++		continue;
++	    }
++	    if (errno == EINTR) {
++		continue;
++	    }
++	    return -1;
++	} else {
++	    written += n;
++	}
++
++	for (i = 0; i < iovcnt; i++) {
++	    if (iov[i].iov_len > (unsigned) n) {
++		iov[i].iov_base = (char *)iov[i].iov_base + n;
++		iov[i].iov_len -= n;
++		break;
++	    }
++	    n -= iov[i].iov_len;
++	    iov[i].iov_len = 0;
++	}
++
++	if (i == iovcnt) {
++	    return written;
++	}
++    }
++    /* NOTREACHED */
++}
++
++/* END FUNCTION: retry_writev */
++#endif
+ /* End of auths/pwcheck.c */
+diff -urP exim-4.20.orig/src/auths/pwcheck.h exim-4.20/src/auths/pwcheck.h
+--- exim-4.20.orig/src/auths/pwcheck.h	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/auths/pwcheck.h	2003-07-09 02:04:37.000000000 +0200
+@@ -9,13 +9,18 @@
+ daemon. */
+ 
+ /* Error codes */
++/* OK - auth successful
++   NO - access denied
++   FAIL - [temporary] failure */
++
+ 
+ #define PWCHECK_OK   0
+-#define PWCHECK_BAD  1
++#define PWCHECK_NO   1
+ #define PWCHECK_FAIL 2
+ 
+-/* Cyrus function for doing the business */
++/* Cyrus functions for doing the business */
+ 
+ extern int pwcheck_verify_password(const char *, const char *, const char **);
++extern int saslauthd_verify_password(const char *, const char *, const char *, const char *, const char **);
+ 
+ /* End of pwcheck.h */
+diff -urP exim-4.20.orig/src/config.h.defaults exim-4.20/src/config.h.defaults
+--- exim-4.20.orig/src/config.h.defaults	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/config.h.defaults	2003-07-09 02:04:37.000000000 +0200
+@@ -23,6 +23,7 @@
+ #define CONFIGURE_FILE_USE_EUID
+ #define CONFIGURE_FILE_USE_NODE
+ #define CYRUS_PWCHECK_SOCKET
++#define CYRUS_SASLAUTHD_SOCKET
+ 
+ #define DEFAULT_CRYPT              crypt
+ #define DELIVER_IN_BUFFER_SIZE     8192
+diff -urP exim-4.20.orig/src/EDITME exim-4.20/src/EDITME
+--- exim-4.20.orig/src/EDITME	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/EDITME	2003-07-09 02:04:37.000000000 +0200
+@@ -523,6 +523,20 @@
+ 
+ 
+ #------------------------------------------------------------------------------
++# Support for authentication via the Cyrus SASL saslauthd daemon is available.
++# The Exim support, which is intented for use in conjunction with the SMTP AUTH
++# facilities, is included only when requested by setting the following
++# parameter to the location of the saslauthd daemon's socket directory.
++#
++# There is no need to install all of SASL on your system. You just need to run
++# ./configure --with-saslauthd, cd to the saslauthd directory with sources, make
++# and make install. You must create the socket directory (default /var/saslauthd)
++# and chown it to exim's user and group. Once you have installed saslauthd, you
++# should arrange for it to be started by root at boot time.
++
++CYRUS_SASLAUTHD_SOCKET=/var/lib/sasl2/mux
++
++#------------------------------------------------------------------------------
+ # TCP wrappers: If you want to use tcpwrappers from within Exim, uncomment
+ # this setting. See the manual section entitled "Use of tcpwrappers" in the
+ # chapter on building and installing Exim.
+diff -urP exim-4.20.orig/src/expand.c exim-4.20/src/expand.c
+--- exim-4.20.orig/src/expand.c	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/expand.c	2003-07-09 02:04:37.000000000 +0200
+@@ -1264,6 +1264,7 @@
+       radius:   does RADIUS authentication
+       ldapauth: does LDAP authentication
+       pwcheck:  does Cyrus SASL pwcheck authentication
++      saslauthd: does Cyrus SASL saslauthd authentication
+ */
+ 
+ else if (Ustrcmp(name, "exists") == 0
+@@ -1271,14 +1272,17 @@
+         || Ustrcmp(name, "pam") == 0
+         #endif  /* SUPPORT_PAM */
+         #ifdef RADIUS_CONFIG_FILE
+-	|| Ustrcmp(name, "radius") == 0
+-	#endif	/* RADIUS_CONFIG_FILE */
++	    || Ustrcmp(name, "radius") == 0
++	    #endif	/* RADIUS_CONFIG_FILE */
+         #ifdef LOOKUP_LDAP
+         || Ustrcmp(name, "ldapauth") == 0
+         #endif
+         #ifdef CYRUS_PWCHECK_SOCKET
+-	|| Ustrcmp(name, "pwcheck") == 0
+-	#endif
++	    || Ustrcmp(name, "pwcheck") == 0
++	    #endif
++        #ifdef CYRUS_SASLAUTHD_SOCKET
++        | Ustrcmp(name, "saslauthd") == 0
++        #endif
+         )
+   {
+   uschar *sub;
+@@ -1306,7 +1310,7 @@
+       if (name[0] == 'p' && name[1] == 'a')
+         rc = auth_call_pam(sub, &expand_string_message);
+       #if defined(RADIUS_CONFIG_FILE) || defined(LOOKUP_LDAP) ||\
+-          defined(CYRUS_PWCHECK_SOCKET)
++          defined(CYRUS_PWCHECK_SOCKET) || defined(CYRUS_SASLAUTHD_SOCKET)
+       else
+       #endif
+       #endif  /* SUPPORT_PAM */
+@@ -1314,7 +1318,7 @@
+       #ifdef RADIUS_CONFIG_FILE
+       if (name[0] == 'r')
+         rc = auth_call_radius(sub, &expand_string_message);
+-      #if defined(LOOKUP_LDAP) || defined(CYRUS_PWCHECK_SOCKET)
++      #if defined(LOOKUP_LDAP) || defined(CYRUS_PWCHECK_SOCKET) || defined(CYRUS_SASLAUTHD_SOCKET)
+       else
+       #endif
+       #endif  /* RADIUS_CONFIG_FILE */
+@@ -1323,16 +1327,24 @@
+       if (name[0] == 'l')
+         rc = eldapauth_find((void *)(-1), NULL, sub, Ustrlen(sub), NULL,
+           &expand_string_message);
+-      #if defined(CYRUS_PWCHECK_SOCKET)
++      #if defined(CYRUS_PWCHECK_SOCKET) || defined(CYRUS_SASLAUTHD_SOCKET)
+       else
+       #endif
+       #endif  /* LOOKUP_LDAP */
+ 
+       #ifdef CYRUS_PWCHECK_SOCKET
+       if (name[0] == 'p')
+-	 rc = auth_call_pwcheck(sub, &expand_string_message);
++        rc = auth_call_pwcheck(sub, &expand_string_message);
++      #if defined(CYRUS_SASLAUTHD_SOCKET)
++      else
++      #endif
+       #endif  /* CYRUS_PWCHECK_SOCKET */
+ 
++      #ifdef CYRUS_SASLAUTHD_SOCKET
++      if (name[0] == 's')
++          rc = auth_call_saslauthd(sub, &expand_string_message);
++      #endif /* CYRUS_SASLAUTHD_SOCKET */
++
+       if (rc == ERROR || rc == DEFER) return NULL;
+       *yield = (rc == OK) == testfor;
+       }
+diff -urP exim-4.20.orig/src/functions.h exim-4.20/src/functions.h
+--- exim-4.20.orig/src/functions.h	2003-07-09 02:04:25.000000000 +0200
++++ exim-4.20/src/functions.h	2003-07-09 02:04:37.000000000 +0200
+@@ -42,6 +42,7 @@
+ extern int     auth_b64decode(uschar *, uschar **);
+ extern int     auth_call_pam(uschar *, uschar **);
+ extern int     auth_call_pwcheck(uschar *, uschar **);
++extern int     auth_call_saslauthd(uschar *, uschar **);
+ extern int     auth_call_radius(uschar *, uschar **);
+ extern int     auth_get_data(uschar **, uschar *);
+ extern int     auth_get_no64_data(uschar **, uschar *);
