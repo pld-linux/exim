@@ -7,8 +7,8 @@
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Name:		exim
-Version:	3.32
-Release:	3
+Version:	3.33
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -37,7 +37,6 @@ Patch4:		%{name}-Makefile-Default.patch
 Patch5:		%{name}-conf.patch
 Patch6:		%{name}-whoson.patch
 Patch7:		%{name}-whoson-config.patch
-Patch8:		%{name}-ipv6.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
 %{!?_without_whoson:BuildRequires: whoson-devel}
@@ -108,7 +107,6 @@ administracyjny.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
-%patch8 -p1
 %{!?_without_whoson:%patch6 -p1}
 
 install %{SOURCE13} doc/FAQ.txt.gz
