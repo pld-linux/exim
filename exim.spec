@@ -164,8 +164,6 @@ cp -f exim_monitor/EDITME Local/eximon.conf
     cd ..
 %endif
 
-mkdir -p /home/areq/rpm/BUILD/exim-4.33/build-Linux-IntelR_XeonTM_CPU_2.40GHz
-
 %{__make} \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags}" \
