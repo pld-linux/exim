@@ -4,7 +4,7 @@ Version:	2.12
 Release:	10
 Copyright:	GPL
 Group:		Daemons
-Source0:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-%version}.tar.gz
+Source0:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/%{name}-%{version}.tar.gz
 Source1:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/exim-texinfo-2.10.tar.gz
 Source2:	exim.init
 Source3:	exim.cron.db
