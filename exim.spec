@@ -5,18 +5,18 @@
 %bcond_without	ldap		# build without LDAP support
 %bcond_without	exiscan		# build without exiscan support
 #
-%define		exiscan_version	4.33-20
+%define		exiscan_version	4.34-21
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.33
-Release:	1	
+Version:	4.34
+Release:	0.1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	8514c800172e4ab4e9cb90553605e1f2
+# Source0-md5:	bab611edc153867334b1c7cffd8fe3c0
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.30.tar.bz2
 # Source1-md5:	dceb3ce755543ababd7362437a3c1141
 Source2:	%{name}.init
@@ -28,7 +28,7 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	30a3ec5845f02a564c2300290371c475
+# Source8-md5:	2bcb93612e8def81758026bf47c5bb12
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -55,7 +55,7 @@ BuildRequires:	db3-devel
 BuildRequires:	openssl-devel >= 0.9.6k
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
-BuildRequires:	perl-devel >= 5.6.0
+BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
