@@ -10,6 +10,7 @@ Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.02
 Release:	1
+Epoch:		1
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
