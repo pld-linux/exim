@@ -9,7 +9,7 @@
 %bcond_without	srs	# without srs support
 %bcond_with	saexim	# with sa-exim support
 #
-%define		saexim_version 3.1
+%define		saexim_version 4.2
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
@@ -36,13 +36,13 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	7c695675e5e60693916b787001252d56
+# Source13-md5:	3e183ae1bc13b05341bb3980a3b899d8
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	42c7d5c02d06fdd3d8b6ba124ad9fd05
+# Source14-md5:	b9ce9a90a1b9b516f485452af079a002
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
-# Source17-md5:	34892f195384c127f7c40c461a9ef421
+# Source17-md5:	ad76f73c6b3d01caa88078e3e622745a
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
