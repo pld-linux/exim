@@ -52,16 +52,16 @@ BuildRequires:	pcre-devel
 BuildRequires:	perl
 BuildRequires:	perl-devel >= 5.6.0
 BuildRequires:	texinfo
-Provides:	smtpdaemon
-PreReq:		/sbin/chkconfig
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(post):	fileutils
+Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
+Provides:	smtpdaemon
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	masqmail
 Obsoletes:	omta
@@ -245,6 +245,7 @@ fi
 
 %triggerpostun -- exim  < 3.90
 if [ -f /etc/mail/exim.conf ]; then
+	umask 022
 	mv /etc/mail/exim.conf /etc/mail/exim.conf.3
 	/usr/bin/convert4r4 < /etc/mail/exim.conf.3 > /etc/mail/exim.conf
 fi
