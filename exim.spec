@@ -116,7 +116,7 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-pld/exinext \
 	build-Linux-pld/exi{cyclog,next,what} %{SOURCE11} \
-	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
+	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh,transport-filter.pl} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
 install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
