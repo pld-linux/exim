@@ -8,14 +8,14 @@
 %bcond_without	srs	# without srs support
 %bcond_with	saexim	# with sa-exim support
 #
-%define		exiscan_version	4.41-24
+%define		exiscan_version	4.41-25
 %define		saexim_version 3.1
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.41
-Release:	5
+Release:	6
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -32,15 +32,15 @@ Source6:	%{name}on.desktop
 Source7:	%{name}4-man-021016.tar.bz2
 # Source7-md5:	b552704ebf853a401946038a2b7e8e98
 Source8:	http://duncanthrax.net/exiscan-acl/exiscan-acl-%{exiscan_version}.patch.bz2
-# Source8-md5:	13eaeb6c5def7cdf4c9cea6d82f85bd8
+# Source8-md5:	09abdec4413519d827d099fbce7b1edc
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	8e188230dc95a0117cafd1fd804d2dd8
+# Source13-md5:	339a25b820ed4c5cbd5f9043131568d4
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	e760e86c8b23a07d10a91a3d2eaed7de
+# Source14-md5:	3e8b3f4f231e98b535a63fad7ccce60e
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
@@ -51,7 +51,6 @@ Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		%{name}4-exiscan-pld.patch
-Patch6:		%{name}4-spf2.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_spf:BuildRequires:	libspf2-devel}
@@ -150,8 +149,6 @@ desta interface.
 
 %{?with_exiscan:test -f %{SOURCE8} || exit 1; bzip2 -d -c %{SOURCE8} | patch -p1 || exit 1}
 %{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
-
-%patch6 -p0
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
