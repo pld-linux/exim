@@ -4,7 +4,7 @@
 # _with_whoson- build with whoson support
 # _without_ldap - build without LDAP support
 
-Summary:	University of Cambridge Mail Transfer Agent 
+Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
@@ -12,13 +12,8 @@ Version:	4.00
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
-Group(de):	Netzwerkwesen/Server
-Group(es):	Red/Servidores
-Group(fr):	Réseau/Serveurs
-Group(pl):	Sieciowe/Serwery
-Group(pt):	Rede/Server
-Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/exim-4.00.tar.bz2
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/exim-texinfo-4.00.tar.bz2
+Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -29,7 +24,7 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 #Source13:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/FAQ.txt.gz
-Source13:	%{name}-FAQ.txt.bz2 
+Source13:	%{name}-FAQ.txt.bz2
 #Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 Source14:	%{name}-config.samples.tar.bz2
 Patch0:		%{name}4-EDITME.patch
@@ -98,12 +93,6 @@ Summary:	X11 based Exim administration tool
 Summary(pl):	Narzêdzia administracyjne exima dla X11
 Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
-Group(de):	X11/Applikationen
-Group(es):	X11/Aplicaciones
-Group(fr):	X11/Applications
-Group(pl):	X11/Aplikacje
-Group(pt_BR):	X11/Aplicações
-Group(pt):	X11/Aplicações
 Requires:	applnk
 
 %description X11
@@ -114,7 +103,7 @@ Agent.
 Bazuj±ce na X11 narzêdzia dla Exima - monitor i program
 administracyjny.
 
-%description -l pt_BR X11
+%description X11 -l pt_BR
 O monitor exim é um suplemento opcional ao pacote exim. Ele mostra
 informações sobre o processamento do exim em uma janela X11. O
 administrador pode executar uma série de ações de controle a partir
