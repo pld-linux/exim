@@ -1,6 +1,6 @@
-diff -urN exim-texinfo-3.10.orig/doc/filter.texinfo exim-texinfo-3.10/doc/filter.texinfo
---- exim-texinfo-3.10.orig/doc/filter.texinfo	Mon Nov 22 16:59:56 1999
-+++ exim-texinfo-3.10/doc/filter.texinfo	Wed Jul 19 16:09:50 2000
+diff -urN exim-texinfo-3.20.orig/doc/filter.texinfo exim-texinfo-3.20/doc/filter.texinfo
+--- exim-texinfo-3.20.orig/doc/filter.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.20/doc/filter.texinfo	Wed Jul 19 16:09:50 2000
 @@ -4,10 +4,19 @@
  @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
  @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
@@ -13,7 +13,7 @@ diff -urN exim-texinfo-3.10.orig/doc/filter.texinfo exim-texinfo-3.10/doc/filter
 +
 +@ifinfo
 +@format
-+@dircategory Daemons :
++@dircategory Net utilities:
 +@direntry
 +* Exim Filters: (exim_filter).		Message Transfer Agent
 +@end direntry
@@ -22,9 +22,9 @@ diff -urN exim-texinfo-3.10.orig/doc/filter.texinfo exim-texinfo-3.10/doc/filter
  
  @titlepage
  @title The Exim Mail Transfer Agent
-diff -urN exim-texinfo-3.10.orig/doc/oview.texinfo exim-texinfo-3.10/doc/oview.texinfo
---- exim-texinfo-3.10.orig/doc/oview.texinfo	Mon Nov 22 16:59:56 1999
-+++ exim-texinfo-3.10/doc/oview.texinfo	Wed Jul 19 16:09:06 2000
+diff -urN exim-texinfo-3.20.orig/doc/oview.texinfo exim-texinfo-3.20/doc/oview.texinfo
+--- exim-texinfo-3.20.orig/doc/oview.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.20/doc/oview.texinfo	Wed Jul 19 16:09:06 2000
 @@ -4,10 +4,19 @@
  @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
  @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
@@ -37,7 +37,7 @@ diff -urN exim-texinfo-3.10.orig/doc/oview.texinfo exim-texinfo-3.10/doc/oview.t
 +
 +@ifinfo
 +@format
-+@dircategory Daemons :
++@dircategory Net utilities:
 +@direntry
 +* Exim Overview: (exim_oview).		Message Transfer Agent
 +@end direntry
@@ -46,9 +46,9 @@ diff -urN exim-texinfo-3.10.orig/doc/oview.texinfo exim-texinfo-3.10/doc/oview.t
  
  @titlepage
  @title The Exim Mail Transfer Agent
-diff -urN exim-texinfo-3.10.orig/doc/spec.texinfo exim-texinfo-3.10/doc/spec.texinfo
---- exim-texinfo-3.10.orig/doc/spec.texinfo	Mon Nov 22 16:59:56 1999
-+++ exim-texinfo-3.10/doc/spec.texinfo	Wed Jul 19 16:07:52 2000
+diff -urN exim-texinfo-3.20.orig/doc/spec.texinfo exim-texinfo-3.20/doc/spec.texinfo
+--- exim-texinfo-3.20.orig/doc/spec.texinfo	Mon Nov 22 16:59:56 1999
++++ exim-texinfo-3.20/doc/spec.texinfo	Wed Jul 19 16:07:52 2000
 @@ -4,10 +4,19 @@
  @set{wmAuthor_email} <ph10@@cus.cam.ac.uk>
  @set{COPYRIGHT1} Copyright @copyright{} @value{wmYear} University of Cambridge
@@ -61,7 +61,7 @@ diff -urN exim-texinfo-3.10.orig/doc/spec.texinfo exim-texinfo-3.10/doc/spec.tex
 +
 +@ifinfo
 +@format
-+@dircategory Daemons :
++@dircategory Net utilities:
 +@direntry
 +* Exim: (exim).				Message Transfer Agent
 +@end direntry
