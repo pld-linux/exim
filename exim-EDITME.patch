@@ -1,0 +1,157 @@
+Binary files exim-3.15.orig/doc/FAQ.txt.gz and exim-3.15/doc/FAQ.txt.gz differ
+Binary files exim-3.15.orig/doc/config.samples.tar.gz and exim-3.15/doc/config.samples.tar.gz differ
+diff -urN exim-3.15.orig/src/EDITME exim-3.15/src/EDITME
+--- exim-3.15.orig/src/EDITME	Wed Jun 14 09:57:40 2000
++++ exim-3.15/src/EDITME	Wed Jul 19 17:24:12 2000
+@@ -103,7 +103,7 @@
+ # installed in this directory. There is no default for this variable built into
+ # the source files; it must be set in one of the local configuration files.
+ 
+-BIN_DIRECTORY=/usr/exim/bin
++BIN_DIRECTORY=/usr/bin
+ 
+ 
+ # The default distribution of Exim contains only the plain text form of the
+@@ -114,21 +114,21 @@
+ # your info directory; "make install" will then build the info files and
+ # install them there.
+ 
+-# INFO_DIRECTORY=/usr/local/info
++INFO_DIRECTORY=/usr/share/info
+ 
+ 
+ # The compress command is used by the exicyclog script to compress old log
+ # files. Both the name of the command and the suffix that it adds to files
+ # need to be defined here. See also the EXICYCLOG_MAX configuration.
+ 
+-COMPRESS_COMMAND=/opt/gnu/bin/gzip
++COMPRESS_COMMAND=/bin/gzip
+ COMPRESS_SUFFIX=gz
+ 
+ 
+ # If the exigrep utility is fed compressed log files, it tries to uncompress
+ # them using this command.
+ 
+-ZCAT_COMMAND=/opt/gnu/bin/zcat
++ZCAT_COMMAND=/bin/zcat
+ 
+ 
+ # The runtime configuration file: This variable defines where Exim's runtime
+@@ -137,7 +137,7 @@
+ # location of all other runtime files and directories can be changed in the
+ # runtime configuration file.
+ 
+-CONFIGURE_FILE=/usr/exim/configure
++CONFIGURE_FILE=/etc/mail/exim.conf
+ 
+ 
+ # In some installations there may be multiple machines sharing file systems,
+@@ -148,7 +148,7 @@
+ # period (for example, /usr/exim/configure.host.in.some.domain. If this file
+ # does not exist, then the bare configuration file name is tried.
+ 
+-# CONFIGURE_FILE_USE_NODE=yes
++CONFIGURE_FILE_USE_NODE=yes
+ 
+ 
+ # In some esoteric configurations two different versions of Exim are run,
+@@ -229,8 +229,8 @@
+ # "security" setting, which controls how privilege is released (setuid vs
+ # seteuid).
+ 
+-# EXIM_UID=
+-# EXIM_GID=
++EXIM_UID=79
++EXIM_GID=79
+ 
+ 
+ # Compiling the Exim monitor: If you want to compile the Exim monitor,
+@@ -284,7 +284,7 @@
+ # "panic", or "reject" to form the final file name. For example, some
+ # installations may want something like this:
+ 
+-# LOG_FILE_PATH=/var/log/exim_%slog
++LOG_FILE_PATH=/var/log/exim/%s.log
+ 
+ # which results in files with names /var/log/exim_mainlog, etc. The directory
+ # in which the log files are placed must exist; Exim does not try to create
+@@ -336,7 +336,7 @@
+ 
+ # LOOKUP_CDB=yes
+ # LOOKUP_DNSDB=yes
+-# LOOKUP_LDAP=yes
++LOOKUP_LDAP=yes
+ # LOOKUP_MYSQL=yes
+ # LOOKUP_NIS=yes
+ # LOOKUP_NISPLUS=yes
+@@ -350,6 +350,7 @@
+ 
+ # LOOKUP_INCLUDE=-I /usr/local/ldap/include -I /usr/local/mysql/include -I /usr/local/pgsql/include
+ # LOOKUP_LIBS=-L/usr/local/lib -lldap -llber -lmysqlclient -lpq
++LOOKUP_LIBS=-lldap -llber
+ 
+ # If you have set LDAP=yes, you should set LDAP_LIB_TYPE to indicate which LDAP
+ # library you have. Unfortunately, though most of their functions are the
+@@ -358,7 +359,7 @@
+ # SDK library, and the library that comes with Solaris 7. Uncomment whichever
+ # of these you are using.
+ 
+-# LDAP_LIB_TYPE=UMICHIGAN
++LDAP_LIB_TYPE=UMICHIGAN
+ # LDAP_LIB_TYPE=NETSCAPE
+ # LDAP_LIB_TYPE=SOLARIS7
+ 
+@@ -407,7 +408,7 @@
+ # the file name, allowing sites that run two separate daemons to distinguish
+ # them. Some installations may want something like this
+ 
+-# PID_FILE_PATH=/var/lock/exim%s.pid
++PID_FILE_PATH=/var/run/exim%s.pid
+ 
+ # If PID_FILE_PATH is not defined, Exim writes a file in its spool directory
+ # (see SPOOL_DIRECTORY below) with the name "exim-daemon.pid" for the standard
+@@ -456,7 +457,7 @@
+ # uid and gid.
+ 
+ # Many installations will want something like this:
+-# SPOOL_DIRECTORY=/var/spool/exim
++SPOOL_DIRECTORY=/var/spool/exim
+ 
+ # Others may prefer to keep all Exim things under one directory:
+ # SPOOL_DIRECTORY=/usr/exim/spool
+@@ -474,7 +475,7 @@
+ # member of the Exim group, change the value to 0640. This is particularly
+ # relevant if you are going to run the Exim monitor.
+ 
+-# SPOOL_MODE=0600
++SPOOL_MODE=0640
+ 
+ 
+ # If STDERR_FILE is defined then the -df command line option causes Exim to
+@@ -488,9 +489,9 @@
+ # of formats. The code for three specialist formats, maildir, mailstore, and
+ # MBX, is included only when requested by the following settings:
+ 
+-# SUPPORT_MAILDIR=yes
+-# SUPPORT_MAILSTORE=yes
+-# SUPPORT_MBX=yes
++SUPPORT_MAILDIR=yes
++SUPPORT_MAILSTORE=yes
++SUPPORT_MBX=yes
+ 
+ 
+ # Moving frozen messages: If the following is uncommented, Exim is compiled
+@@ -508,10 +509,12 @@
+ # support, which is intended for use in conjunction with the SMTP AUTH
+ # facilities, is included only when requested by the following setting:
+ 
+-# SUPPORT_PAM=yes
++SUPPORT_PAM=yes
+ 
+ # You probably need to add -lpam to EXTRALIBS, and in some releases of
+ # GNU/Linux -ldl is also needed.
++
++EXTRALIBS=-lpam -ldl
+ 
+ 
+ # Included transports: These variables determine which individual transport
