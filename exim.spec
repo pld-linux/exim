@@ -1,27 +1,29 @@
 # Conditional build:
 # _with_pgsql - build wiht PostgreSQ support
 # _with_mysql - build with MySQL support
+# _with_whoson- build with whoson support
 # _without_ldap - build without LDAP support
-# _without_whoson - build without WHOSON support
 
 Summary:	University of Cambridge Mail Transfer Agent 
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	3.34
+Version:	3.953
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
+Group(es):	Red/Servidores
+Group(fr):	Réseau/Serveurs
 Group(pl):	Sieciowe/Serwery
-Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-%{version}.tar.bz2
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim3/%{name}-texinfo-3.30.tar.bz2
+Group(pt):	Rede/Server
+Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/Testing/%{name}-%{version}.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/Testing/%{name}-texinfo-3.951.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
-Source4:	%{name}.8
+Source4:	%{name}4.conf
 Source5:	analyse-log-errors
 Source6:	%{name}on.desktop
-Source8:	Makefile-Linux
 Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
@@ -30,19 +32,16 @@ Source12:	%{name}.sysconfig
 Source13:	%{name}-FAQ.txt.gz
 #Source14:	ftp://ftp.cus.cam.ac.uk/pub/software/programs/exim/config.samples.tar.gz
 Source14:	%{name}-config.samples.tar.gz
-Patch0:		%{name}-EDITME.patch
-Patch1:		%{name}-monitor-EDITME.patch
-Patch2:		%{name}-texinfo.patch
-Patch3:		%{name}-use_system_pcre.patch
-Patch4:		%{name}-Makefile-Default.patch
-Patch5:		%{name}-conf.patch
-Patch6:		%{name}-whoson.patch
-Patch7:		%{name}-whoson-config.patch
+Patch0:		%{name}4-EDITME.patch
+Patch1:		%{name}4-monitor-EDITME.patch
+Patch2:		%{name}4-texinfo.patch
+Patch3:		%{name}4-use_system_pcre.patch
+Patch4:		%{name}4-Makefile-Default.patch
 URL:		http://www.exim.org/
 %{!?_without_ldap:BuildRequires: openldap-devel >= 2.0.0}
-%{!?_without_whoson:BuildRequires: whoson-devel}
 %{?_with_mysql:BuildRequires: mysql-devel}
 %{?_with_pgsql:BuildRequires: postgresql-devel}
+%{?_with_whoson:BuildRequires: whoson-devel}
 BuildRequires:	XFree86-devel
 BuildRequires:	texinfo
 BuildRequires:	perl
@@ -101,6 +100,7 @@ Summary(pt_BR):	Monitor X11 para o exim
 Group:		X11/Applications
 Group(de):	X11/Applikationen
 Group(es):	X11/Aplicaciones
+Group(fr):	X11/Applications
 Group(pl):	X11/Aplikacje
 Group(pt_BR):	X11/Aplicações
 Group(pt):	X11/Aplicações
@@ -128,7 +128,6 @@ desta interface.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
-%{!?_without_whoson:%patch6 -p1}
 
 install %{SOURCE13} doc/FAQ.txt.gz
 install %{SOURCE14} doc/config.samples.tar.gz
@@ -142,38 +141,36 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_CDB=yes \
 	%{?_with_mysql:LOOKUP_MYSQL=yes} \
 	%{?_with_pgsql:LOOKUP_PGSQL=yes} \
+	%{?_with_whoson:LOOKUP_WHOSON=yes} \
 	%{!?_without_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{?_with_mysql:-lmysqlclient} %{?_with_pgsql:-lpq} %{!?_without_whoson:-lwhoson}" \
-	LOOKUP_INCLUDE="%{?_with_mysql:-I/usr/include/mysql} %{?_with_pgsql:-I/usr/include/pgsql}"
+	LOOKUP_LIBS="%{!?_without_ldap:-lldap -llber} %{?_with_mysql:-lmysqlclient} %{?_with_pgsql:-lpq} %{?_with_whoson:-lwhoson}" \
+	LOOKUP_INCLUDE="%{?_with_mysql:-I%{_includedir}/mysql} %{?_with_pgsql:-I%{_includedir}/pgsql}"
 
-makeinfo exim-texinfo-*/doc/{oview,spec,filter}.texinfo
+makeinfo --force exim-texinfo-*/doc/*.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail} \
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,mail} \
 	$RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_libdir}} \
 	$RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail} \
-	$RPM_BUILD_ROOT{%{_infodir},/usr/X11R6/bin,%{_applnkdir}/System}
+$RPM_BUILD_ROOT{%{_infodir},%{_prefix}/X11R6/bin,%{_applnkdir}/System}
 
 install build-Linux-pld/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-pld/exinext \
 	build-Linux-pld/exi{cyclog,next,what} %{SOURCE10} \
-	util/{exigrep,eximstats,exiqsumm,exiqsumm,unknownuser.sh,unknownuser.sh} \
+	build-Linux-pld/{exigrep,eximstats,exiqsumm,exiqsumm} \
+	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
-install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT/usr/X11R6/bin
-install build-Linux-pld/eximon $RPM_BUILD_ROOT/usr/X11R6/bin
+install build-Linux-pld/eximon.bin $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
+install build-Linux-pld/eximon $RPM_BUILD_ROOT%{_prefix}/X11R6/bin
 
 install %{SOURCE5} .
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly/
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/cron.weekly/
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install src/configure.default $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
-cd $RPM_BUILD_ROOT%{_sysconfdir}/mail
-patch -p0 < %{PATCH5}
-%{!?_without_whoson:patch -p0 < %{PATCH7}}
-cd -
-install %{SOURCE4} $RPM_BUILD_ROOT%{_mandir}/man8/
+install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
+install doc/exim.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 
@@ -189,8 +186,8 @@ install %{SOURCE6} $RPM_BUILD_ROOT%{_applnkdir}/System
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
 gzip -9nf README* NOTICE LICENCE analyse-log-errors \
-	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,oview.txt,spec.txt} \
-	util/transport-filter.pl
+	doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt} \
+	build-Linux-pld/transport-filter.pl
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -271,7 +268,7 @@ fi
 %attr( 755,root,root) %{_bindir}/newaliases
 %attr( 755,root,root) %{_sbindir}/*
 %attr( 755,root,root) %{_libdir}/*
-%attr( 754,root,root) /etc/cron.weekly/exim.cron.db
+%attr( 754,root,root) %{_sysconfdir}/cron.weekly/exim.cron.db
 %attr( 750,exim,root) %dir %{_var}/log/exim
 %attr( 750,exim,root) %dir %{_var}/log/archiv/exim
 %attr( 640,exim,root) %ghost %{_var}/log/exim/*
@@ -280,5 +277,5 @@ fi
 
 %files X11
 %defattr(644,root,root,755)
-%attr(755,root,root) /usr/X11R6/bin/*
+%attr(755,root,root) %{_prefix}/X11R6/bin/*
 %{_applnkdir}/System/*
