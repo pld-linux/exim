@@ -63,7 +63,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.176
+BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	texinfo
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
@@ -230,24 +230,8 @@ touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`/usr/bin/getgid exim`" ]; then
-	if [ "`/usr/bin/getgid exim`" != 79 ]; then
-		echo "Warning: group exim doesn't have gid=79. Correct this before installing exim" 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/groupadd -g 79 exim 1>&2
-fi
-
-if [ -n "`/bin/id -u exim 2>/dev/null`" ]; then
-	if [ "`/bin/id -u exim`" != 79 ]; then
-		echo "Warning: user exim doesn't have uid=79. Correct this before installing exim" 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/useradd -u 79 -d /var/spool/exim -s /bin/false \
-		-c "Exim pseudo user" -g exim exim 1>&2
-fi
+%groupadd -g 79 exim
+%useradd -u 79 -d /var/spool/exim -s /bin/false -c "Exim pseudo user" -g exim exim
 
 %post
 umask 022
@@ -258,11 +242,11 @@ else
 	%banner %{name} -e <<EOF
 Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon.
 EOF
+# vim:"
 fi
 
 if [ ! -f /etc/mail/mailname ]; then
 	rm -f /etc/mail/mailname && hostname -f > /etc/mail/mailname
-	chmod 644 /etc/mail/mailname
 fi
 newaliases
 [ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
