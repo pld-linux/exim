@@ -14,13 +14,13 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.50
+Version:	4.51
 Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	7844eff82171872f6b3971a4183368d9
+# Source0-md5:	36c0c005e012d13beb7edfd8d124c049
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.50.tar.bz2
 # Source1-md5:	a12993436e9943083e3ce5b76cf96b11
 Source2:	%{name}.init
@@ -36,9 +36,9 @@ Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
 Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	ff781bd31fb1d574c8b9d33f4bfd34a7
+# Source13-md5:	7c695675e5e60693916b787001252d56
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
-# Source14-md5:	4b93321938a800caa6127c48ad60a42b
+# Source14-md5:	42c7d5c02d06fdd3d8b6ba124ad9fd05
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
