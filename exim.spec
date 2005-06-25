@@ -7,6 +7,7 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
+%bcond_without	dkeys	# without domainkeys support
 %bcond_with	saexim	# with sa-exim support
 #
 %define		saexim_version 4.2
@@ -15,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.51
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -56,6 +57,7 @@ URL:		http://www.exim.org/
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
+%{?with_dkeys:BuildRequires:	libdomainkeys}
 BuildRequires:	XFree86-devel
 BuildRequires:	db-devel
 BuildRequires:	openssl-devel >= 0.9.7d
@@ -171,7 +173,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %{__make} -j1 \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes}" \
+	CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
@@ -180,7 +182,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_sasl:AUTH_CYRUS_SASL=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
