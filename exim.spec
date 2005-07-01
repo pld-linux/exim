@@ -15,13 +15,13 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.51
-Release:	4
+Version:	4.52
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	36c0c005e012d13beb7edfd8d124c049
+# Source0-md5:	89601650f3b854d469451f30b369622b
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.50.tar.bz2
 # Source1-md5:	a12993436e9943083e3ce5b76cf96b11
 Source2:	%{name}.init
@@ -51,8 +51,8 @@ Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
-%{?with_spf:BuildRequires:	libspf2-devel}
-%{?with_srs:BuildRequires:	libsrs_alt-devel >= 0.5}
+%{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
+%{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -172,6 +172,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %endif
 
 %{__make} -j1 \
+	%{?debug:FULLECHO=''} \
 	CC="%{__cc}" \
 	CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
