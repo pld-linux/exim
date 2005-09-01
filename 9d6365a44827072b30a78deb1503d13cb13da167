@@ -1,0 +1,2 @@
+- %{_libdir}/sendmail changed to %{_prefix}/lib/sendmail
+  (which is more adapter-safe than /usr/lib/sendmail)
