@@ -16,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.52
-Release:	3
+Release:	4
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -42,13 +42,15 @@ Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.t
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
-Source17:	http://marc.merlins.org/linux/exim/files/sa-exim-%{saexim_version}.tar.gz
+Source17:	http://marc.merlins.org/linux/exim/files/sa-%{name}-%{saexim_version}.tar.gz
 # Source17-md5:	ad76f73c6b3d01caa88078e3e622745a
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
+# http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
+Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
@@ -67,7 +69,7 @@ BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
 BuildRequires:	texinfo
-PreReq:		rc-scripts
+Requires:	rc-scripts
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
@@ -144,6 +146,14 @@ informações sobre o processamento do exim em uma janela X11. O
 administrador pode executar uma série de ações de controle a partir
 desta interface.
 
+%package devel
+Summary:	Header files for exim
+Group:		Development/Libraries
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+%description devel
+Header files for exim.
+
 %prep
 %setup -q -a1 -a7
 %patch0 -p1
@@ -151,6 +161,7 @@ desta interface.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 %{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
@@ -192,9 +203,10 @@ makeinfo --force exim-texinfo-*/doc/*.texinfo
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,/usr/lib}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archiv,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_infodir},%{_desktopdir},%{_pixmapsdir}}
+install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
@@ -218,7 +230,7 @@ install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 %{?with_saexim:install sa-exim-%{saexim_version}/sa-exim.conf $RPM_BUILD_ROOT/%{_sysconfdir}/mail/sa-exim.conf}
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -sf %{_bindir}/exim $RPM_BUILD_ROOT/usr/lib/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_prefix}/lib/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
@@ -226,6 +238,9 @@ ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/runq
 
 install %{SOURCE6} $RPM_BUILD_ROOT%{_desktopdir}
 install %{SOURCE16} $RPM_BUILD_ROOT%{_pixmapsdir}
+
+install -d $RPM_BUILD_ROOT%{_includedir}/%{name}
+install src/{local_scan.h,store.h,mytypes.h} $RPM_BUILD_ROOT%{_includedir}/%{name}
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
@@ -306,12 +321,13 @@ fi
 %attr(755,root,root) %{_sbindir}/rsmtp
 %attr(755,root,root) %{_sbindir}/runq
 %attr(755,root,root) %{_sbindir}/sendmail
-%attr(755,root,root) /usr/lib/sendmail
+%attr(755,root,root) %{_prefix}/lib/sendmail
 %attr(754,root,root) /etc/cron.weekly/exim.cron.db
 %attr(750,exim,root) %dir %{_var}/log/exim
 %attr(750,exim,root) %dir %{_var}/log/archiv/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
+%{_libdir}/%{name}
 %{_infodir}/*.info*
 %{_mandir}/man8/*
 
@@ -321,3 +337,7 @@ fi
 %attr(755,root,root) %{_bindir}/eximon.bin
 %{_desktopdir}/eximon.desktop
 %{_pixmapsdir}/eximon.png
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/%{name}
