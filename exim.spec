@@ -8,9 +8,7 @@
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
 %bcond_without	dkeys	# without domainkeys support
-%bcond_with	saexim	# with sa-exim support
 #
-%define		saexim_version 4.2
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
@@ -42,8 +40,6 @@ Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.t
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
-Source17:	http://marc.merlins.org/linux/exim/files/sa-%{name}-%{saexim_version}.tar.gz
-# Source17-md5:	ad76f73c6b3d01caa88078e3e622745a
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-texinfo.patch
@@ -162,7 +158,6 @@ Header files for exim.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%{?with_saexim:test -f %{SOURCE17} || exit 1; gzip -d -c %{SOURCE17} | tar -x || exit 1}
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -172,16 +167,6 @@ cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
-
-%if %{with saexim}
-    cd sa-exim-%{saexim_version}
-    %{__make} -j1 sa-exim.h
-    echo '#define SPAMASSASSIN_CONF "%{_sysconfdir}/mail/spamassassin/local.cf"' >> sa-exim.h
-    cat sa-exim.c > ../src/local_scan.c
-    cat sa-exim.h > ../src/sa-exim.h
-    cd ..
-%endif
-
 %{__make} -j1 \
 	%{?debug:FULLECHO=''} \
 	CC="%{__cc}" \
@@ -226,8 +211,6 @@ install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install	*.info* $RPM_BUILD_ROOT%{_infodir}
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
-
-%{?with_saexim:install sa-exim-%{saexim_version}/sa-exim.conf $RPM_BUILD_ROOT/%{_sysconfdir}/mail/sa-exim.conf}
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_prefix}/lib/sendmail
@@ -296,7 +279,6 @@ fi
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
-%{?with_saexim:%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/sa-exim.conf}
 %attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
 %attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
 %attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
