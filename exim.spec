@@ -143,12 +143,16 @@ administrador pode executar uma série de ações de controle a partir
 desta interface.
 
 %package devel
-Summary:	Header files for exim
+Summary:	Header files for Exim
+Summary(pl):	Pliki nag³ówkowe dla Exima
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
-Header files for exim.
+Header files for Exim.
+
+%description devel -l pl
+Pliki nag³ówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
