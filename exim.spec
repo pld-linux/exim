@@ -2,6 +2,7 @@
 # Conditional build:
 %bcond_without	pgsql	# without PostgreSQL support
 %bcond_without	mysql	# without MySQL support
+%bcond_without	sqlite	# without sqlite
 %bcond_without	whoson	# without whoson support
 %bcond_without	sasl	# without SASL
 %bcond_without	ldap	# without LDAP support
@@ -53,6 +54,7 @@ URL:		http://www.exim.org/
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
+%{?with_sqlite:BuildRequires:	sqlite3-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -161,7 +163,7 @@ Pliki nag³ówkowe dla Exima.
 %patch0 -p1
 %patch1 -p1
 # needs update / not needed anymore?
-#%patch2 -p0
+# %patch2 -p0
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -184,10 +186,11 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
 	%{?with_mysql:LOOKUP_MYSQL=yes} \
 	%{?with_pgsql:LOOKUP_PGSQL=yes} \
+	%{?with_sqlite:LOOKUP_SQLITE=yes} \
 	%{?with_whoson:LOOKUP_WHOSON=yes} \
 	%{?with_sasl:AUTH_CYRUS_SASL=yes} \
 	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
+	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
 makeinfo --force exim-texinfo-*/doc/*.texinfo
