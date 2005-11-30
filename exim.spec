@@ -68,7 +68,7 @@ BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
-BuildRequires:	texinfo
+BuildRequires:	texinfo >= 4.7
 Requires:	rc-scripts
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
