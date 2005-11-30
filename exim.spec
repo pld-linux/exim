@@ -140,7 +140,7 @@ desta interface.
 %setup -q -a1 -a7
 %patch0 -p1
 %patch1 -p1
-%patch2 -p0
+# %patch2 -p0
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
