@@ -21,7 +21,7 @@ License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
 # Source0-md5:	eed3c8fc393cf7ccc9c1079b28516128
-Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-4.60.tar.bz2
+Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
 # Source1-md5:	ba88e4814472be8de8deed36ec80877a
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
@@ -49,36 +49,36 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
 URL:		http://www.exim.org/
-%{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
+BuildRequires:	XFree86-devel
+%{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
+BuildRequires:	db-devel
+%{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
-%{?with_sqlite:BuildRequires:	sqlite3-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_pgsql:BuildRequires:	postgresql-devel}
-%{?with_whoson:BuildRequires:	whoson-devel}
-%{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
-%{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
-BuildRequires:	XFree86-devel
-BuildRequires:	db-devel
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.0.0}
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
+%{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
+%{?with_sqlite:BuildRequires:	sqlite3-devel}
 BuildRequires:	texinfo >= 4.7
-Requires:	rc-scripts
+%{?with_whoson:BuildRequires:	whoson-devel}
+Requires(post):	/bin/hostname
+Requires(post):	fileutils
+Requires(post,preun):	/sbin/chkconfig
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires(postun):	/usr/sbin/groupdel
-Requires(postun):	/usr/sbin/userdel
-Requires(post):	fileutils
-Requires(post):	/bin/hostname
-Requires(post,preun):	/sbin/chkconfig
 Requires:	pam >= 0.79.0
 Requires:	perl(DynaLoader) = %(%{__perl} -MDynaLoader -e 'print DynaLoader->VERSION')
+Requires:	rc-scripts
 Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
