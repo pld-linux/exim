@@ -15,7 +15,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.60
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -189,7 +189,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
-makeinfo --force exim-texinfo-*/doc/*.texinfo
+makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
+makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
