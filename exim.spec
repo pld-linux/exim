@@ -12,7 +12,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.60
-Release:	0.9
+Release:	1.1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -140,7 +140,7 @@ desta interface.
 %setup -q -a1 -a7
 %patch0 -p1
 %patch1 -p1
-##%patch2 -p0
+%patch2 -p0
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -177,8 +177,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_whoson:-lwhoson}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
-#makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
-#makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
+makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
+makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -204,7 +204,7 @@ install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
 install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8/
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
-#install	*.info* $RPM_BUILD_ROOT%{_infodir}/
+install	*.info* $RPM_BUILD_ROOT%{_infodir}/
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 %{?with_saexim:install sa-exim-%{saexim_version}/sa-exim.conf $RPM_BUILD_ROOT/%{_sysconfdir}/mail/sa-exim.conf}
@@ -312,7 +312,7 @@ fi
 %attr(750,exim,root) %dir %{_var}/log/archiv/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/pam.d/smtp
-# %{_infodir}/*
+%{_infodir}/*
 %{_mandir}/man8/*
 
 %files X11
