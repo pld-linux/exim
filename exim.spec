@@ -58,7 +58,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
-BuildRequires:	texinfo
+BuildRequires:	texinfo >= 4.7
 PreReq:		rc-scripts
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
