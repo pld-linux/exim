@@ -15,7 +15,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.60
-Release:	4
+Release:	5
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -43,6 +43,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
+Patch2:		%{name}4-cflags.patch
 Patch3:		%{name}4-use_system_pcre.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
@@ -160,6 +161,7 @@ Pliki nag³ówkowe dla Exima.
 %setup -q -a1 -a7
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -176,7 +178,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %{__make} -j1 \
 	%{?debug:FULLECHO=''} \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
+	CUSTOM_CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
