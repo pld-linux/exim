@@ -1,0 +1,12 @@
+diff -urN exim-4.60.org/OS/Makefile-Linux exim-4.60/OS/Makefile-Linux
+--- exim-4.60.org/OS/Makefile-Linux	2005-11-28 11:57:32.000000000 +0100
++++ exim-4.60/OS/Makefile-Linux	2006-02-17 20:17:00.698452750 +0100
+@@ -9,7 +9,7 @@
+ CHOWN_COMMAND=look_for_it
+ CHGRP_COMMAND=look_for_it
+ 
+-CFLAGS=-O -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
++CFLAGS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(CUSTOM_CFLAGS)
+ 
+ DBMLIB = -ldb
+ USE_DB = yes
