@@ -64,7 +64,7 @@ BuildRequires:	pcre-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	readline-devel
-BuildRequires:	rpmbuild(macros) >= 1.202
+BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_sqlite:BuildRequires:	sqlite3-devel}
 BuildRequires:	texinfo >= 4.7
 %{?with_whoson:BuildRequires:	whoson-devel}
@@ -247,14 +247,7 @@ rm -rf $RPM_BUILD_ROOT
 %post
 umask 022
 /sbin/chkconfig --add %{name}
-if [ -f /var/lock/subsys/exim ]; then
-	/etc/rc.d/init.d/%{name} restart >&2
-else
-	%banner %{name} -e <<EOF
-Run \"/etc/rc.d/init.d/%{name} start\" to start exim daemon.
-EOF
-# vim:"
-fi
+%service %{name} restart "exim daemon"
 
 if [ ! -f /etc/mail/mailname ]; then
 	rm -f /etc/mail/mailname && hostname -f > /etc/mail/mailname
@@ -264,9 +257,7 @@ newaliases
 
 %preun
 if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/exim ]; then
-		/etc/rc.d/init.d/exim stop >&2
-	fi
+	%service exim stop
 	/sbin/chkconfig --del %{name}
 fi
 
