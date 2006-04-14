@@ -49,8 +49,9 @@ Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
+Patch7:		%{name}-acl_negation.patch
 URL:		http://www.exim.org/
-BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
 %{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
@@ -166,6 +167,7 @@ Pliki nag³ówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
