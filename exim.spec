@@ -51,6 +51,7 @@ Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
 Patch7:		%{name}_462_dsn_1_2.patch
 Patch8:		%{name}-spam-timeout.patch
+Patch9:		%{name}-malware-timeout.patch
 URL:		http://www.exim.org/
 BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
@@ -170,6 +171,7 @@ Pliki nag³ówkowe dla Exima.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
