@@ -53,7 +53,6 @@ Patch6:		%{name}-noloadbalance.patch
 Patch7:		%{name}_462_dsn_1_2.patch
 Patch8:		%{name}-spam-timeout.patch
 URL:		http://www.exim.org/
-BuildRequires:	xorg-lib-libX11-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
 %{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
@@ -71,6 +70,7 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_sqlite:BuildRequires:	sqlite3-devel}
 BuildRequires:	texinfo >= 4.7
 %{?with_whoson:BuildRequires:	whoson-devel}
+BuildRequires:	xorg-lib-libX11-devel
 Requires(post):	/bin/hostname
 Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
@@ -285,9 +285,9 @@ fi
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
+%config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
 %attr(754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
 %attr(770,root,exim) %dir %{_var}/spool/exim
