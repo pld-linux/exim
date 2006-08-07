@@ -14,15 +14,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.62
-Release:	2
+Version:	4.63
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	a8efc92427192fd3b7b5e71decc8cc31
+# Source0-md5:	dde2d5f7106d51607409af94174db46c
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
-# Source1-md5:	f6b5e7441405e485a38c9f3d96336c3a
+# Source1-md5:	1e14e90a4ecd8aadc4e6748e1726d6d5
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -51,7 +51,6 @@ Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
 Patch7:		%{name}_462_dsn_1_2.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		%{name}-malware-timeout.patch
 URL:		http://www.exim.org/
 BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
@@ -171,7 +170,6 @@ Pliki nag³ówkowe dla Exima.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
-%patch9 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
