@@ -14,15 +14,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.62
-Release:	1
+Version:	4.63
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	a8efc92427192fd3b7b5e71decc8cc31
+# Source0-md5:	dde2d5f7106d51607409af94174db46c
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
-# Source1-md5:	f6b5e7441405e485a38c9f3d96336c3a
+# Source1-md5:	1e14e90a4ecd8aadc4e6748e1726d6d5
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -49,8 +49,10 @@ Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
+Patch7:		%{name}_462_dsn_1_2.patch
+Patch8:		%{name}-spam-timeout.patch
 URL:		http://www.exim.org/
-BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
 %{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
@@ -166,6 +168,8 @@ Pliki nag³ówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -178,7 +182,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %{__make} -j1 \
 	%{?debug:FULLECHO=''} \
 	CC="%{__cc}" \
-	CUSTOM_CFLAGS="%{rpmcflags} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
+	CUSTOM_CFLAGS="%{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
@@ -280,9 +284,9 @@ fi
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
-%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
+%config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
 %attr(754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
 %attr(770,root,exim) %dir %{_var}/spool/exim
