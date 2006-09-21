@@ -15,7 +15,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.63
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -49,7 +49,7 @@ Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
-Patch7:		%{name}_462_dsn_1_2.patch
+Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
 URL:		http://www.exim.org/
 BuildRequires:	XFree86-devel
