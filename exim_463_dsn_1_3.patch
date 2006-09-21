@@ -1,0 +1,1167 @@
+diff -urN exim-4.63-orig/README.DSN exim-4.63-dsn/README.DSN
+--- exim-4.63-orig/README.DSN	1970-01-01 01:00:00.000000000 +0100
++++ exim-4.63-dsn/README.DSN	2006-09-12 11:47:24.000000000 +0100
+@@ -0,0 +1,104 @@
++Exim DSN Patch (4.60)
++---------------------
++
++This patch is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 2 of the License, or
++(at your option) any later version.
++
++This patch is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with this patch; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
++
++Install
++-------
++cd into the source tree for a vanilla exim
++
++patch -p1 </path/to/patch/file.patch
++
++Example :-
++[root@linuxbuild exim-4.60-test]# patch -p1 <../exim.dsn.patch.460
++
++Expected Output :-
++patching file README.DSN
++patching file src/config.h.defaults
++patching file src/deliver.c
++patching file src/exim.c
++patching file src/exim.h
++patching file src/globals.c
++patching file src/globals.h
++patching file src/local_scan.h
++patching file src/macros.h
++patching file src/readconf.c
++patching file src/route.c
++patching file src/smtp_in.c
++patching file src/spool_in.c
++patching file src/spool_out.c
++patching file src/structs.h
++patching file src/transport.c
++patching file src/transports/smtp.c
++
++
++This patch can be included / excluded from the compilation by use of the #define SUPPORT_DSN
++which gets added into src/config.h.defaults & src/EDITME by the patch.
++
++Use
++---
++
++The facility (once compiled in) can be turned on for a particular router via the
++dsn_process directive Eg :-
++
++dest_delivery_int:
++  driver = manualroute
++  domains = +relay_to_domains
++  condition = ${if eq {${lc:$sender_address_domain}}\
++                                 {domain.com}\
++                                 {yes}{no}\
++                       }
++  dsn_process
++  hide route_data = ${lc:${extract{mailHost}{$address_data}{$value}{}}}
++  transport = remote_smtp
++
++Exim will produce 1 of 2 DSN's back to the originator, or pass on the DSN request.
++The 2 DSN's will either contain (relayed via non "Remote SMTP" router) or
++(relayed to non-DSN-aware mailer) depending on if the delivery was VIA an SMTP
++transport or not.
++
++
++Credits
++-------
++
++The original work for the patch was done by Philip Hazel in Exim 3
++
++The extract was taken and re-applied to Exim 4 by the following :-
++Phil Bingham   (phil.bingham@cwipapps.net)
++Steve Falla    (steve.falla@cwipapps.net)
++Ray Edah       (ray.edah@cwipapps.net)
++Andrew Johnson (andrew.johnson@cwippaps.net)
++Adrian Hungate (adrian.hungate@cwipapps.net)
++
++Contributions
++-------------
++Andrey J. Melnikoff (TEMHOTA) (temnota@kmv.ru) 
++
++
++ChangeLog
++---------
++
++14-Apr-2006 : Changed subject to "Delivery Status Notification"
++
++17-May-2006 : debug_printf in spool-in.c were not wrapped with #ifndef COMPILE_UTILITY
++              thanks to Andrey J. Melnikoff for this information
++
++
++
++Support for this patch (limited though it is) will only be provided through the SourceForge
++project page (http://sourceforge.net/projects/eximdsn/)
++
++--
++Andrew Johnson Cable & Wireless
+diff -urN exim-4.63-orig/src/config.h.defaults exim-4.63-dsn/src/config.h.defaults
+--- exim-4.63-orig/src/config.h.defaults	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/config.h.defaults	2006-09-12 11:47:24.000000000 +0100
+@@ -123,6 +123,7 @@
+ #define SUPPORT_MOVE_FROZEN_MESSAGES
+ #define SUPPORT_PAM
+ #define SUPPORT_TLS
++#define SUPPORT_DSN
+ #define SUPPORT_TRANSLATE_IP_ADDRESS
+ 
+ #define SYSLOG_LOG_PID
+diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
+--- exim-4.63-orig/src/deliver.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/deliver.c	2006-09-12 11:47:24.000000000 +0100
+@@ -65,6 +65,9 @@
+ static address_item *addr_remote = NULL;
+ static address_item *addr_route = NULL;
+ static address_item *addr_succeed = NULL;
++#ifdef SUPPORT_DSN
++static address_item *addr_dsntmp = NULL;
++#endif
+ 
+ static FILE *message_log = NULL;
+ static BOOL update_spool;
+@@ -2866,6 +2869,15 @@
+     break;
+     #endif
+ 
++    #ifdef SUPPORT_DSN
++    case 'D':
++    if (addr == NULL) break;
++    addr->dsn_aware = (*ptr)? string_copy(ptr) : string_copy(" ");
++    while (*ptr++);
++    DEBUG(D_deliver) debug_printf("DSN read: addr->dsn_aware = %s\n", addr->dsn_aware);
++    break;
++    #endif
++
+     case 'A':
+     if (addr == NULL)
+       {
+@@ -3935,6 +3947,15 @@
+         }
+       #endif
+ 
++      #ifdef SUPPORT_DSN
++      if (addr->dsn_aware == NULL)
++        addr->dsn_aware = string_copy(" ");
++      DEBUG(D_deliver) debug_printf("DSN write: addr->dsn_aware = %s\n", addr->dsn_aware);     
++      sprintf(big_buffer, "D%s", addr->dsn_aware);
++      DEBUG(D_deliver) debug_printf("DSN write: big_buffer = %s (%d)\n", big_buffer, strlen(big_buffer)+1);
++      write(fd, big_buffer, strlen(big_buffer)+1);
++      #endif
++
+       /* Retry information: for most success cases this will be null. */
+ 
+       for (r = addr->retries; r != NULL; r = r->next)
+@@ -5072,6 +5093,14 @@
+       if (r->pno >= 0)
+         new->onetime_parent = recipients_list[r->pno].address;
+ 
++      #ifdef SUPPORT_DSN
++      /* If DSN support is enabled, set the dsn flags and the original receipt 
++         to be passed on to other DSN enabled MTAs */
++      new->dsn_flags = r->dsn_flags & rf_dsnflags;
++      new->dsn_orcpt = r->orcpt;
++      debug_printf("DSN (deliver): orcpt: %s  flags: %d\n", new->dsn_orcpt, new->dsn_flags);	 
++      #endif
++
+       switch (process_recipients)
+         {
+         /* RECIP_DEFER is set when a system filter freezes a message. */
+@@ -5959,6 +5988,12 @@
+     regex_must_compile(US"\\n250[\\s\\-]STARTTLS(\\s|\\n|$)", FALSE, TRUE);
+   #endif
+ 
++  #ifdef SUPPORT_DSN
++  /* Set the regex to check for DSN support on remote MTA */
++  if (regex_DSN == NULL) regex_DSN  =
++    regex_must_compile(US"\\n250[\\s\\-]DSN(\\s|\\n|$)", FALSE, TRUE);
++  #endif
++
+   /* Now sort the addresses if required, and do the deliveries. The yield of
+   do_remote_deliveries is FALSE when mua_wrapper is set and all addresses
+   cannot be delivered in one transaction. */
+@@ -6063,6 +6098,179 @@
+ 
+ else if (!dont_deliver) retry_update(&addr_defer, &addr_failed, &addr_succeed);
+ 
++#ifdef SUPPORT_DSN
++/* ********** philb - Send DSN for successful messages */
++
++addr_dsntmp = addr_succeed;
++
++while(addr_dsntmp != NULL)
++{
++   BOOL dsn_sendmessage = FALSE;
++   uschar dsnmsgbuf[4096];
++ 
++   DEBUG(D_deliver)
++      debug_printf("DSN: processing router : %s\n", addr_dsntmp->router->name);
++
++   DEBUG(D_deliver)
++      debug_printf("DSN: processing successful delivery address: %s\n", addr_dsntmp->address);
++  
++   if (testflag(addr_dsntmp, af_ignore_error))
++   {   
++      DEBUG(D_deliver)
++         debug_printf("DSN: Ignore error for: %s\n", addr_dsntmp->address);
++   }
++   else
++   {
++     DEBUG(D_deliver) debug_printf("DSN: Checking Flag\n");	 
++     if (addr_dsntmp->dsn_aware == NULL) {
++         DEBUG(D_deliver) debug_printf("DSN: dsn_aware was NULL, setting to space at %s %d\n", __FILE__, __LINE__);
++         addr_dsntmp->dsn_aware = string_copy(" ");
++     }
++     DEBUG(D_deliver) debug_printf("DSN: Sender_address: %s\n", sender_address);	 
++     DEBUG(D_deliver) debug_printf("DSN: orcpt: %s  flags: %d\n", addr_dsntmp->dsn_orcpt, addr_dsntmp->dsn_flags);	 
++     DEBUG(D_deliver) debug_printf("DSN: envid: %s  ret: %d\n", dsn_envid, dsn_ret);	 
++     DEBUG(D_deliver) debug_printf("DSN: Remote SMTP server supports DSN: %s\n", addr_dsntmp->dsn_aware);	 
++      	
++      /* Process the flags */
++     if((addr_dsntmp->dsn_flags & rf_dsnflags) != 0) 
++     {
++         /* We've got at least one flag set */
++
++	 /* set flag so we don't send bounces */
++	 setflag(addr_dsntmp, af_ignore_error);
++
++	 if((addr_dsntmp->dsn_flags & rf_notify_never) != 0)
++         {
++            DEBUG(D_deliver) debug_printf("DSN: NEVER FLAG\n");
++
++            /* nothing to do here */
++         }
++         
++         if((addr_dsntmp->dsn_flags & rf_notify_success) != 0)
++         {
++            DEBUG(D_deliver) debug_printf("DSN: SUCCESS FLAG\n");
++
++            dsn_sendmessage = TRUE;
++         }
++
++         if((addr_dsntmp->dsn_flags & rf_notify_failure) != 0)
++         {
++            DEBUG(D_deliver) debug_printf("DSN: FAILURE FLAG\n");
++
++            /* allow bounce messages */
++            clearflag(addr_dsntmp, af_ignore_error);
++         }
++
++         if((addr_dsntmp->dsn_flags & rf_notify_delay) != 0)
++         {
++            DEBUG(D_deliver) debug_printf("DSN: DELAY FLAG\n");
++
++            /* hmm, what to do here? */
++         }
++      }
++
++      if ((addr_dsntmp->dsn_aware != 0) && (addr_dsntmp->dsn_aware[0] != 'Y') && (dsn_sendmessage == TRUE) && (addr_dsntmp->router->dsn_process == TRUE))
++      {
++         pid_t pid;
++         int fd;
++      
++	 /* remote MTA does not support DSN, so we need to send message */
++	 
++	 /* create exim process to send message */ 	 
++	 pid = child_open_exim(&fd);
++
++         DEBUG(D_deliver) debug_printf("DSN: child_open_exim returns: %d\n", pid);
++	 
++	 if (pid < 0)  /* Creation of child failed */
++	 {
++	    log_write(0, LOG_MAIN|LOG_PANIC_DIE, "Process %d (parent %d) failed to "
++               "create child process to send failure message: %s", getpid(),
++               getppid(), strerror(errno));
++
++             DEBUG(D_deliver) debug_printf("DSN: child_open_exim failed\n");
++
++         }	 
++	 else  /* Creation of child succeeded */
++	 {
++           FILE *f = fdopen(fd, "wb");
++	   int topt = topt_add_return_path;
++	   uschar boundaryStr[64];
++	   
++           DEBUG(D_deliver) debug_printf("sending error message to: %s\n", sender_address);
++      
++           /* build unique id for MIME boundary */
++           snprintf(boundaryStr, 63, "%d-cwdsn-%d", pid, rand());      
++           DEBUG(D_deliver) debug_printf("DSN: MIME boundary: %s\n", boundaryStr);
++      
++           /* if the sender doesn't want the whole message returned, don't send the body */
++           if (dsn_ret != dsn_ret_full) topt |= topt_no_body;
++      
++           if (errors_reply_to != NULL) fprintf(f,"Reply-To: %s\n", errors_reply_to);
++     
++	   fprintf(f,"Auto-Submitted: auto-generated\n");
++	   fprintf(f,"From: Mail Delivery System <Mailer-Daemon@%s>\n", qualify_domain_sender);
++	   fprintf(f,"To: %s\n", sender_address);
++	   fprintf(f,"Subject: Delivery Status Notification\n");
++	   fprintf(f,"Content-Type: multipart/report; report-type=delivery-status; boundary=%s\n", boundaryStr);
++           fprintf(f,"MIME-Version: 1.0\n\n");
++
++           fprintf(f,"--%s\n", boundaryStr);
++	   fprintf(f,"Content-type: text/plain; charset=us-ascii\n\n");
++	   
++	   fprintf(f,"This message was created automatically by mail delivery software.\n");
++	   fprintf(f," ----- The following addresses had successful delivery notifications -----\n");
++/* AH: added specific message for non "Remote SMTP" situations */
++           if (addr_dsntmp->dsn_aware[0] == 'N') {
++	     fprintf(f,"<%s> (relayed to non-DSN-aware mailer)\n\n", addr_dsntmp->address);
++           } else {
++	     fprintf(f,"<%s> (relayed via non \"Remote SMTP\" router)\n\n", addr_dsntmp->address);
++           }
++
++	   fprintf(f,"--%s\n", boundaryStr);
++	   fprintf(f,"Content-type: message/delivery-status\n\n");
++	   
++           if (dsn_envid) { /* Test for NULL added by GC */
++               fprintf(f,"Original-Envelope-Id: %s\n", dsn_envid);
++           }
++	   fprintf(f,"Reporting-MTA: dns; %s\n", qualify_domain_sender);
++           if (addr_dsntmp->dsn_orcpt) { /* Test for NULL added by GC */
++               fprintf(f,"Original-Recipient: %s\n", addr_dsntmp->dsn_orcpt);
++           }
++	   fprintf(f,"Action: delivered\n\n");
++	   
++	   fprintf(f,"--%s\n", boundaryStr);
++	   fprintf(f,"Content-type: message/rfc822\n\n");
++	   
++	   fflush(f);
++	   transport_filter_argv = NULL;   /* Just in case */
++           return_path = sender_address;   /* In case not previously set */
++	   
++	   /* Write the original email out */
++	   transport_write_message(NULL, fileno(f), topt, 2048, NULL, NULL, NULL, NULL, NULL, 0);	   
++	   fflush(f);
++	      
++	   fprintf(f,"\n");	   
++	   fprintf(f,"--%s--\n", boundaryStr);
++	   
++	   fflush(f);	   	   
++	   fclose(f);
++           rc = child_close(pid, 0);     /* Waits for child to close, no timeout */
++	}
++      }
++      else
++      {  if (addr_dsntmp->router->dsn_process == TRUE)
++	 DEBUG(D_deliver) debug_printf("DSN: *** NOT SENDING DSN SUCCESS Message ***\n"); 
++         if (addr_dsntmp->router->dsn_process == FALSE)
++	 DEBUG(D_deliver) debug_printf("DSN: *** NOT SENDING DSN SUCCESS Message (gagged) ***\n"); 
++      }
++   }
++
++   addr_dsntmp = addr_dsntmp->next;
++}
++
++/* ********** philb - end of mod */
++#endif
++
+ /* If any addresses failed, we must send a message to somebody, unless
+ af_ignore_error is set, in which case no action is taken. It is possible for
+ several messages to get sent if there are addresses with different
+diff -urN exim-4.63-orig/src/EDITME exim-4.63-dsn/src/EDITME
+--- exim-4.63-orig/src/EDITME	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/EDITME	2006-09-12 11:47:24.000000000 +0100
+@@ -195,6 +195,8 @@
+ # least one type of lookup. You should consider whether you want to build
+ # the Exim monitor or not.
+ 
++# Support DSN
++SUPPORT_DSN=yes
+ 
+ #------------------------------------------------------------------------------
+ # These settings determine which individual router drivers are included in the
+diff -urN exim-4.63-orig/src/exim.c exim-4.63-dsn/src/exim.c
+--- exim-4.63-orig/src/exim.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/exim.c	2006-09-12 11:47:24.000000000 +0100
+@@ -920,6 +920,9 @@
+ #ifdef EXPERIMENTAL_DOMAINKEYS
+   fprintf(f, " Experimental_DomainKeys");
+ #endif
++#ifdef SUPPORT_DSN
++  fprintf(f, " C&W_DSN_1.2");
++#endif
+ fprintf(f, "\n");
+ 
+ fprintf(f, "Lookups:");
+@@ -2192,6 +2195,16 @@
+       break;
+       }
+ 
++    #ifdef SUPPORT_DSN
++    /* -MCD: set the smtp_use_dsn flag; this indicates that the host
++       that exim is connected to supports the esmtp extension DSN */
++    else if (strcmp(argrest, "CD") == 0)
++      {
++      smtp_use_dsn = TRUE;
++      break;
++      }
++    #endif
++
+     /* -MCP: set the smtp_use_pipelining flag; this is useful only when
+     it preceded -MC (see above) */
+ 
+diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
+--- exim-4.63-orig/src/globals.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/globals.c	2006-09-12 11:47:24.000000000 +0100
+@@ -121,6 +121,13 @@
+ uschar *tls_verify_hosts       = NULL;
+ #endif
+ 
++#ifdef SUPPORT_DSN
++BOOL   dsn                    = TRUE;
++uschar  *dsn_envid            = NULL;
++int    dsn_ret                = 0;
++const pcre  *regex_DSN        = NULL;
++BOOL   smtp_use_dsn           = FALSE;
++#endif
+ 
+ /* Input-reading functions for messages, so we can use special ones for
+ incoming TCP/IP. The defaults use stdin. We never need these for any
+@@ -270,6 +277,11 @@
+   NULL,                 /* cipher */
+   NULL,                 /* peerdn */
+   #endif
++  #ifdef SUPPORT_DSN
++  NULL,                 /* dsn_orcpt */
++  0,                    /* dsn_flags */
++  NULL,                 /* dsn_aware */
++  #endif
+   (uid_t)(-1),          /* uid */
+   (gid_t)(-1),          /* gid */
+   0,                    /* flags */
+@@ -958,6 +970,9 @@
+     TRUE,                      /* verify_sender */
+     FALSE,                     /* uid_set */
+     FALSE,                     /* unseen */
++#ifdef SUPPORT_DSN
++    FALSE,                     /* dsn_process */
++#endif
+ 
+     self_freeze,               /* self_code */
+     (uid_t)(-1),               /* uid */
+@@ -967,6 +982,7 @@
+     NULL,                      /* transport instance */
+     NULL,                      /* pass_router */
+     NULL                       /* redirect_router */
++
+ };
+ 
+ ip_address_item *running_interfaces = NULL;
+diff -urN exim-4.63-orig/src/globals.h exim-4.63-dsn/src/globals.h
+--- exim-4.63-orig/src/globals.h	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/globals.h	2006-09-12 11:47:24.000000000 +0100
+@@ -85,6 +85,13 @@
+ extern uschar *tls_verify_hosts;       /* Mandatory client verification */
+ #endif
+ 
++#ifdef SUPPORT_DSN
++extern BOOL   dsn;                    /* FALSE if DSN not to be used */
++extern uschar  *dsn_envid;            /* DSN envid string */
++extern int    dsn_ret;                /* DSN ret type*/
++extern const pcre  *regex_DSN;        /* For recognizing DSN settings */
++extern BOOL   smtp_use_dsn;           /* Global for passed connections */
++#endif
+ 
+ /* Input-reading functions for messages, so we can use special ones for
+ incoming TCP/IP. */
+diff -urN exim-4.63-orig/src/local_scan.h exim-4.63-dsn/src/local_scan.h
+--- exim-4.63-orig/src/local_scan.h	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/local_scan.h	2006-09-12 11:47:24.000000000 +0100
+@@ -123,9 +123,13 @@
+ field is always NULL except for one_time aliases that had errors_to on the
+ routers that generated them. */
+ 
++/* Added the dsn attributes orcpt and dsn_flags for DSN support*/
++
+ typedef struct recipient_item {
+   uschar *address;              /* the recipient address */
+   int     pno;                  /* parent number for "one_time" alias, or -1 */
++  uschar *orcpt;                /* DSN orcpt */
++  int    dsn_flags;             /* DSN flags */
+   uschar *errors_to;            /* the errors_to address or NULL */
+ #ifdef EXPERIMENTAL_BRIGHTMAIL
+   uschar *bmi_optin;
+diff -urN exim-4.63-orig/src/macros.h exim-4.63-dsn/src/macros.h
+--- exim-4.63-orig/src/macros.h	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/macros.h	2006-09-12 11:47:24.000000000 +0100
+@@ -734,6 +734,22 @@
+ #define topt_no_body            0x040  /* Omit body */
+ #define topt_escape_headers     0x080  /* Apply escape check to headers */
+ 
++/* Flags for recipient_block, used in DSN support */
++
++#define rf_onetime              0x01  /* A one-time alias */
++#define rf_notify_never         0x02  /* NOTIFY= settings */
++#define rf_notify_success       0x04
++#define rf_notify_failure       0x08
++#define rf_notify_delay         0x10
++
++#define rf_dsnflags  (rf_notify_never | rf_notify_success | \
++                      rf_notify_failure | rf_notify_delay)
++
++/* DSN RET types */
++
++#define dsn_ret_full            1
++#define dsn_ret_hdrs            2
++
+ /* Codes for the host_find_failed option. */
+ 
+ #define hff_freeze   0
+diff -urN exim-4.63-orig/src/readconf.c exim-4.63-dsn/src/readconf.c
+--- exim-4.63-orig/src/readconf.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/readconf.c	2006-09-12 11:47:24.000000000 +0100
+@@ -203,6 +203,9 @@
+   { "dns_ipv4_lookup",          opt_stringptr,   &dns_ipv4_lookup },
+   { "dns_retrans",              opt_time,        &dns_retrans },
+   { "dns_retry",                opt_int,         &dns_retry },
++#ifdef SUPPORT_DSN
++  { "dsn",                      opt_bool,        &dsn },
++#endif
+  /* This option is now a no-op, retained for compability */
+   { "drop_cr",                  opt_bool,        &drop_cr },
+ /*********************************************************/
+diff -urN exim-4.63-orig/src/receive.c exim-4.63-dsn/src/receive.c
+--- exim-4.63-orig/src/receive.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/receive.c	2006-09-12 11:47:24.000000000 +0100
+@@ -474,6 +474,8 @@
+     memcpy(recipients_list, oldlist, oldmax * sizeof(recipient_item));
+   }
+ 
++/* memset added by GC to blank dsn records, etc. */
++memset(&recipients_list[recipients_count], 0, sizeof(recipient_item));
+ recipients_list[recipients_count].address = recipient;
+ recipients_list[recipients_count].pno = pno;
+ #ifdef EXPERIMENTAL_BRIGHTMAIL
+diff -urN exim-4.63-orig/src/route.c exim-4.63-dsn/src/route.c
+--- exim-4.63-orig/src/route.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/route.c	2006-09-12 11:47:24.000000000 +0100
+@@ -60,6 +60,10 @@
+                  (void *)offsetof(router_instance, domains) },
+   { "driver",             opt_stringptr|opt_public,
+                  (void *)offsetof(router_instance, driver_name) },
++  #ifdef SUPPORT_DSN
++  { "dsn_process",        opt_bool|opt_public,
++                 (void *)offsetof(router_instance, dsn_process) },
++  #endif
+   { "errors_to",          opt_stringptr|opt_public,
+                  (void *)(offsetof(router_instance, errors_to)) },
+   { "expn",               opt_bool|opt_public,
+@@ -272,6 +276,13 @@
+ 
+   if (r->pass_router_name != NULL)
+     set_router(r, r->pass_router_name, &(r->pass_router), TRUE);
++
++  #ifdef SUPPORT_DSN
++    if (r->dsn_process == FALSE)
++      DEBUG(D_route) debug_printf("%s router skipping DSN - add dsn_process to router\n", r->name);
++    if (r->dsn_process == TRUE)
++      DEBUG(D_route) debug_printf("%s router performing DSN \n", r->name);
++  #endif
+   }
+ }
+ 
+@@ -1408,7 +1419,10 @@
+ 
+ copyflag(new, addr, af_propagate);
+ new->p.address_data = addr->p.address_data;
+-
++#ifdef SUPPORT_DSN
++  new->dsn_flags = addr->dsn_flags;
++  new->dsn_orcpt = addr->dsn_orcpt;
++#endif
+ 
+ /* As it has turned out, we haven't set headers_add or headers_remove for the
+  * clone. Thinking about it, it isn't entirely clear whether they should be
+diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
+--- exim-4.63-orig/src/smtp_in.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/smtp_in.c	2006-09-12 11:47:24.000000000 +0100
+@@ -835,6 +835,13 @@
+ sender_verified_list = NULL;        /* No senders verified */
+ memset(sender_address_cache, 0, sizeof(sender_address_cache));
+ memset(sender_domain_cache, 0, sizeof(sender_domain_cache));
++
++#ifdef SUPPORT_DSN
++/* Reset the DSN flags */
++dsn_ret = 0;
++dsn_envid = NULL;
++#endif
++
+ authenticated_sender = NULL;
+ #ifdef EXPERIMENTAL_BRIGHTMAIL
+ bmi_run = 0;
+@@ -2229,6 +2236,10 @@
+   int ptr, size, rc;
+   int c, i;
+   auth_instance *au;
++#ifdef SUPPORT_DSN
++  uschar *orcpt = NULL;
++  int flags;
++#endif
+ 
+   switch(smtp_read_command(TRUE))
+     {
+@@ -2632,6 +2643,12 @@
+       if (accept_8bitmime)
+         s = string_cat(s, &size, &ptr, US"250-8BITMIME\r\n", 14);
+ 
++      #ifdef SUPPORT_DSN
++      /* Advertise DSN support if configured to do so. */
++      if (dsn) 
++        s = string_cat(s, &size, &ptr, US"250-DSN\r\n", 9);
++      #endif
++
+       /* Advertise ETRN if there's an ACL checking whether a host is
+       permitted to issue it; a check is made when any host actually tries. */
+ 
+@@ -2823,6 +2840,43 @@
+           (strcmpic(value, US"8BITMIME") == 0 ||
+            strcmpic(value, US"7BIT") == 0)) {}
+ 
++      #ifdef SUPPORT_DSN
++
++      /* Handle the two DSN options, but only if configured to do so (which
++      will have caused "DSN" to be given in the EHLO response). The code itself
++      is included only if configured in at build time. */
++
++      else if (dsn && strcmpic(name, US"RET") == 0)
++        {
++          /* Check if RET has already been set */
++          if (dsn_ret > 0) {
++            synprot_error(L_smtp_syntax_error, 501, NULL,
++              US"RET can be specified once only");
++            goto COMMAND_LOOP;
++          }
++          dsn_ret = (strcmpic(value, US"HDRS") == 0)? dsn_ret_hdrs :
++                  (strcmpic(value, US"FULL") == 0)? dsn_ret_full : 0;
++          DEBUG(D_receive) debug_printf("DSN_RET: %d\n", dsn_ret);
++          /* Check for invalid invalid value, and exit with error */
++          if (dsn_ret == 0) {
++            synprot_error(L_smtp_syntax_error, 501, NULL,
++              US"Value for RET is invalid");
++            goto COMMAND_LOOP;
++          }
++        }
++      else if (dsn && strcmpic(name, US"ENVID") == 0)
++        {
++          /* Check if the dsn envid has been already set */
++          if (dsn_envid != NULL) {
++            synprot_error(L_smtp_syntax_error, 501, NULL,
++              US"ENVID can be specified once only");
++            goto COMMAND_LOOP;
++          }
++          dsn_envid = string_copy(value);
++          DEBUG(D_receive) debug_printf("DSN_ENVID: %s\n", dsn_envid);
++        }
++      #endif
++
+       /* Handle the AUTH extension. If the value given is not "<>" and either
+       the ACL says "yes" or there is no ACL but the sending host is
+       authenticated, we set it up as the authenticated sender. However, if the
+@@ -3070,6 +3124,89 @@
+       rcpt_fail_count++;
+       break;
+       }
++    
++    #ifdef SUPPORT_DSN
++    /* Set the DSN flags orcpt and dsn_flags from the session*/
++    orcpt = NULL;
++    flags = 0;
++    
++    if (esmtp) for(;;)
++      {
++      uschar *name, *value, *end;
++      int size;
++
++      if (!extract_option(&name, &value))
++      {
++         break;
++      }
++
++      if (strcmpic(name, US"ORCPT") == 0)
++      {
++        /* Check whether orcpt has been already set */
++        if (orcpt != NULL) {
++          synprot_error(L_smtp_syntax_error, 501, NULL,
++            US"ORCPT can be specified once only");
++          goto COMMAND_LOOP;
++        }
++        orcpt = string_copy(value);
++        DEBUG(D_receive) debug_printf("DSN orcpt: %s\n", orcpt);
++      }
++
++      else if (strcmpic(name, US"NOTIFY") == 0)
++      {
++        /* Check if the notify flags have been already set */
++        if (flags > 0)
++        {
++          synprot_error(L_smtp_syntax_error, 501, NULL,
++              US"NOTIFY can be specified once only");
++          goto COMMAND_LOOP;
++        }
++        if (strcmpic(value, US"NEVER") == 0) flags |= rf_notify_never; else
++          {
++          uschar *p = value;
++          while (*p != 0)
++            {
++            uschar *pp = p;
++            while (*pp != 0 && *pp != ',') pp++;
++              if (*pp == ',') *pp++ = 0;
++            if (strcmpic(p, US"SUCCESS") == 0) {
++                DEBUG(D_receive) debug_printf("GC: Setting notify success\n");
++                flags |= rf_notify_success;
++            }
++            else if (strcmpic(p, US"FAILURE") == 0) {
++                DEBUG(D_receive) debug_printf("GC: Setting notify failure\n");
++                flags |= rf_notify_failure;
++            }
++            else if (strcmpic(p, US"DELAY") == 0) {
++                DEBUG(D_receive) debug_printf("GC: Setting notify delay\n");
++                flags |= rf_notify_delay;
++            }
++            else
++            {
++              /* Catch any strange values */
++              synprot_error(L_smtp_syntax_error, 501, NULL,
++                US"Invalid value for NOTIFY parameter");
++              goto COMMAND_LOOP;
++            }
++            p = pp;
++            }
++            DEBUG(D_receive) debug_printf("DSN Flags: %x\n", flags);
++          }
++      }
++
++      /* Unknown option. Stick back the terminator characters and break
++      the loop. An error for a malformed address will occur. */
++
++      else
++        {
++        DEBUG(D_receive) debug_printf("Invalid dsn command: %s : %s\n", name, value);
++        name[-1] = ' ';
++        value[-1] = '=';
++        break;
++        }
++      }
++    #endif
++
+ 
+     /* Apply SMTP rewriting then extract the working address. Don't allow "<>"
+     as a recipient address */
+@@ -3176,6 +3313,24 @@
+       {
+       smtp_printf("250 Accepted\r\n");
+       receive_add_recipient(recipient, -1);
++      
++      #ifdef SUPPORT_DSN
++      
++      /* Set the dsn flags in the recipients_list */
++      if (orcpt != NULL)
++         recipients_list[recipients_count-1].orcpt = orcpt;
++      else
++         recipients_list[recipients_count-1].orcpt = NULL;
++         
++      if (flags != 0)
++         recipients_list[recipients_count-1].dsn_flags = flags;
++      else
++         recipients_list[recipients_count-1].dsn_flags = 0;
++         debug_printf("DSN-AJ(smtp-in): orcpt: %s  flags: %d\n", recipients_list[recipients_count-1].orcpt, recipients_list[recipients_count-1].dsn_flags);
++
++
++      #endif
++      
+       }
+ 
+     /* The recipient was discarded */
+diff -urN exim-4.63-orig/src/spool_in.c exim-4.63-dsn/src/spool_in.c
+--- exim-4.63-orig/src/spool_in.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/spool_in.c	2006-09-12 11:47:24.000000000 +0100
+@@ -292,6 +292,13 @@
+ spam_score_int = NULL;
+ #endif
+ 
++#ifdef SUPPORT_DSN
++#ifndef COMPILE_UTILITY
++dsn_ret = 0;
++dsn_envid = NULL;
++#endif  /* COMPILE_UTILITY */
++#endif
++
+ /* Generate the full name and open the file. If message_subdir is already
+ set, just look in the given directory. Otherwise, look in both the split
+ and unsplit directories, as for the data file above. */
+@@ -474,6 +481,21 @@
+     tls_peerdn = string_copy(big_buffer + 12);
+   #endif
+ 
++  #ifdef SUPPORT_DSN
++  #ifndef COMPILE_UTILITY
++  /* Check if the dsn flags have been set in the header file */
++  else if (Ustrncmp(big_buffer, "-dsn_ret", 8) == 0)
++  {
++   dsn_ret= atoi(big_buffer + 8);
++  }
++  else if (Ustrncmp(big_buffer, "-dsn_envid", 10) == 0)
++  {
++    dsn_envid = string_copy(big_buffer + 11);
++  }
++  #endif  /* COMPILE_UTILITY */
++  #endif
++
++
+   /* We now record the port number after the address, separated by a
+   dot. For compatibility during upgrading, do nothing if there
+   isn't a value (it gets left at zero). */
+@@ -558,6 +580,10 @@
+   {
+   int nn;
+   int pno = -1;
++  #ifdef SUPPORT_DSN
++  int dsn_flags = 0;
++  uschar *orcpt = NULL;
++  #endif
+   uschar *errors_to = NULL;
+   uschar *p;
+ 
+@@ -626,10 +652,19 @@
+     }
+ 
+   /* Handle current format Exim 4 spool files */
++  /* Spool file is modified if DSN is supported
++     Original was "address errors_to len(errors_to),pno
++     New for DSN support is now:
++     "address errors_to orcpt len(errors_to),len(orcpt),pno,dsn_flags */
+ 
+   else if (*p == '#')
+     {
+     int flags;
++
++    #ifndef COMPILE_UTILITY
++      DEBUG(D_deliver) debug_printf("**** SPOOL_IN - Exim 4 standard format spoolfile\n");
++    #endif  /* COMPILE_UTILITY */
++
+     (void)sscanf(CS p+1, "%d", &flags);
+ 
+     if ((flags & 0x01) != 0)      /* one_time data exists */
+@@ -642,15 +677,82 @@
+         {
+         p -= len;
+         errors_to = string_copy(p);
++        }	
++      }
++
++    *(--p) = 0;   /* Terminate address */
++    }
++    #ifdef SUPPORT_DSN
++    else if (*p == '!') /* Handle Exim4 + DSN spool files */
++    {
++    int flags;
++    int temp_dsn_flags;
++
++    #ifndef COMPILE_UTILITY
++      DEBUG(D_deliver) debug_printf("**** SPOOL_IN - C&W DSN format spoolfile\n");
++    #endif  /* COMPILE_UTILITY */
++    
++    sscanf(CS p+1, "%d,%d", &flags, &temp_dsn_flags);
++    
++    if (((flags & 0x01) != 0) || (temp_dsn_flags > 0)) /* one_time data or dsn_flags exist */  
++      {
++      int len;
++      int len_orcpt;
++
++      #ifndef COMPILE_UTILITY
++        DEBUG(D_deliver) debug_printf("**** spool_in dsn_flags = 0\n");
++      #endif  /* COMPILE_UTILITY */
++
++      dsn_flags = 0;
++      
++      while (isdigit(*(--p)) || *p == ',' || *p == '-');
++      sscanf(CS p+1, "%d,%d,%d,%d", &len, &len_orcpt, &pno, &dsn_flags);
++       
++      *p = 0;
++      if (len_orcpt > 0)
++        {
++          p -= len_orcpt;
++          orcpt = string_copy(p);
+         }
++      *(--p) = 0; /* change the space to a NULL */
++
++      if (len > 0)
++        {
++        p -= len;
++        errors_to = string_copy(p);
++        }	
+       }
+ 
+     *(--p) = 0;   /* Terminate address */
+     }
++    #endif
++    #ifndef COMPILE_UTILITY
++    else
++    {
++       DEBUG(D_deliver) debug_printf("**** SPOOL_IN - No additional fields\n");
++    }
++    #endif  /* COMPILE_UTILITY */
++  
++  #ifdef SUPPORT_DSN
++    #ifndef COMPILE_UTILITY
++      DEBUG(D_deliver) debug_printf("**** SPOOL_IN - address: |%s| errorsto: |%s| orcpt: |%s| dsn_flags: %d\n",
++      big_buffer, errors_to, orcpt, dsn_flags);
++    #endif  /* COMPILE_UTILITY */
++  #endif
++  #ifndef SUPPORT_DSN
++    #ifndef COMPILE_UTILITY
++      DEBUG(D_deliver) debug_printf("**** SPOOL_IN - address: |%s| errorsto: |%s|\n",
++      big_buffer, errors_to);
++    #endif  /* COMPILE_UTILITY */
++  #endif
+ 
+   recipients_list[recipients_count].address = string_copy(big_buffer);
+   recipients_list[recipients_count].pno = pno;
+   recipients_list[recipients_count].errors_to = errors_to;
++  #ifdef SUPPORT_DSN
++  recipients_list[recipients_count].orcpt = orcpt;
++  recipients_list[recipients_count].dsn_flags = dsn_flags;
++  #endif
+   }
+ 
+ /* The remainder of the spool header file contains the headers for the message,
+diff -urN exim-4.63-orig/src/spool_out.c exim-4.63-dsn/src/spool_out.c
+--- exim-4.63-orig/src/spool_out.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/spool_out.c	2006-09-12 11:47:24.000000000 +0100
+@@ -243,6 +243,15 @@
+ if (tls_peerdn != NULL) fprintf(f, "-tls_peerdn %s\n", tls_peerdn);
+ #endif
+ 
++#ifdef SUPPORT_DSN
++/* Write the dsn flags to the spool header file */
++DEBUG(D_deliver) debug_printf("DSN: Write SPOOL :-dsn_envid %s\n", dsn_envid);
++if (dsn_envid != NULL) fprintf(f, "-dsn_envid %s\n", dsn_envid);
++DEBUG(D_deliver) debug_printf("DSN: Write SPOOL :-dsn_ret %d\n", dsn_ret);
++if (dsn_ret != 0) fprintf(f, "-dsn_ret %d\n", dsn_ret);
++#endif
++
++
+ /* To complete the envelope, write out the tree of non-recipients, followed by
+ the list of recipients. These won't be disjoint the first time, when no
+ checking has been done. If a recipient is a "one-time" alias, it is followed by
+@@ -253,14 +262,36 @@
+ for (i = 0; i < recipients_count; i++)
+   {
+   recipient_item *r = recipients_list + i;
+-  if (r->pno < 0 && r->errors_to == NULL)
++#ifdef SUPPORT_DSN
++DEBUG(D_deliver) debug_printf("DSN: Flags :%d\n", r->dsn_flags);
++#endif
++  if (r->pno < 0 && r->errors_to == NULL
++    #ifdef SUPPORT_DSN
++     && r->dsn_flags == 0
++    #endif
++    )
+     fprintf(f, "%s\n", r->address);
+   else
+     {
+     uschar *errors_to = (r->errors_to == NULL)? US"" : r->errors_to;
++    #ifdef SUPPORT_DSN
++    uschar *orcpt = (r->orcpt == NULL)? US"" : r->orcpt;
++    fprintf(f, "%s %s %s %d,%d,%d,%d!1\n", r->address, errors_to, orcpt, 
++      Ustrlen(errors_to), Ustrlen(orcpt), r->pno, r->dsn_flags);
++    #else
+     fprintf(f, "%s %s %d,%d#1\n", r->address, errors_to,
+       Ustrlen(errors_to), r->pno);
++    #endif
+     }
++    
++    #ifdef SUPPORT_DSN
++      DEBUG(D_deliver) debug_printf("DSN :**** SPOOL_OUT - address: |%s| errorsto: |%s| orcpt: |%s| dsn_flags: %d\n",
++         r->address, r->errors_to, r->orcpt, r->dsn_flags);
++    #endif
++    #ifndef SUPPORT_DSN
++      DEBUG(D_deliver) debug_printf("**** SPOOL_OUT - address: |%s| errorsto: |%s|\n",
++         r->address, r->errors_to);
++    #endif
+   }
+ 
+ /* Put a blank line before the headers */
+diff -urN exim-4.63-orig/src/structs.h exim-4.63-dsn/src/structs.h
+--- exim-4.63-orig/src/structs.h	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/structs.h	2006-09-12 11:47:24.000000000 +0100
+@@ -281,7 +281,9 @@
+   BOOL    verify_sender;          /* Use this router when verifying a sender */
+   BOOL    uid_set;                /* Flag to indicate uid is set */
+   BOOL    unseen;                 /* If TRUE carry on, even after success */
+-
++#ifdef SUPPORT_DSN
++  BOOL    dsn_process;            /* If TRUE, activate DSN for this router */
++#endif
+   int     self_code;              /* Encoded version of "self" */
+   uid_t   uid;                    /* Fixed uid value */
+   gid_t   gid;                    /* Fixed gid value */
+@@ -560,6 +562,12 @@
+   uschar *peerdn;                 /* DN of server's certificate */
+   #endif
+ 
++  #ifdef SUPPORT_DSN
++  uschar *dsn_orcpt;              /* DSN orcpt value */
++  int  dsn_flags;                 /* DSN flags */
++  uschar *dsn_aware;              /* DSN aware flag */
++  #endif
++
+   uid_t   uid;                    /* uid for transporting */
+   gid_t   gid;                    /* gid for transporting */
+ 
+diff -urN exim-4.63-orig/src/transport.c exim-4.63-dsn/src/transport.c
+--- exim-4.63-orig/src/transport.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/transport.c	2006-09-12 11:47:24.000000000 +0100
+@@ -1756,6 +1756,11 @@
+ 
+   argv = child_exec_exim(CEE_RETURN_ARGV, TRUE, &i, FALSE, 0);
+ 
++  #ifdef SUPPORT_DSN
++  /* Call with the dsn flag */
++  if (smtp_use_dsn) argv[i++] = US"-MCD";
++  #endif
++
+   if (smtp_authenticated) argv[i++] = US"-MCA";
+ 
+   #ifdef SUPPORT_TLS
+diff -urN exim-4.63-orig/src/transports/smtp.c exim-4.63-dsn/src/transports/smtp.c
+--- exim-4.63-orig/src/transports/smtp.c	2006-07-31 15:19:48.000000000 +0100
++++ exim-4.63-dsn/src/transports/smtp.c	2006-09-12 11:47:24.000000000 +0100
+@@ -194,6 +194,16 @@
+ static uschar *smtp_command;   /* Points to last cmd for error messages */
+ static uschar *mail_command;   /* Points to MAIL cmd for error messages */
+ 
++#ifdef SUPPORT_DSN
++/* some DSN flags for use later */
++
++static int   rf_list[] = {rf_notify_never, rf_notify_success,
++  rf_notify_failure, rf_notify_delay };
++
++static uschar *rf_names[] = { "NEVER", "SUCCESS", "FAILURE", "DELAY" };
++#endif
++
++
+ 
+ /*************************************************
+ *             Setup entry point                  *
+@@ -1137,6 +1147,14 @@
+   DEBUG(D_transport) debug_printf("%susing PIPELINING\n",
+     smtp_use_pipelining? "" : "not ");
+ 
++  #ifdef SUPPORT_DSN
++  /* Note if the server supports DSN */
++  smtp_use_dsn = dsn &&
++    esmtp && pcre_exec(regex_DSN, NULL, CS buffer, (int)Ustrlen(CS buffer), 0,
++       PCRE_EOPT, NULL, 0) >= 0;
++  DEBUG(D_transport) debug_printf("use_dsn=%d\n", smtp_use_dsn);
++  #endif
++
+   /* Note if the response to EHLO specifies support for the AUTH extension.
+   If it has, check that this host is one we want to authenticate to, and do
+   the business. The host name and address must be available when the
+@@ -1324,6 +1342,26 @@
+   while (*p) p++;
+   }
+ 
++#ifdef SUPPORT_DSN
++/* Add any DSN flags to the mail command */
++
++if (smtp_use_dsn)
++  {
++  if (dsn_ret == dsn_ret_hdrs)
++    {
++    strcpy(p, " RET=HDRS");
++    while (*p) p++;
++    }
++  else if (dsn_ret == dsn_ret_full)
++    {
++    strcpy(p, " RET=FULL");
++    while (*p) p++;
++    }
++  if (dsn_envid != NULL)
++    string_format(p, sizeof(buffer) - (p-buffer), " ENVID=%s", dsn_envid);
++  }
++#endif
++
+ /* Add the authenticated sender address if present */
+ 
+ if ((smtp_authenticated || ob->authenticated_sender_force) &&
+@@ -1386,18 +1424,66 @@
+   int count;
+   BOOL no_flush;
+ 
++  #ifdef SUPPORT_DSN
++  /* philb - set dsn_aware flag for this recipient */
++  if(smtp_use_dsn)
++     addr->dsn_aware = string_copy("Y");
++  else
++     addr->dsn_aware = string_copy("N");
++  #endif
++
+   if (addr->transport_return != PENDING_DEFER) continue;
+ 
+   address_count++;
+   no_flush = smtp_use_pipelining && (!mua_wrapper || addr->next != NULL);
+ 
++   #ifdef SUPPORT_DSN
++   /* Add any DSN flags to the rcpt command and add to the sent string */
++
++   p = buffer;
++   *p = 0;
++
++   if (smtp_use_dsn)
++     {
++     if ((addr->dsn_flags & rf_dsnflags) != 0)
++       {
++       int i;
++       BOOL first = TRUE;
++       strcpy(p, " NOTIFY=");
++       while (*p) p++;
++       for (i = 0; i < 4; i++)
++         {
++         if ((addr->dsn_flags & rf_list[i]) != 0)
++           {
++           if (!first) *p++ = ',';
++           first = FALSE;
++           strcpy(p, rf_names[i]);
++           while (*p) p++;
++           }
++         }
++       }
++
++     if (addr->dsn_orcpt != NULL)
++       string_format(p, sizeof(buffer) - (p-buffer), " ORCPT=%s",
++         addr->dsn_orcpt);
++     }
++
++   #endif
++
++
+   /* Now send the RCPT command, and process outstanding responses when
+   necessary. After a timeout on RCPT, we just end the function, leaving the
+   yield as OK, because this error can often mean that there is a problem with
+   just one address, so we don't want to delay the host. */
+ 
++ #ifdef SUPPORT_DSN
++  count = smtp_write_command(&outblock, no_flush, "RCPT TO:<%s>%s%s\r\n",
++    transport_rcpt_address(addr, tblock->rcpt_include_affixes), igquotstr, buffer);
++ #else
+   count = smtp_write_command(&outblock, no_flush, "RCPT TO:<%s>%s\r\n",
+     transport_rcpt_address(addr, tblock->rcpt_include_affixes), igquotstr);
++ #endif
++
+   if (count < 0) goto SEND_FAILED;
+   if (count > 0)
+     {
