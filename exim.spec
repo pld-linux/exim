@@ -9,6 +9,7 @@
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
 %bcond_without	dkeys	# without domainkeys support
+%bcond_with	dsn	# experimental DSN
 #
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
@@ -168,7 +169,7 @@ Pliki nag³ówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
+%{?with_dsn:%patch7 -p1}
 %patch8 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
@@ -182,7 +183,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %{__make} -j1 \
 	%{?debug:FULLECHO=''} \
 	CC="%{__cc}" \
-	CUSTOM_CFLAGS="%{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
+	CUSTOM_CFLAGS="%{rpmcflags} %{?with_dsn:-DSUPPORT_DSN=yes} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
