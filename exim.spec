@@ -1,6 +1,4 @@
 #
-# NOTE: passing CFLAGS via CUSTOM_CFLAGS has NO effect!!!
-#
 # Conditional build:
 %bcond_without	pgsql	# without PostgreSQL support
 %bcond_without	mysql	# without MySQL support
@@ -18,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.63
-Release:	3.1
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -186,7 +184,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} -j1 \
-	%{?debug:FULLECHO=''} \
+	FULLECHO='' \
 	CC="%{__cc}" \
 	CUSTOM_CFLAGS="%{rpmcflags} %{?with_dsn:-DSUPPORT_DSN=yes} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
