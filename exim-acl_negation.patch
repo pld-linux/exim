@@ -1,0 +1,23 @@
+diff -urN exim-4.61.org/src/acl.c exim-4.61/src/acl.c
+--- exim-4.61.org/src/acl.c	2006-04-04 16:00:04.000000000 +0200
++++ exim-4.61/src/acl.c	2006-04-05 10:05:34.000000000 +0200
+@@ -202,8 +202,8 @@
+ checking functions. */
+ 
+ static uschar cond_expand_at_top[] = {
+-  TRUE,    /* add_header */
+   TRUE,    /* acl */
++  TRUE,    /* add_header */
+   FALSE,   /* authenticated */
+ #ifdef EXPERIMENTAL_BRIGHTMAIL
+   TRUE,    /* bmi_optin */
+@@ -260,8 +260,8 @@
+ /* Flags to identify the modifiers */
+ 
+ static uschar cond_modifiers[] = {
+-  TRUE,    /* add_header */
+   FALSE,   /* acl */
++  TRUE,    /* add_header */
+   FALSE,   /* authenticated */
+ #ifdef EXPERIMENTAL_BRIGHTMAIL
+   TRUE,    /* bmi_optin */

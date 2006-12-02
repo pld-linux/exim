@@ -1,6 +1,6 @@
-diff -urN exim-4.63-orig/README.DSN exim-4.63-dsn/README.DSN
---- exim-4.63-orig/README.DSN	1970-01-01 01:00:00.000000000 +0100
-+++ exim-4.63-dsn/README.DSN	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/README.DSN exim-4.62-dsn/README.DSN
+--- exim-4.62-orig/README.DSN	1970-01-01 01:00:00.000000000 +0100
++++ exim-4.62-dsn/README.DSN	2006-05-17 12:59:03.000000000 +0100
 @@ -0,0 +1,104 @@
 +Exim DSN Patch (4.60)
 +---------------------
@@ -106,9 +106,9 @@ diff -urN exim-4.63-orig/README.DSN exim-4.63-dsn/README.DSN
 +
 +--
 +Andrew Johnson Cable & Wireless
-diff -urN exim-4.63-orig/src/config.h.defaults exim-4.63-dsn/src/config.h.defaults
---- exim-4.63-orig/src/config.h.defaults	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/config.h.defaults	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/config.h.defaults exim-4.62-dsn/src/config.h.defaults
+--- exim-4.62-orig/src/config.h.defaults	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/config.h.defaults	2006-05-17 12:59:03.000000000 +0100
 @@ -123,6 +123,7 @@
  #define SUPPORT_MOVE_FROZEN_MESSAGES
  #define SUPPORT_PAM
@@ -117,9 +117,9 @@ diff -urN exim-4.63-orig/src/config.h.defaults exim-4.63-dsn/src/config.h.defaul
  #define SUPPORT_TRANSLATE_IP_ADDRESS
  
  #define SYSLOG_LOG_PID
-diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
---- exim-4.63-orig/src/deliver.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/deliver.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/deliver.c exim-4.62-dsn/src/deliver.c
+--- exim-4.62-orig/src/deliver.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/deliver.c	2006-05-17 12:59:03.000000000 +0100
 @@ -65,6 +65,9 @@
  static address_item *addr_remote = NULL;
  static address_item *addr_route = NULL;
@@ -130,7 +130,7 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
  
  static FILE *message_log = NULL;
  static BOOL update_spool;
-@@ -2866,6 +2869,15 @@
+@@ -2859,6 +2862,15 @@
      break;
      #endif
  
@@ -146,7 +146,7 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
      case 'A':
      if (addr == NULL)
        {
-@@ -3935,6 +3947,15 @@
+@@ -3928,6 +3940,15 @@
          }
        #endif
  
@@ -162,7 +162,7 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
        /* Retry information: for most success cases this will be null. */
  
        for (r = addr->retries; r != NULL; r = r->next)
-@@ -5072,6 +5093,14 @@
+@@ -5068,6 +5089,14 @@
        if (r->pno >= 0)
          new->onetime_parent = recipients_list[r->pno].address;
  
@@ -177,7 +177,7 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
        switch (process_recipients)
          {
          /* RECIP_DEFER is set when a system filter freezes a message. */
-@@ -5959,6 +5988,12 @@
+@@ -5992,6 +6021,12 @@
      regex_must_compile(US"\\n250[\\s\\-]STARTTLS(\\s|\\n|$)", FALSE, TRUE);
    #endif
  
@@ -190,7 +190,7 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
    /* Now sort the addresses if required, and do the deliveries. The yield of
    do_remote_deliveries is FALSE when mua_wrapper is set and all addresses
    cannot be delivered in one transaction. */
-@@ -6063,6 +6098,179 @@
+@@ -6096,6 +6131,179 @@
  
  else if (!dont_deliver) retry_update(&addr_defer, &addr_failed, &addr_succeed);
  
@@ -370,21 +370,9 @@ diff -urN exim-4.63-orig/src/deliver.c exim-4.63-dsn/src/deliver.c
  /* If any addresses failed, we must send a message to somebody, unless
  af_ignore_error is set, in which case no action is taken. It is possible for
  several messages to get sent if there are addresses with different
-diff -urN exim-4.63-orig/src/EDITME exim-4.63-dsn/src/EDITME
---- exim-4.63-orig/src/EDITME	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/EDITME	2006-09-12 11:47:24.000000000 +0100
-@@ -195,6 +195,8 @@
- # least one type of lookup. You should consider whether you want to build
- # the Exim monitor or not.
- 
-+# Support DSN
-+SUPPORT_DSN=yes
- 
- #------------------------------------------------------------------------------
- # These settings determine which individual router drivers are included in the
-diff -urN exim-4.63-orig/src/exim.c exim-4.63-dsn/src/exim.c
---- exim-4.63-orig/src/exim.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/exim.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/exim.c exim-4.62-dsn/src/exim.c
+--- exim-4.62-orig/src/exim.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/exim.c	2006-05-17 13:12:24.000000000 +0100
 @@ -920,6 +920,9 @@
  #ifdef EXPERIMENTAL_DOMAINKEYS
    fprintf(f, " Experimental_DomainKeys");
@@ -395,7 +383,7 @@ diff -urN exim-4.63-orig/src/exim.c exim-4.63-dsn/src/exim.c
  fprintf(f, "\n");
  
  fprintf(f, "Lookups:");
-@@ -2192,6 +2195,16 @@
+@@ -2184,6 +2187,16 @@
        break;
        }
  
@@ -412,9 +400,9 @@ diff -urN exim-4.63-orig/src/exim.c exim-4.63-dsn/src/exim.c
      /* -MCP: set the smtp_use_pipelining flag; this is useful only when
      it preceded -MC (see above) */
  
-diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
---- exim-4.63-orig/src/globals.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/globals.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/globals.c exim-4.62-dsn/src/globals.c
+--- exim-4.62-orig/src/globals.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/globals.c	2006-05-17 12:59:03.000000000 +0100
 @@ -121,6 +121,13 @@
  uschar *tls_verify_hosts       = NULL;
  #endif
@@ -429,7 +417,7 @@ diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
  
  /* Input-reading functions for messages, so we can use special ones for
  incoming TCP/IP. The defaults use stdin. We never need these for any
-@@ -270,6 +277,11 @@
+@@ -267,6 +274,11 @@
    NULL,                 /* cipher */
    NULL,                 /* peerdn */
    #endif
@@ -441,7 +429,7 @@ diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
    (uid_t)(-1),          /* uid */
    (gid_t)(-1),          /* gid */
    0,                    /* flags */
-@@ -958,6 +970,9 @@
+@@ -949,6 +961,9 @@
      TRUE,                      /* verify_sender */
      FALSE,                     /* uid_set */
      FALSE,                     /* unseen */
@@ -451,7 +439,7 @@ diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
  
      self_freeze,               /* self_code */
      (uid_t)(-1),               /* uid */
-@@ -967,6 +982,7 @@
+@@ -958,6 +973,7 @@
      NULL,                      /* transport instance */
      NULL,                      /* pass_router */
      NULL                       /* redirect_router */
@@ -459,9 +447,9 @@ diff -urN exim-4.63-orig/src/globals.c exim-4.63-dsn/src/globals.c
  };
  
  ip_address_item *running_interfaces = NULL;
-diff -urN exim-4.63-orig/src/globals.h exim-4.63-dsn/src/globals.h
---- exim-4.63-orig/src/globals.h	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/globals.h	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/globals.h exim-4.62-dsn/src/globals.h
+--- exim-4.62-orig/src/globals.h	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/globals.h	2006-05-17 12:59:03.000000000 +0100
 @@ -85,6 +85,13 @@
  extern uschar *tls_verify_hosts;       /* Mandatory client verification */
  #endif
@@ -476,9 +464,9 @@ diff -urN exim-4.63-orig/src/globals.h exim-4.63-dsn/src/globals.h
  
  /* Input-reading functions for messages, so we can use special ones for
  incoming TCP/IP. */
-diff -urN exim-4.63-orig/src/local_scan.h exim-4.63-dsn/src/local_scan.h
---- exim-4.63-orig/src/local_scan.h	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/local_scan.h	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/local_scan.h exim-4.62-dsn/src/local_scan.h
+--- exim-4.62-orig/src/local_scan.h	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/local_scan.h	2006-05-17 12:59:03.000000000 +0100
 @@ -123,9 +123,13 @@
  field is always NULL except for one_time aliases that had errors_to on the
  routers that generated them. */
@@ -493,10 +481,10 @@ diff -urN exim-4.63-orig/src/local_scan.h exim-4.63-dsn/src/local_scan.h
    uschar *errors_to;            /* the errors_to address or NULL */
  #ifdef EXPERIMENTAL_BRIGHTMAIL
    uschar *bmi_optin;
-diff -urN exim-4.63-orig/src/macros.h exim-4.63-dsn/src/macros.h
---- exim-4.63-orig/src/macros.h	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/macros.h	2006-09-12 11:47:24.000000000 +0100
-@@ -734,6 +734,22 @@
+diff -urN exim-4.62-orig/src/macros.h exim-4.62-dsn/src/macros.h
+--- exim-4.62-orig/src/macros.h	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/macros.h	2006-05-17 12:59:03.000000000 +0100
+@@ -733,6 +733,22 @@
  #define topt_no_body            0x040  /* Omit body */
  #define topt_escape_headers     0x080  /* Apply escape check to headers */
  
@@ -519,10 +507,10 @@ diff -urN exim-4.63-orig/src/macros.h exim-4.63-dsn/src/macros.h
  /* Codes for the host_find_failed option. */
  
  #define hff_freeze   0
-diff -urN exim-4.63-orig/src/readconf.c exim-4.63-dsn/src/readconf.c
---- exim-4.63-orig/src/readconf.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/readconf.c	2006-09-12 11:47:24.000000000 +0100
-@@ -203,6 +203,9 @@
+diff -urN exim-4.62-orig/src/readconf.c exim-4.62-dsn/src/readconf.c
+--- exim-4.62-orig/src/readconf.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/readconf.c	2006-05-17 12:59:03.000000000 +0100
+@@ -202,6 +202,9 @@
    { "dns_ipv4_lookup",          opt_stringptr,   &dns_ipv4_lookup },
    { "dns_retrans",              opt_time,        &dns_retrans },
    { "dns_retry",                opt_int,         &dns_retry },
@@ -532,9 +520,9 @@ diff -urN exim-4.63-orig/src/readconf.c exim-4.63-dsn/src/readconf.c
   /* This option is now a no-op, retained for compability */
    { "drop_cr",                  opt_bool,        &drop_cr },
  /*********************************************************/
-diff -urN exim-4.63-orig/src/receive.c exim-4.63-dsn/src/receive.c
---- exim-4.63-orig/src/receive.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/receive.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/receive.c exim-4.62-dsn/src/receive.c
+--- exim-4.62-orig/src/receive.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/receive.c	2006-05-17 12:59:03.000000000 +0100
 @@ -474,6 +474,8 @@
      memcpy(recipients_list, oldlist, oldmax * sizeof(recipient_item));
    }
@@ -544,9 +532,9 @@ diff -urN exim-4.63-orig/src/receive.c exim-4.63-dsn/src/receive.c
  recipients_list[recipients_count].address = recipient;
  recipients_list[recipients_count].pno = pno;
  #ifdef EXPERIMENTAL_BRIGHTMAIL
-diff -urN exim-4.63-orig/src/route.c exim-4.63-dsn/src/route.c
---- exim-4.63-orig/src/route.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/route.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/route.c exim-4.62-dsn/src/route.c
+--- exim-4.62-orig/src/route.c	2006-04-28 11:32:22.000000000 +0100
++++ exim-4.62-dsn/src/route.c	2006-05-17 12:59:03.000000000 +0100
 @@ -60,6 +60,10 @@
                   (void *)offsetof(router_instance, domains) },
    { "driver",             opt_stringptr|opt_public,
@@ -572,7 +560,7 @@ diff -urN exim-4.63-orig/src/route.c exim-4.63-dsn/src/route.c
    }
  }
  
-@@ -1408,7 +1419,10 @@
+@@ -1391,7 +1402,10 @@
  
  copyflag(new, addr, af_propagate);
  new->p.address_data = addr->p.address_data;
@@ -584,10 +572,10 @@ diff -urN exim-4.63-orig/src/route.c exim-4.63-dsn/src/route.c
  
  /* As it has turned out, we haven't set headers_add or headers_remove for the
   * clone. Thinking about it, it isn't entirely clear whether they should be
-diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
---- exim-4.63-orig/src/smtp_in.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/smtp_in.c	2006-09-12 11:47:24.000000000 +0100
-@@ -835,6 +835,13 @@
+diff -urN exim-4.62-orig/src/smtp_in.c exim-4.62-dsn/src/smtp_in.c
+--- exim-4.62-orig/src/smtp_in.c	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/smtp_in.c	2006-05-17 13:02:48.000000000 +0100
+@@ -832,6 +832,13 @@
  sender_verified_list = NULL;        /* No senders verified */
  memset(sender_address_cache, 0, sizeof(sender_address_cache));
  memset(sender_domain_cache, 0, sizeof(sender_domain_cache));
@@ -601,7 +589,7 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
  authenticated_sender = NULL;
  #ifdef EXPERIMENTAL_BRIGHTMAIL
  bmi_run = 0;
-@@ -2229,6 +2236,10 @@
+@@ -2169,6 +2176,10 @@
    int ptr, size, rc;
    int c, i;
    auth_instance *au;
@@ -612,7 +600,7 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
  
    switch(smtp_read_command(TRUE))
      {
-@@ -2632,6 +2643,12 @@
+@@ -2572,6 +2583,12 @@
        if (accept_8bitmime)
          s = string_cat(s, &size, &ptr, US"250-8BITMIME\r\n", 14);
  
@@ -625,7 +613,7 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
        /* Advertise ETRN if there's an ACL checking whether a host is
        permitted to issue it; a check is made when any host actually tries. */
  
-@@ -2823,6 +2840,43 @@
+@@ -2763,6 +2780,43 @@
            (strcmpic(value, US"8BITMIME") == 0 ||
             strcmpic(value, US"7BIT") == 0)) {}
  
@@ -669,7 +657,7 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
        /* Handle the AUTH extension. If the value given is not "<>" and either
        the ACL says "yes" or there is no ACL but the sending host is
        authenticated, we set it up as the authenticated sender. However, if the
-@@ -3070,6 +3124,89 @@
+@@ -3010,6 +3064,89 @@
        rcpt_fail_count++;
        break;
        }
@@ -759,7 +747,7 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
  
      /* Apply SMTP rewriting then extract the working address. Don't allow "<>"
      as a recipient address */
-@@ -3176,6 +3313,24 @@
+@@ -3116,6 +3253,24 @@
        {
        smtp_printf("250 Accepted\r\n");
        receive_add_recipient(recipient, -1);
@@ -784,9 +772,9 @@ diff -urN exim-4.63-orig/src/smtp_in.c exim-4.63-dsn/src/smtp_in.c
        }
  
      /* The recipient was discarded */
-diff -urN exim-4.63-orig/src/spool_in.c exim-4.63-dsn/src/spool_in.c
---- exim-4.63-orig/src/spool_in.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/spool_in.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/spool_in.c exim-4.62-dsn/src/spool_in.c
+--- exim-4.62-orig/src/spool_in.c	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/spool_in.c	2006-05-17 12:59:03.000000000 +0100
 @@ -292,6 +292,13 @@
  spam_score_int = NULL;
  #endif
@@ -937,9 +925,9 @@ diff -urN exim-4.63-orig/src/spool_in.c exim-4.63-dsn/src/spool_in.c
    }
  
  /* The remainder of the spool header file contains the headers for the message,
-diff -urN exim-4.63-orig/src/spool_out.c exim-4.63-dsn/src/spool_out.c
---- exim-4.63-orig/src/spool_out.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/spool_out.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/spool_out.c exim-4.62-dsn/src/spool_out.c
+--- exim-4.62-orig/src/spool_out.c	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/spool_out.c	2006-05-17 12:59:03.000000000 +0100
 @@ -243,6 +243,15 @@
  if (tls_peerdn != NULL) fprintf(f, "-tls_peerdn %s\n", tls_peerdn);
  #endif
@@ -994,9 +982,9 @@ diff -urN exim-4.63-orig/src/spool_out.c exim-4.63-dsn/src/spool_out.c
    }
  
  /* Put a blank line before the headers */
-diff -urN exim-4.63-orig/src/structs.h exim-4.63-dsn/src/structs.h
---- exim-4.63-orig/src/structs.h	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/structs.h	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/structs.h exim-4.62-dsn/src/structs.h
+--- exim-4.62-orig/src/structs.h	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/structs.h	2006-05-17 12:59:03.000000000 +0100
 @@ -281,7 +281,9 @@
    BOOL    verify_sender;          /* Use this router when verifying a sender */
    BOOL    uid_set;                /* Flag to indicate uid is set */
@@ -1021,9 +1009,9 @@ diff -urN exim-4.63-orig/src/structs.h exim-4.63-dsn/src/structs.h
    uid_t   uid;                    /* uid for transporting */
    gid_t   gid;                    /* gid for transporting */
  
-diff -urN exim-4.63-orig/src/transport.c exim-4.63-dsn/src/transport.c
---- exim-4.63-orig/src/transport.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/transport.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/transport.c exim-4.62-dsn/src/transport.c
+--- exim-4.62-orig/src/transport.c	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/transport.c	2006-05-17 12:59:03.000000000 +0100
 @@ -1756,6 +1756,11 @@
  
    argv = child_exec_exim(CEE_RETURN_ARGV, TRUE, &i, FALSE, 0);
@@ -1036,9 +1024,9 @@ diff -urN exim-4.63-orig/src/transport.c exim-4.63-dsn/src/transport.c
    if (smtp_authenticated) argv[i++] = US"-MCA";
  
    #ifdef SUPPORT_TLS
-diff -urN exim-4.63-orig/src/transports/smtp.c exim-4.63-dsn/src/transports/smtp.c
---- exim-4.63-orig/src/transports/smtp.c	2006-07-31 15:19:48.000000000 +0100
-+++ exim-4.63-dsn/src/transports/smtp.c	2006-09-12 11:47:24.000000000 +0100
+diff -urN exim-4.62-orig/src/transports/smtp.c exim-4.62-dsn/src/transports/smtp.c
+--- exim-4.62-orig/src/transports/smtp.c	2006-04-28 11:32:23.000000000 +0100
++++ exim-4.62-dsn/src/transports/smtp.c	2006-05-17 12:59:03.000000000 +0100
 @@ -194,6 +194,16 @@
  static uschar *smtp_command;   /* Points to last cmd for error messages */
  static uschar *mail_command;   /* Points to MAIL cmd for error messages */
@@ -1165,3 +1153,4 @@ diff -urN exim-4.63-orig/src/transports/smtp.c exim-4.63-dsn/src/transports/smtp
    if (count < 0) goto SEND_FAILED;
    if (count > 0)
      {
+
