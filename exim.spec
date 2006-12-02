@@ -1,4 +1,6 @@
 #
+# NOTE: passing CFLAGS via CUSTOM_CFLAGS has NO effect!!!
+#
 # Conditional build:
 %bcond_without	pgsql	# without PostgreSQL support
 %bcond_without	mysql	# without MySQL support
@@ -16,7 +18,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.63
-Release:	3
+Release:	3.1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -52,6 +54,7 @@ Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
 Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
+Patch9:		%{name}-info.patch
 URL:		http://www.exim.org/
 BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
@@ -172,6 +175,7 @@ Pliki nag³ówkowe dla Exima.
 %patch6 -p1
 %{?with_dsn:%patch7 -p1}
 %patch8 -p1
+%patch9 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -197,8 +201,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
-makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
-makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
+makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
+makeinfo --no-split exim-texinfo-*/doc/spec.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
