@@ -9,6 +9,7 @@
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
 %bcond_without	dkeys	# without domainkeys support
+%bcond_with	dsn	# experimental DSN
 #
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
@@ -49,10 +50,11 @@ Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch6:		%{name}-noloadbalance.patch
-# http://sourceforge.net/projects/eximdsn/
 Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
+Patch9:		%{name}-info.patch
 URL:		http://www.exim.org/
+BuildRequires:	XFree86-devel
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
 %{?with_dkeys:BuildRequires:	libdomainkeys-devel >= 0.68}
@@ -70,7 +72,6 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_sqlite:BuildRequires:	sqlite3-devel}
 BuildRequires:	texinfo >= 4.7
 %{?with_whoson:BuildRequires:	whoson-devel}
-BuildRequires:	xorg-lib-libX11-devel
 Requires(post):	/bin/hostname
 Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
@@ -170,8 +171,9 @@ Pliki nag³ówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
+%{?with_dsn:%patch7 -p1}
 %patch8 -p1
+%patch9 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -182,9 +184,9 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} -j1 \
-	%{?debug:FULLECHO=''} \
+	FULLECHO='' \
 	CC="%{__cc}" \
-	CUSTOM_CFLAGS="%{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
+	CUSTOM_CFLAGS="%{rpmcflags} %{?with_dsn:-DSUPPORT_DSN=yes} %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
@@ -197,8 +199,8 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_dkeys:-ldomainkeys}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
-makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
-makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
+makeinfo --no-split exim-texinfo-*/doc/filter.texinfo
+makeinfo --no-split exim-texinfo-*/doc/spec.texinfo
 
 %install
 rm -rf $RPM_BUILD_ROOT
