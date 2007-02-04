@@ -1,0 +1,12 @@
+diff -urN exim-4.62.org/src/spam.c exim-4.62/src/spam.c
+--- exim-4.62.org/src/spam.c	2006-04-28 12:32:23.000000000 +0200
++++ exim-4.62/src/spam.c	2006-06-08 10:20:26.000000000 +0200
+@@ -147,7 +147,7 @@
+                       AF_INET,
+                       spamd_address_vector[current_server]->tcp_addr,
+                       spamd_address_vector[current_server]->tcp_port,
+-                      5 ) > -1) {
++                      15 ) > -1) {
+         /* connection OK */
+         break;
+       };
