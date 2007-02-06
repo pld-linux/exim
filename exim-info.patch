@@ -1,0 +1,30 @@
+diff -Nur exim-4.66/exim-texinfo-4.66/doc/filter.texinfo n.exim-4.66/exim-texinfo-4.66/doc/filter.texinfo
+--- exim-4.66/exim-texinfo-4.66/doc/filter.texinfo	2006-07-31 16:21:20.000000000 +0200
++++ n.exim-4.66/exim-texinfo-4.66/doc/filter.texinfo	2006-12-02 22:50:25.000000000 +0100
+@@ -2,9 +2,8 @@
+ @setfilename exim_filtering.info
+ @documentencoding us-ascii
+ @settitle Exim's interfaces to mail filtering
+ @direntry
+-* Exim's interfaces to mail filtering: (exim_filtering).
+-                                                  [MISSING TEXT]
++* Exim's filtering: (exim_filtering).	Exim's interfaces to mail filtering
+ @end direntry
+ 
+ @node Top, Forwarding and filtering in Exim, , (dir)
+diff -Nur exim-4.66/exim-texinfo-4.66/doc/spec.texinfo n.exim-4.66/exim-texinfo-4.66/doc/spec.texinfo
+--- exim-4.66/exim-texinfo-4.66/doc/spec.texinfo	2006-07-31 16:21:20.000000000 +0200
++++ n.exim-4.66/exim-texinfo-4.66/doc/spec.texinfo	2006-12-02 22:50:25.000000000 +0100
+@@ -1,10 +1,9 @@
+ \input texinfo
+-@setfilename the_exim_mta.info
++@setfilename exim.info
+ @documentencoding us-ascii
+ @settitle Specification of the Exim Mail Transfer Agent
+ @direntry
+-* Specification of the Exim Mail Transfer Agent: (the_exim_mta).
+-                                                  [MISSING TEXT]
++* Exim: (exim).				Specification of the Exim Mail Transfer Agent
+ @end direntry
+ 
+ @node Top, Introduction, , (dir)
