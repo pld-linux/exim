@@ -1,0 +1,65 @@
+*** exim-4.66/src/deliver.c Mon Jan  8 14:25:36 2007
+--- exim/src/deliver.c	Tue Feb  6 14:19:00 2007
+***************
+*** 5639,5650 ****
+          string_sprintf("R:%s", addr->domain), 0);
+  
+      /* Otherwise, if there is an existing retry record in the database, add
+!     retry items to delete both forms. Since the domain might have been
+!     rewritten (expanded to fully qualified) as a result of routing, ensure
+!     that the rewritten form is also deleted. */
+  
+      else if (testflag(addr, af_dr_retry_exists))
+        {
+        retry_add_item(addr, addr->address_retry_key, rf_delete);
+        retry_add_item(addr, addr->domain_retry_key, rf_delete);
+        if (Ustrcmp(addr->domain, old_domain) != 0)
+--- 5637,5652 ----
+          string_sprintf("R:%s", addr->domain), 0);
+  
+      /* Otherwise, if there is an existing retry record in the database, add
+!     retry items to delete both forms. We must also allow for the possibility
+!     of a routing retry that includes the sender address. Since the domain might
+!     have been rewritten (expanded to fully qualified) as a result of routing,
+!     ensure that the rewritten form is also deleted. */
+  
+      else if (testflag(addr, af_dr_retry_exists))
+        {
++       uschar *altkey = string_sprintf("%s:<%s>", addr->address_retry_key,
++         sender_address);
++       retry_add_item(addr, altkey, rf_delete);
+        retry_add_item(addr, addr->address_retry_key, rf_delete);
+        retry_add_item(addr, addr->domain_retry_key, rf_delete);
+        if (Ustrcmp(addr->domain, old_domain) != 0)
+          wmf_text = next_emf(wmf, US"header");
+*** exim-4.66/src/transports/smtp.c Mon Jan  8 14:25:37 2007
+--- exim/src/transports/smtp.c	Tue Feb  6 14:19:00 2007
+***************
+*** 643,652 ****
+      addr->transport_return = PENDING_OK;
+  
+      /* If af_dr_retry_exists is set, there was a routing delay on this address;
+!     ensure that any address-specific retry record is expunged. */
+  
+      if (testflag(addr, af_dr_retry_exists))
+        retry_add_item(addr, addr->address_retry_key, rf_delete);
+      }
+  
+    /* Timeout while reading the response */
+--- 654,669 ----
+      addr->transport_return = PENDING_OK;
+  
+      /* If af_dr_retry_exists is set, there was a routing delay on this address;
+!     ensure that any address-specific retry record is expunged. We do this both
+!     for the basic key and for the version that also includes the sender. */
+  
+      if (testflag(addr, af_dr_retry_exists))
++       {
++       uschar *altkey = string_sprintf("%s:<%s>", addr->address_retry_key,
++         sender_address);
++       retry_add_item(addr, altkey, rf_delete);
+        retry_add_item(addr, addr->address_retry_key, rf_delete);
++       }
+      }
+  
+    /* Timeout while reading the response */
