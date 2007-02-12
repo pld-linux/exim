@@ -11,8 +11,8 @@
 %bcond_without	dkeys	# without domainkeys support
 #
 Summary:	University of Cambridge Mail Transfer Agent
-Summary(pl.UTF-8):   Agent Transferu Poczty Uniwersytetu w Cambridge
-Summary(pt_BR.UTF-8):   Servidor de correio eletrônico exim
+Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
+Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.66
 Release:	2
@@ -132,8 +132,8 @@ remetentes específicos.
 
 %package X11
 Summary:	X11 based Exim administration tool
-Summary(pl.UTF-8):   Narzędzia administracyjne exima dla X11
-Summary(pt_BR.UTF-8):   Monitor X11 para o exim
+Summary(pl.UTF-8):	Narzędzia administracyjne exima dla X11
+Summary(pt_BR.UTF-8):	Monitor X11 para o exim
 Group:		X11/Applications
 
 %description X11
@@ -152,7 +152,7 @@ desta interface.
 
 %package devel
 Summary:	Header files for Exim
-Summary(pl.UTF-8):   Pliki nagłówkowe dla Exima
+Summary(pl.UTF-8):	Pliki nagłówkowe dla Exima
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
