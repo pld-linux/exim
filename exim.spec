@@ -11,8 +11,8 @@
 %bcond_without	dkeys	# without domainkeys support
 #
 Summary:	University of Cambridge Mail Transfer Agent
-Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
-Summary(pt_BR):	Servidor de correio eletrônico exim
+Summary(pl.UTF-8):   Agent Transferu Poczty Uniwersytetu w Cambridge
+Summary(pt_BR.UTF-8):   Servidor de correio eletrÃ´nico exim
 Name:		exim
 Version:	4.66
 Release:	2
@@ -113,54 +113,54 @@ lookups, supports sender and/or reciever verification, selective
 relaying, supports virtual domains, built-in mail filtering and can be
 configured to drop root privilleges when possible.
 
-%description -l pl
+%description -l pl.UTF-8
 Agent transferu poczty (MTA) z pojedynczym plikiem konfiguracyjnym.
-Jego zalety: ¶wietne algorytmy, mo¿liwo¶æ przepisywania nag³ówków &
-koperty, wielokrotne dostarczanie poczty podczas jednego po³±czenia
-lub równoleg³e dostarczanie poczty, wyra¿enia regularne w parametrach
+Jego zalety: Å›wietne algorytmy, moÅ¼liwoÅ›Ä‡ przepisywania nagÅ‚Ã³wkÃ³w &
+koperty, wielokrotne dostarczanie poczty podczas jednego poÅ‚Ä…czenia
+lub rÃ³wnolegÅ‚e dostarczanie poczty, wyraÅ¼enia regularne w parametrach
 konfiguracyjnych, weryfikacja nadawcy i/lub odbiorcy, selektywne
-relayowanie, wsparcie dla wirtualnych domen, wbudowany system filtrów,
-mo¿liwo¶æ odrzucania praw roota kiedy jest to mo¿liwe.
+relayowanie, wsparcie dla wirtualnych domen, wbudowany system filtrÃ³w,
+moÅ¼liwoÅ›Ä‡ odrzucania praw roota kiedy jest to moÅ¼liwe.
 
-%description -l pt_BR
-O exim é um agente de transporte de correio eletrônico (MTA),
+%description -l pt_BR.UTF-8
+O exim Ã© um agente de transporte de correio eletrÃ´nico (MTA),
 desenvolvido na Universidade de Cambridge para uso em sistemas Unix
 conectados a Internet. Similar em estilo ao smail 3, suas facilidades
-são mais extensivas e em particular ele tem opções para verificação do
-remetente e destinatário, para recusar mensagens de máquinas, redes ou
-remetentes específicos.
+sÃ£o mais extensivas e em particular ele tem opÃ§Ãµes para verificaÃ§Ã£o do
+remetente e destinatÃ¡rio, para recusar mensagens de mÃ¡quinas, redes ou
+remetentes especÃ­ficos.
 
 %package X11
 Summary:	X11 based Exim administration tool
-Summary(pl):	Narzêdzia administracyjne exima dla X11
-Summary(pt_BR):	Monitor X11 para o exim
+Summary(pl.UTF-8):   NarzÄ™dzia administracyjne exima dla X11
+Summary(pt_BR.UTF-8):   Monitor X11 para o exim
 Group:		X11/Applications
 
 %description X11
 X11 based monitor & administration utility for the Exim Mail Transfer
 Agent.
 
-%description X11 -l pl
-Bazuj±ce na X11 narzêdzia dla Exima - monitor i program
+%description X11 -l pl.UTF-8
+BazujÄ…ce na X11 narzÄ™dzia dla Exima - monitor i program
 administracyjny.
 
-%description X11 -l pt_BR
-O monitor exim é um suplemento opcional ao pacote exim. Ele mostra
-informações sobre o processamento do exim em uma janela X11. O
-administrador pode executar uma série de ações de controle a partir
+%description X11 -l pt_BR.UTF-8
+O monitor exim Ã© um suplemento opcional ao pacote exim. Ele mostra
+informaÃ§Ãµes sobre o processamento do exim em uma janela X11. O
+administrador pode executar uma sÃ©rie de aÃ§Ãµes de controle a partir
 desta interface.
 
 %package devel
 Summary:	Header files for Exim
-Summary(pl):	Pliki nag³ówkowe dla Exima
+Summary(pl.UTF-8):   Pliki nagÅ‚Ã³wkowe dla Exima
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files for Exim.
 
-%description devel -l pl
-Pliki nag³ówkowe dla Exima.
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
