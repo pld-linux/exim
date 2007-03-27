@@ -15,7 +15,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.66
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -245,6 +245,8 @@ install src/{local_scan.h,store.h,mytypes.h} $RPM_BUILD_ROOT%{_includedir}/%{nam
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
+touch $RPM_BUILD_ROOT/etc/security/blacklist.smtp
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -318,6 +320,7 @@ fi
 %attr(750,exim,root) %dir %{_var}/log/archiv/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
 %{_libdir}/%{name}
 %{_infodir}/*.info*
 %{_mandir}/man8/*
