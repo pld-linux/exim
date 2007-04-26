@@ -516,7 +516,7 @@ diff -urN exim-4.64.org/src/macros.h exim-4.64/src/macros.h
 +#define dsn_ret_full            1
 +#define dsn_ret_hdrs            2
 +
- /* Codes for the host_find_failed option. */
+ /* Codes for the host_find_failed and host_all_ignored options. */
  
  #define hff_freeze   0
 diff -urN exim-4.64.org/src/readconf.c exim-4.64/src/readconf.c
