@@ -215,7 +215,7 @@ install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
-	build-Linux-*/{exigrep,eximstats,exiqsumm,convert4r4} \
+	build-Linux-*/{exigrep,eximstats,exiqgrep,exiqsumm,convert4r4} \
 	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
@@ -305,6 +305,7 @@ fi
 %attr(755,root,root) %{_bindir}/exicyclog
 %attr(755,root,root) %{_bindir}/exigrep
 %attr(755,root,root) %{_bindir}/eximstats
+%attr(755,root,root) %{_bindir}/exiqgrep
 %attr(755,root,root) %{_bindir}/exiqsumm
 %attr(755,root,root) %{_bindir}/unknownuser.sh
 %attr(755,root,root) %{_bindir}/newaliases
