@@ -87,7 +87,6 @@ Requires:	rc-scripts
 Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
-Provides:	/usr/lib/sendmail
 Obsoletes:	courier
 Obsoletes:	masqmail
 Obsoletes:	nullmailer
