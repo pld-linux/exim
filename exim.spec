@@ -71,6 +71,7 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	texinfo >= 4.7
 %{?with_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-lib-libXaw-devel
 Requires(post):	/bin/hostname
 Requires(post):	fileutils
 Requires(post,preun):	/sbin/chkconfig
