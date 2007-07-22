@@ -277,13 +277,6 @@ if [ "$1" = "0" ]; then
 	%groupremove exim
 fi
 
-%triggerpostun -- exim  < 3.90
-if [ -f /etc/mail/exim.conf ]; then
-	umask 022
-	mv /etc/mail/exim.conf /etc/mail/exim.conf.3
-	/usr/bin/convert4r4 < /etc/mail/exim.conf.3 > /etc/mail/exim.conf
-fi
-
 %files
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
