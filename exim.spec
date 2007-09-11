@@ -89,6 +89,7 @@ Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
 Obsoletes:	smtpdaemon
+Conflicts:	logrotate < 3.7.4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -271,7 +272,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
-%config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
 %attr(754,root,root) /etc/rc.d/init.d/exim
 %attr(4755,root,root) %{_bindir}/exim
 %attr(770,root,exim) %dir %{_var}/spool/exim
