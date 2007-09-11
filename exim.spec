@@ -89,7 +89,7 @@ Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
 Obsoletes:	smtpdaemon
-Conflicts:	logrotate < 3.7.4
+Conflicts:	logrotate < 3.7-4
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
