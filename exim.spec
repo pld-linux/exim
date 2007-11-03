@@ -59,7 +59,7 @@ BuildRequires:	db-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel >= 2.3.0}
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
 BuildRequires:	pcre-devel
