@@ -16,7 +16,7 @@ Summary(pl):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.69
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons
@@ -272,13 +272,6 @@ fi
 if [ "$1" = "0" ]; then
 	%userremove exim
 	%groupremove exim
-fi
-
-%triggerpostun -- exim  < 3.90
-if [ -f /etc/mail/exim.conf ]; then
-	umask 022
-	mv /etc/mail/exim.conf /etc/mail/exim.conf.3
-	/usr/bin/convert4r4 < /etc/mail/exim.conf.3 > /etc/mail/exim.conf
 fi
 
 %files
