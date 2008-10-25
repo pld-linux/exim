@@ -18,7 +18,7 @@ Version:	4.69
 Release:	3
 Epoch:		2
 License:	GPL
-Group:		Networking/Daemons
+Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-%{version}.tar.bz2
 # Source0-md5:	6f29f073328c858d8554b08cc0c3c2be
 Source1:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
