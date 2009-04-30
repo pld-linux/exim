@@ -15,7 +15,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.69
-Release:	6
+Release:	7
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -52,6 +52,7 @@ Patch6:		%{name}-noloadbalance.patch
 # http://sourceforge.net/projects/eximdsn/
 Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
+Patch9:		%{name}-fixes.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -161,6 +162,7 @@ Pliki nagłówkowe dla Exima.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
