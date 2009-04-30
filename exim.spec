@@ -173,9 +173,9 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
 %{__make} -j1 \
-	%{?debug:FULLECHO=''} \
+	FULLECHO='' \
 	CC="%{__cc}" \
-	CUSTOM_CFLAGS="%{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
+	CUSTOM_CFLAGS="%{rpmcppflags} %{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes} %{?with_dkeys:-DEXPERIMENTAL_DOMAINKEYS=yes}" \
 	LOOKUP_CDB=yes \
 	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
 	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
