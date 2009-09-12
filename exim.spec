@@ -15,7 +15,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.69
-Release:	9
+Release:	10
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -85,7 +85,6 @@ Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires:	findutils
 Requires:	pam >= 0.79.0
-Requires:	perl(DynaLoader) = %(%{__perl} -MDynaLoader -e 'print DynaLoader->VERSION')
 Requires:	rc-scripts
 Provides:	group(exim)
 Provides:	smtpdaemon
