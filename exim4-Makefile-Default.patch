@@ -10,17 +10,23 @@ diff -urN exim-4.64.org/OS/Makefile-Default exim-4.64/OS/Makefile-Default
  
  
  # If you set STRIP_COMMAND to the path of the "strip" command, it will be run
-@@ -40,8 +40,8 @@
+@@ -40,12 +40,12 @@
  # Some of the following commands live in different places in different OS. We
  # include them all here for generality.
  
 -CHOWN_COMMAND=/usr/bin/chown
 -CHGRP_COMMAND=/usr/bin/chgrp
+-CHMOD_COMMAND=/usr/bin/chmod
 +CHOWN_COMMAND=/bin/chown
 +CHGRP_COMMAND=/bin/chgrp
++CHMOD_COMMAND=/bin/chmod
  MV_COMMAND=/bin/mv
  RM_COMMAND=/bin/rm
+-TOUCH_COMMAND=/usr/bin/touch
++TOUCH_COMMAND=/bin/touch
  
+ 
+ # Some operating systems have different ways of building libraries of
 @@ -175,7 +175,7 @@
  # parameters for include and library directories that may be needed for IPv6 on
  # some systems, where the support is not yet in the standard library.
