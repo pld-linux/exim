@@ -60,15 +60,13 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
  #------------------------------------------------------------------------------
-@@ -261,16 +262,16 @@
- LOOKUP_DBM=yes
+@@ -263,15 +263,15 @@
  LOOKUP_LSEARCH=yes
+ LOOKUP_DNSDB=yes
  
 -# LOOKUP_CDB=yes
--# LOOKUP_DNSDB=yes
 -# LOOKUP_DSEARCH=yes
 +LOOKUP_CDB=yes
-+LOOKUP_DNSDB=yes
 +LOOKUP_DSEARCH=yes
  # LOOKUP_IBASE=yes
  # LOOKUP_LDAP=yes
