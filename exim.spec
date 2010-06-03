@@ -13,15 +13,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.71
-Release:	5
+Version:	4.72
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	f9c5a2d94b5bb132d06e2fff85bef75e
-Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-texinfo-%{version}.tar.bz2
-# Source1-md5:	27d9bc3321854abfd8cb33dfb8c061a5
+# Source0-md5:	2b60b5a9d68ff118c44db793afecd3d1
+Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
+# Source1-md5:	8b39be84de74b94bd4b5c3e7aad3fcdf
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -67,7 +67,6 @@ BuildRequires:	perl-devel >= 1:5.6.0
 BuildRequires:	readline-devel
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_sqlite:BuildRequires:	sqlite3-devel}
-BuildRequires:	texinfo >= 4.7
 %{?with_whoson:BuildRequires:	whoson-devel}
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXaw-devel
@@ -158,7 +157,7 @@ Pliki nagłówkowe dla Exima.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
-%patch9 -p0
+#%patch9 -p0
 %patch10 -p1
 
 install %{SOURCE13} doc/FAQ.txt.bz2
@@ -185,16 +184,13 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}" \
 	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
 
-makeinfo --force -o exim_filtering.info exim-texinfo-*/doc/filter.texinfo
-makeinfo --force -o exim.info exim-texinfo-*/doc/spec.texinfo
-
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d,security}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archive,}/exim,mail}
-install -d $RPM_BUILD_ROOT{%{_infodir},%{_desktopdir},%{_pixmapsdir}}
+install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
@@ -213,7 +209,6 @@ install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
 install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
-install	*.info* $RPM_BUILD_ROOT%{_infodir}
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
@@ -249,7 +244,6 @@ if [ ! -f /etc/mail/mailname ]; then
 	rm -f /etc/mail/mailname && hostname -f > /etc/mail/mailname
 fi
 newaliases
-[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 
 %preun
 if [ "$1" = "0" ]; then
@@ -258,7 +252,6 @@ if [ "$1" = "0" ]; then
 fi
 
 %postun
-[ ! -x /usr/sbin/fix-info-dir ] || /usr/sbin/fix-info-dir -c %{_infodir} >/dev/null 2>&1
 if [ "$1" = "0" ]; then
 	%userremove exim
 	%groupremove exim
@@ -267,6 +260,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
+%doc exim-html-*/doc/html
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
@@ -301,7 +295,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
 %{_libdir}/%{name}
-%{_infodir}/*.info*
 %{_mandir}/man8/*
 
 %files X11
