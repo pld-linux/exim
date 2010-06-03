@@ -19,7 +19,7 @@ Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	2b60b5a9d68ff118c44db793afecd3d1
+# Source0-md5:	ccc937b533568e5e8340f181a3b3d2ff
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
 # Source1-md5:	8b39be84de74b94bd4b5c3e7aad3fcdf
 Source2:	%{name}.init
