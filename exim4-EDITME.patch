@@ -238,3 +238,11 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
  #------------------------------------------------------------------------------
+@@ -1164,6 +1164,6 @@
+ # feature should only be used in very exceptional circumstances. YOU HAVE BEEN
+ # WARNED.
+ 
+-# ENABLE_DISABLE_FSYNC=yes
++ENABLE_DISABLE_FSYNC=yes
+ 
+ # End of EDITME for Exim 4.
