@@ -66,6 +66,17 @@ stop() {
 	rm -f /var/lock/subsys/exim /var/spool/exim/exim-daemon.pid >/dev/null 2>&1
 }
 
+condrestart() {
+	if [ ! -f /var/lock/subsys/exim ]; then
+		msg_not_running "Exim"
+		RETVAL=$1
+		return
+	fi
+
+	stop
+	start
+}
+
 reload() {
 	if [ ! -f /var/lock/subsys/exim ]; then
 		msg_not_running "Exim"
@@ -94,19 +105,22 @@ case "$1" in
 	stop
 	start
 	;;
-  configtest)
-	exim -bV
-	RETVAL=$?
+  try-restart)
+	condrestart 0
 	;;
   reload|force-reload)
 	reload
+	;;
+  checkconfig|configtest)
+	exim -bV
+	RETVAL=$?
 	;;
   status)
 	status exim
 	exit $?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|configtest|status}"
+	msg_usage "$0 {start|stop|restart|try-restart|reload|force-reload|configtest|status}"
 	exit 3
 esac
 
