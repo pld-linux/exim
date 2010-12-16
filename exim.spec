@@ -14,7 +14,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.72
-Release:	4
+Release:	5
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -227,7 +227,8 @@ install %{SOURCE6} $RPM_BUILD_ROOT%{_desktopdir}
 install %{SOURCE16} $RPM_BUILD_ROOT%{_pixmapsdir}
 
 install -d $RPM_BUILD_ROOT%{_includedir}/%{name}
-install src/{local_scan.h,store.h,mytypes.h} $RPM_BUILD_ROOT%{_includedir}/%{name}
+install src/{local_scan,store,mytypes}.h $RPM_BUILD_ROOT%{_includedir}/%{name}
+install build-Linux-*/config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
