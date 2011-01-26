@@ -13,15 +13,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.73
+Version:	4.74
 Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	b32fb85c5161ad2fabfe9ba860a1ad2c
+# Source0-md5:	1d9c189940909303d914bbc4247dc861
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	2122481f3248a7c102024a5c22cd5c72
+# Source1-md5:	641bacb8383024fd21352f854fbe6ac4
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -169,25 +169,52 @@ install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
 
 install -d Local
+cat << 'EOF' >> Local/Makefile-Linux
+CC=%{__cc}
+CUSTOM_CFLAGS=%{rpmcppflags} %{rpmcflags}
+CFLAGS_DYNAMIC=-shared -rdynamic -fPIC %{rpmldflags}
+LOOKUP_CDB=yes
+XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
+X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
+LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules
+SUPPORT_DSN=yes
+%{?with_spf:EXPERIMENTAL_SPF=yes}
+%{?with_srs:EXPERIMENTAL_SRS=yes}
+%if %{with mysql}
+LOOKUP_MYSQL=2
+LOOKUP_MYSQL_INCLUDE=-I%{_includedir}/mysql
+LOOKUP_MYSQL_LIBS=-lmysqlclient
+%endif
+%if %{with pgsql}
+LOOKUP_PGSQL=2
+LOOKUP_PGSQL_INCLUDE=-I%{_includedir}/pgsql
+LOOKUP_PGSQL_LIBS=-lpq
+%endif
+%if %{with sqlite}
+LOOKUP_SQLITE=2
+LOOKUP_SQLITE_LIBS=-lsqlite3
+%endif
+%if %{with whoson}
+LOOKUP_WHOSON=2
+LOOKUP_WHOSON_LIBS=-lwhoson
+%endif
+%{?with_sasl:AUTH_CYRUS_SASL=yes}
+%if %{with ldap}
+LOOKUP_LDAP=yes
+LDAP_LIB_TYPE=OPENLDAP2
+# currently dynamic ldap lookup not supported
+# LOOKUP_LDAP_LIBS=-lldap -llber
+%endif
+LOOKUP_LIBS=%{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_ldap:-lldap -llber}
+EOF
+
+# have to be after Local/Makefile-Linux creation
 cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
 
 %build
-%{__make} -j1 \
-	FULLECHO='' \
-	CC="%{__cc}" \
-	CUSTOM_CFLAGS="%{rpmcppflags} %{rpmcflags} -DSUPPORT_DSN=yes %{?with_spf:-DEXPERIMENTAL_SPF=yes} %{?with_srs:-DEXPERIMENTAL_SRS=yes}" \
-	LOOKUP_CDB=yes \
-	XLFLAGS=-L%{_prefix}/X11R6/%{_lib} \
-	X11_LD_LIB=%{_prefix}/X11R6/%{_lib} \
-	%{?with_mysql:LOOKUP_MYSQL=yes} \
-	%{?with_pgsql:LOOKUP_PGSQL=yes} \
-	%{?with_sqlite:LOOKUP_SQLITE=yes} \
-	%{?with_whoson:LOOKUP_WHOSON=yes} \
-	%{?with_sasl:AUTH_CYRUS_SASL=yes} \
-	%{?with_ldap:LOOKUP_LDAP=yes LDAP_LIB_TYPE=OPENLDAP2} \
-	LOOKUP_LIBS="%{?with_ldap:-lldap -llber} %{?with_mysql:-lmysqlclient} %{?with_pgsql:-lpq} %{?with_sqlite:-lsqlite3} %{?with_whoson:-lwhoson} %{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}" \
-	LOOKUP_INCLUDE="%{?with_mysql:-I%{_includedir}/mysql} %{?with_pgsql:-I%{_includedir}/pgsql}"
+%{__make} -e -j1 \
+	FULLECHO=''
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -196,7 +223,7 @@ install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysc
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archive,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
-install -d $RPM_BUILD_ROOT%{_libdir}/%{name}
+install -d $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
@@ -205,6 +232,7 @@ install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon $RPM_BUILD_ROOT%{_bindir}
+install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly
@@ -300,7 +328,12 @@ fi
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
-%{_libdir}/%{name}
+%dir %{_libdir}/%{name}
+%dir %{_libdir}/%{name}/modules
+%{?with_mysql:%attr(755,root,root) %{_libdir}/%{name}/modules/mysql.so}
+%{?with_pgsql:%attr(755,root,root) %{_libdir}/%{name}/modules/pgsql.so}
+%{?with_sqlite:%attr(755,root,root) %{_libdir}/%{name}/modules/sqlite.so}
+%{?with_whoson:%attr(755,root,root) %{_libdir}/%{name}/modules/whoson.so}
 %{_mandir}/man8/*
 
 %files X11

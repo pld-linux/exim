@@ -7,6 +7,6 @@ diff -urN exim-4.60.org/OS/Makefile-Linux exim-4.60/OS/Makefile-Linux
  
 -CFLAGS=-O -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 +CFLAGS=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(CUSTOM_CFLAGS)
+ CFLAGS_DYNAMIC=-shared -rdynamic
  
  DBMLIB = -ldb
- USE_DB = yes
