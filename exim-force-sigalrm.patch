@@ -1,0 +1,49 @@
+--- exim-4.69.org/src/daemon.c	2009-06-01 23:02:02.505119117 +0200
++++ exim-4.69/src/daemon.c	2009-06-01 23:09:58.088404461 +0200
+@@ -25,7 +25,7 @@
+ 
+ static smtp_slot empty_smtp_slot = { 0, NULL };
+ 
+-
++static time_t sigalrm_seen_last;
+ 
+ /*************************************************
+ *               Local static variables           *
+@@ -1603,6 +1603,8 @@
+ 
+ smtp_input = TRUE;
+ 
++time(&sigalrm_seen_last);
++
+ /* Enter the never-ending loop... */
+ 
+ for (;;)
+@@ -1624,6 +1626,8 @@
+     {
+     DEBUG(D_any) debug_printf("SIGALRM received\n");
+ 
++    time(&sigalrm_seen_last);
++
+     /* Do a full queue run in a child process, if required, unless we already
+     have enough queue runners on the go. If we are not running as root, a
+     re-exec is required. */
+@@ -1885,11 +1889,19 @@
+ 
+   else
+     {
++    int time_diff;
+     struct timeval tv;
+     tv.tv_sec = queue_interval;
+     tv.tv_usec = 0;
+     select(0, NULL, NULL, NULL, &tv);
+     handle_ending_processes();
++
++    time_diff = (int)difftime(time(NULL), sigalrm_seen_last);
++    if ((queue_interval > 0) && (time_diff > (2*queue_interval)))
++      {
++        sigalrm_seen = TRUE;
++        log_write(0, LOG_MAIN|LOG_PANIC, "daemon: queue-runner not run for %lds. Forcing. Is SIGALRM delivery broken on this system ?", time_diff);
++      }
+     }
+ 
+   /* Re-enable the SIGCHLD handler if it has been run. It can't do it

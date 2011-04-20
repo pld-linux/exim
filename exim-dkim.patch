@@ -1,0 +1,1686 @@
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/dkim.c src/dkim.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/dkim.c	2009-11-16 20:50:36.000000000 +0100
++++ src/dkim.c	2009-12-17 12:17:01.778692630 +0100
+@@ -1,4 +1,4 @@
+-/* $Cambridge: exim/exim-src/src/dkim.c,v 1.10 2009/11/16 19:50:36 nm4 Exp $ */
++/* $Cambridge: exim/exim-src/src/dkim.c,v 1.11 2009/12/15 08:23:15 tom Exp $ */
+ 
+ /*************************************************
+ *     Exim - an Internet mail transport agent    *
+@@ -391,6 +391,7 @@
+   uschar *rc = NULL;
+   pdkim_signature *signature;
+   int pdkim_canon;
++  int pdkim_rc;
+   int sread;
+   char buf[4096];
+   int save_errno = 0;
+@@ -511,8 +512,11 @@
+     goto CLEANUP;
+   }
+ 
+-  if (pdkim_feed_finish(ctx,&signature) != PDKIM_OK)
++  pdkim_rc = pdkim_feed_finish(ctx,&signature);
++  if (pdkim_rc != PDKIM_OK) {
++    log_write(0, LOG_MAIN|LOG_PANIC, "DKIM: signing failed (RC %d)", pdkim_rc);
+     goto CLEANUP;
++  }
+ 
+   rc = store_get(strlen(signature->signature_header)+3);
+   Ustrcpy(rc,US signature->signature_header);
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/base64.c src/pdkim/base64.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/base64.c	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/base64.c	2009-12-17 12:17:01.822130396 +0100
+@@ -1,9 +1,10 @@
+ /*
+  *  RFC 1521 base64 encoding/decoding
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,7 +21,7 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/base64.c,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/base64.c,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #include "base64.h"
+ 
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/base64.h src/pdkim/base64.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/base64.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/base64.h	2009-12-17 12:17:01.822130396 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file base64.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,13 +21,13 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/base64.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/base64.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_BASE64_H
+ #define POLARSSL_BASE64_H
+ 
+-#define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL               -0x0010
+-#define POLARSSL_ERR_BASE64_INVALID_CHARACTER              -0x0012
++#define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL               0x0010
++#define POLARSSL_ERR_BASE64_INVALID_CHARACTER              0x0012
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bignum.c src/pdkim/bignum.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bignum.c	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/bignum.c	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /*
+  *  Multi-precision integer library
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -27,7 +28,8 @@
+  *  http://math.libtomcrypt.com/files/tommath.pdf
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/bignum.c,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/bignum.c,v 1.3 2009/12/07 13:05:07 tom Exp $ */
++
+ 
+ #include "bignum.h"
+ #include "bn_mul.h"
+@@ -284,7 +286,15 @@
+ 
+             MPI_CHK( mpi_get_digit( &d, radix, s[i] ) );
+             MPI_CHK( mpi_mul_int( &T, X, radix ) );
+-            MPI_CHK( mpi_add_int( X, &T, d ) );
++
++            if( X->s == 1 )
++            {
++                MPI_CHK( mpi_add_int( X, &T, d ) );
++            }
++            else
++            {
++                MPI_CHK( mpi_sub_int( X, &T, d ) );
++            }
+         }
+     }
+ 
+@@ -372,6 +382,10 @@
+     else
+     {
+         MPI_CHK( mpi_copy( &T, X ) );
++
++        if( T.s == -1 )
++            T.s = 1;
++
+         MPI_CHK( mpi_write_hlp( &T, radix, &p ) );
+     }
+ 
+@@ -674,6 +688,11 @@
+     if( X != A )
+         MPI_CHK( mpi_copy( X, A ) );
+ 
++    /*
++     * X should always be positive as a result of unsigned additions.
++     */
++    X->s = 1;
++
+     for( j = B->n - 1; j >= 0; j-- )
+         if( B->p[j] != 0 )
+             break;
+@@ -747,6 +766,11 @@
+     if( X != A )
+         MPI_CHK( mpi_copy( X, A ) );
+ 
++    /*
++     * X should always be positive as a result of unsigned substractions.
++     */
++    X->s = 1;
++
+     ret = 0;
+ 
+     for( n = B->n - 1; n >= 0; n-- )
+@@ -1160,6 +1184,9 @@
+ {
+     int ret;
+ 
++    if( mpi_cmp_int( B, 0 ) < 0 )
++        return POLARSSL_ERR_MPI_NEGATIVE_VALUE;
++
+     MPI_CHK( mpi_div_mpi( NULL, R, A, B ) );
+ 
+     while( mpi_cmp_int( R, 0 ) < 0 )
+@@ -1185,7 +1212,7 @@
+         return( POLARSSL_ERR_MPI_DIVISION_BY_ZERO );
+ 
+     if( b < 0 )
+-        b = -b;
++        return POLARSSL_ERR_MPI_NEGATIVE_VALUE;
+ 
+     /*
+      * handle trivial cases
+@@ -1218,6 +1245,13 @@
+         y -= z * b;
+     }
+ 
++    /*
++     * If A is negative, then the current y represents a negative value.
++     * Flipping it to the positive side.
++     */
++    if( A->s < 0 && y != 0 )
++        y = b - y;
++
+     *r = y;
+ 
+     return( 0 );
+@@ -1474,21 +1508,29 @@
+  */
+ int mpi_gcd( mpi *G, mpi *A, mpi *B )
+ {
+-    int ret;
++    int ret, lz, lzt;
+     mpi TG, TA, TB;
+ 
+     mpi_init( &TG, &TA, &TB, NULL );
+ 
+-    MPI_CHK( mpi_lset( &TG, 1 ) );
+     MPI_CHK( mpi_copy( &TA, A ) );
+     MPI_CHK( mpi_copy( &TB, B ) );
+ 
++    lz = mpi_lsb( &TA );
++    lzt = mpi_lsb( &TB );
++
++    if ( lzt < lz )
++        lz = lzt;
++
++    MPI_CHK( mpi_shift_r( &TA, lz ) );
++    MPI_CHK( mpi_shift_r( &TB, lz ) );
++
+     TA.s = TB.s = 1;
+ 
+     while( mpi_cmp_int( &TA, 0 ) != 0 )
+     {
+-        while( ( TA.p[0] & 1 ) == 0 ) MPI_CHK( mpi_shift_r( &TA, 1 ) );
+-        while( ( TB.p[0] & 1 ) == 0 ) MPI_CHK( mpi_shift_r( &TB, 1 ) );
++        MPI_CHK( mpi_shift_r( &TA, mpi_lsb( &TA ) ) );
++        MPI_CHK( mpi_shift_r( &TB, mpi_lsb( &TB ) ) );
+ 
+         if( mpi_cmp_mpi( &TA, &TB ) >= 0 )
+         {
+@@ -1502,7 +1544,8 @@
+         }
+     }
+ 
+-    MPI_CHK( mpi_mul_mpi( G, &TG, &TB ) );
++    MPI_CHK( mpi_shift_l( &TB, lz ) );
++    MPI_CHK( mpi_copy( G, &TB ) );
+ 
+ cleanup:
+ 
+@@ -1511,6 +1554,8 @@
+     return( ret );
+ }
+ 
++#if defined(POLARSSL_GENPRIME)
++
+ /*
+  * Modular inverse: X = A^-1 mod N  (HAC 14.61 / 14.64)
+  */
+@@ -1638,7 +1683,11 @@
+     mpi W, R, T, A, RR;
+     unsigned char *p;
+ 
+-    if( mpi_cmp_int( X, 0 ) == 0 )
++    if( mpi_cmp_int( X, 0 ) == 0 ||
++        mpi_cmp_int( X, 1 ) == 0 )
++        return( POLARSSL_ERR_MPI_NOT_ACCEPTABLE );
++
++    if( mpi_cmp_int( X, 2 ) == 0 )
+         return( 0 );
+ 
+     mpi_init( &W, &R, &T, &A, &RR, NULL );
+@@ -1811,3 +1860,5 @@
+ 
+     return( ret );
+ }
++
++#endif
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bignum.h src/pdkim/bignum.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bignum.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/bignum.h	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file bignum.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,20 +21,20 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/bignum.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/bignum.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_BIGNUM_H
+ #define POLARSSL_BIGNUM_H
+ 
+ #include <stdio.h>
+ 
+-#define POLARSSL_ERR_MPI_FILE_IO_ERROR                     -0x0002
+-#define POLARSSL_ERR_MPI_BAD_INPUT_DATA                    -0x0004
+-#define POLARSSL_ERR_MPI_INVALID_CHARACTER                 -0x0006
+-#define POLARSSL_ERR_MPI_BUFFER_TOO_SMALL                  -0x0008
+-#define POLARSSL_ERR_MPI_NEGATIVE_VALUE                    -0x000A
+-#define POLARSSL_ERR_MPI_DIVISION_BY_ZERO                  -0x000C
+-#define POLARSSL_ERR_MPI_NOT_ACCEPTABLE                    -0x000E
++#define POLARSSL_ERR_MPI_FILE_IO_ERROR                     0x0002
++#define POLARSSL_ERR_MPI_BAD_INPUT_DATA                    0x0004
++#define POLARSSL_ERR_MPI_INVALID_CHARACTER                 0x0006
++#define POLARSSL_ERR_MPI_BUFFER_TOO_SMALL                  0x0008
++#define POLARSSL_ERR_MPI_NEGATIVE_VALUE                    0x000A
++#define POLARSSL_ERR_MPI_DIVISION_BY_ZERO                  0x000C
++#define POLARSSL_ERR_MPI_NOT_ACCEPTABLE                    0x000E
+ 
+ #define MPI_CHK(f) if( ( ret = f ) != 0 ) goto cleanup
+ 
+@@ -57,7 +58,9 @@
+         defined(__ia64__)  || defined(__alpha__)
+     typedef unsigned int t_dbl __attribute__((mode(TI)));
+     #else
+-    typedef unsigned long long t_dbl;
++      #if defined(POLARSSL_HAVE_LONGLONG)
++      typedef unsigned long long t_dbl;
++      #endif
+     #endif
+   #endif
+ #endif
+@@ -91,6 +94,9 @@
+ /**
+  * \brief          Enlarge to the specified number of limbs
+  *
++ * \param X        MPI to grow
++ * \param nblimbs  The target number of limbs
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -99,6 +105,9 @@
+ /**
+  * \brief          Copy the contents of Y into X
+  *
++ * \param X        Destination MPI
++ * \param Y        Source MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -106,12 +115,18 @@
+ 
+ /**
+  * \brief          Swap the contents of X and Y
++ *
++ * \param X        First MPI value
++ * \param Y        Second MPI value
+  */
+ void mpi_swap( mpi *X, mpi *Y );
+ 
+ /**
+  * \brief          Set value from integer
+  *
++ * \param X        MPI to set
++ * \param z        Value to use
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -119,25 +134,31 @@
+ 
+ /**
+  * \brief          Return the number of least significant bits
++ *
++ * \param X        MPI to use
+  */
+ int mpi_lsb( mpi *X );
+ 
+ /**
+  * \brief          Return the number of most significant bits
++ *
++ * \param X        MPI to use
+  */
+ int mpi_msb( mpi *X );
+ 
+ /**
+  * \brief          Return the total size in bytes
++ *
++ * \param X        MPI to use
+  */
+ int mpi_size( mpi *X );
+ 
+ /**
+  * \brief          Import from an ASCII string
+  *
+- * \param X        destination mpi
+- * \param radix    input numeric base
+- * \param s        null-terminated string buffer
++ * \param X        Destination MPI
++ * \param radix    Input numeric base
++ * \param s        Null-terminated string buffer
+  *
+  * \return         0 if successful, or an POLARSSL_ERR_MPI_XXX error code
+  */
+@@ -146,10 +167,10 @@
+ /**
+  * \brief          Export into an ASCII string
+  *
+- * \param X        source mpi
+- * \param radix    output numeric base
+- * \param s        string buffer
+- * \param slen     string buffer size
++ * \param X        Source MPI
++ * \param radix    Output numeric base
++ * \param s        String buffer
++ * \param slen     String buffer size
+  *
+  * \return         0 if successful, or an POLARSSL_ERR_MPI_XXX error code
+  *
+@@ -161,21 +182,21 @@
+ /**
+  * \brief          Read X from an opened file
+  *
+- * \param X        destination mpi
+- * \param radix    input numeric base
+- * \param fin      input file handle
++ * \param X        Destination MPI
++ * \param radix    Input numeric base
++ * \param fin      Input file handle
+  *
+  * \return         0 if successful, or an POLARSSL_ERR_MPI_XXX error code
+  */
+ int mpi_read_file( mpi *X, int radix, FILE *fin );
+ 
+ /**
+- * \brief          Write X into an opened file, or stdout
++ * \brief          Write X into an opened file, or stdout if fout is NULL
+  *
+- * \param p        prefix, can be NULL
+- * \param X        source mpi
+- * \param radix    output numeric base
+- * \param fout     output file handle
++ * \param p        Prefix, can be NULL
++ * \param X        Source MPI
++ * \param radix    Output numeric base
++ * \param fout     Output file handle (can be NULL)
+  *
+  * \return         0 if successful, or an POLARSSL_ERR_MPI_XXX error code
+  *
+@@ -186,9 +207,9 @@
+ /**
+  * \brief          Import X from unsigned binary data, big endian
+  *
+- * \param X        destination mpi
+- * \param buf      input buffer
+- * \param buflen   input buffer size
++ * \param X        Destination MPI
++ * \param buf      Input buffer
++ * \param buflen   Input buffer size
+  *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+@@ -198,21 +219,21 @@
+ /**
+  * \brief          Export X into unsigned binary data, big endian
+  *
+- * \param X        source mpi
+- * \param buf      output buffer
+- * \param buflen   output buffer size
++ * \param X        Source MPI
++ * \param buf      Output buffer
++ * \param buflen   Output buffer size
+  *
+  * \return         0 if successful,
+  *                 POLARSSL_ERR_MPI_BUFFER_TOO_SMALL if buf isn't large enough
+- *
+- * \note           Call this function with *buflen = 0 to obtain the
+- *                 minimum required buffer size in *buflen.
+  */
+ int mpi_write_binary( mpi *X, unsigned char *buf, int buflen );
+ 
+ /**
+  * \brief          Left-shift: X <<= count
+  *
++ * \param X        MPI to shift
++ * \param count    Amount to shift
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -221,6 +242,9 @@
+ /**
+  * \brief          Right-shift: X >>= count
+  *
++ * \param X        MPI to shift
++ * \param count    Amount to shift
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -229,6 +253,9 @@
+ /**
+  * \brief          Compare unsigned values
+  *
++ * \param X        Left-hand MPI
++ * \param Y        Right-hand MPI
++ *
+  * \return         1 if |X| is greater than |Y|,
+  *                -1 if |X| is lesser  than |Y| or
+  *                 0 if |X| is equal to |Y|
+@@ -238,6 +265,9 @@
+ /**
+  * \brief          Compare signed values
+  *
++ * \param X        Left-hand MPI
++ * \param Y        Right-hand MPI
++ *
+  * \return         1 if X is greater than Y,
+  *                -1 if X is lesser  than Y or
+  *                 0 if X is equal to Y
+@@ -247,6 +277,9 @@
+ /**
+  * \brief          Compare signed values
+  *
++ * \param X        Left-hand MPI
++ * \param z        The integer value to compare to
++ *
+  * \return         1 if X is greater than z,
+  *                -1 if X is lesser  than z or
+  *                 0 if X is equal to z
+@@ -256,6 +289,10 @@
+ /**
+  * \brief          Unsigned addition: X = |A| + |B|
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -264,6 +301,10 @@
+ /**
+  * \brief          Unsigned substraction: X = |A| - |B|
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 POLARSSL_ERR_MPI_NEGATIVE_VALUE if B is greater than A
+  */
+@@ -272,6 +313,10 @@
+ /**
+  * \brief          Signed addition: X = A + B
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -280,6 +325,10 @@
+ /**
+  * \brief          Signed substraction: X = A - B
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -288,6 +337,10 @@
+ /**
+  * \brief          Signed addition: X = A + b
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param b        The integer value to add
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -296,6 +349,10 @@
+ /**
+  * \brief          Signed substraction: X = A - b
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param b        The integer value to subtract
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -304,6 +361,10 @@
+ /**
+  * \brief          Baseline multiplication: X = A * B
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -311,6 +372,12 @@
+ 
+ /**
+  * \brief          Baseline multiplication: X = A * b
++ *                 Note: b is an unsigned integer type, thus
++ *                 Negative values of b are ignored.
++ *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param b        The integer value to multiply with
+  *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+@@ -320,6 +387,11 @@
+ /**
+  * \brief          Division by mpi: A = Q * B + R
+  *
++ * \param Q        Destination MPI for the quotient
++ * \param R        Destination MPI for the rest value
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+  *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if B == 0
+@@ -331,6 +403,11 @@
+ /**
+  * \brief          Division by int: A = Q * b + R
+  *
++ * \param Q        Destination MPI for the quotient
++ * \param R        Destination MPI for the rest value
++ * \param A        Left-hand MPI
++ * \param b        Integer to divide by
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+  *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if b == 0
+@@ -342,24 +419,40 @@
+ /**
+  * \brief          Modulo: R = A mod B
+  *
++ * \param R        Destination MPI for the rest value
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+- *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if B == 0
++ *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if B == 0,
++ *                 POLARSSL_ERR_MPI_NEGATIVE_VALUE if B < 0
+  */
+ int mpi_mod_mpi( mpi *R, mpi *A, mpi *B );
+ 
+ /**
+  * \brief          Modulo: r = A mod b
+  *
++ * \param a        Destination t_int
++ * \param A        Left-hand MPI
++ * \param b        Integer to divide by
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+- *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if b == 0
++ *                 POLARSSL_ERR_MPI_DIVISION_BY_ZERO if b == 0,
++ *                 POLARSSL_ERR_MPI_NEGATIVE_VALUE if b < 0
+  */
+ int mpi_mod_int( t_int *r, mpi *A, int b );
+ 
+ /**
+  * \brief          Sliding-window exponentiation: X = A^E mod N
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param E        Exponent MPI
++ * \param N        Modular MPI
++ * \param _RR      Speed-up MPI used for recalculations
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+  *                 POLARSSL_ERR_MPI_BAD_INPUT_DATA if N is negative or even
+@@ -373,6 +466,10 @@
+ /**
+  * \brief          Greatest common divisor: G = gcd(A, B)
+  *
++ * \param G        Destination MPI
++ * \param A        Left-hand MPI
++ * \param B        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed
+  */
+@@ -381,13 +478,46 @@
+ /**
+  * \brief          Modular inverse: X = A^-1 mod N
+  *
++ * \param X        Destination MPI
++ * \param A        Left-hand MPI
++ * \param N        Right-hand MPI
++ *
+  * \return         0 if successful,
+  *                 1 if memory allocation failed,
+  *                 POLARSSL_ERR_MPI_BAD_INPUT_DATA if N is negative or nil
+- *                 POLARSSL_ERR_MPI_NOT_ACCEPTABLE if A has no inverse mod N
++                   POLARSSL_ERR_MPI_NOT_ACCEPTABLE if A has no inverse mod N
+  */
+ int mpi_inv_mod( mpi *X, mpi *A, mpi *N );
+ 
++/**
++ * \brief          Miller-Rabin primality test
++ *
++ * \param X        MPI to check
++ * \param f_rng    RNG function
++ * \param p_rng    RNG parameter
++ *
++ * \return         0 if successful (probably prime),
++ *                 1 if memory allocation failed,
++ *                 POLARSSL_ERR_MPI_NOT_ACCEPTABLE if X is not prime
++ */
++int mpi_is_prime( mpi *X, int (*f_rng)(void *), void *p_rng );
++
++/**
++ * \brief          Prime number generation
++ *
++ * \param X        Destination MPI
++ * \param nbits    Required size of X in bits
++ * \param dh_flag  If 1, then (X-1)/2 will be prime too
++ * \param f_rng    RNG function
++ * \param p_rng    RNG parameter
++ *
++ * \return         0 if successful (probably prime),
++ *                 1 if memory allocation failed,
++ *                 POLARSSL_ERR_MPI_BAD_INPUT_DATA if nbits is < 3
++ */
++int mpi_gen_prime( mpi *X, int nbits, int dh_flag,
++                   int (*f_rng)(void *), void *p_rng );
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bn_mul.h src/pdkim/bn_mul.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/bn_mul.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/bn_mul.h	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file bn_mul.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -34,7 +35,7 @@
+  *         . C, longlong          . C, generic
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/bn_mul.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/bn_mul.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_BN_MUL_H
+ #define POLARSSL_BN_MUL_H
+@@ -44,105 +45,120 @@
+ #if defined(__GNUC__)
+ #if defined(__i386__)
+ 
+-#define MULADDC_INIT                            \
+-    asm( "movl   %%ebx, %0      " : "=m" (t));  \
+-    asm( "movl   %0, %%esi      " :: "m" (s));  \
+-    asm( "movl   %0, %%edi      " :: "m" (d));  \
+-    asm( "movl   %0, %%ecx      " :: "m" (c));  \
+-    asm( "movl   %0, %%ebx      " :: "m" (b));
+-
+-#define MULADDC_CORE                            \
+-    asm( "lodsl                 " );            \
+-    asm( "mull   %ebx           " );            \
+-    asm( "addl   %ecx,   %eax   " );            \
+-    asm( "adcl   $0,     %edx   " );            \
+-    asm( "addl   (%edi), %eax   " );            \
+-    asm( "adcl   $0,     %edx   " );            \
+-    asm( "movl   %edx,   %ecx   " );            \
+-    asm( "stosl                 " );
++#define MULADDC_INIT                \
++    asm( "                          \
++        movl   %%ebx, %0;           \
++        movl   %5, %%esi;           \
++        movl   %6, %%edi;           \
++        movl   %7, %%ecx;           \
++        movl   %8, %%ebx;           \
++        "
++
++#define MULADDC_CORE                \
++        "                           \
++        lodsl;                      \
++        mull   %%ebx;               \
++        addl   %%ecx,   %%eax;      \
++        adcl   $0,      %%edx;      \
++        addl   (%%edi), %%eax;      \
++        adcl   $0,      %%edx;      \
++        movl   %%edx,   %%ecx;      \
++        stosl;                      \
++        "
+ 
+ #if defined(POLARSSL_HAVE_SSE2)
+ 
+-#define MULADDC_HUIT                            \
+-    asm( "movd     %ecx,     %mm1     " );      \
+-    asm( "movd     %ebx,     %mm0     " );      \
+-    asm( "movd     (%edi),   %mm3     " );      \
+-    asm( "paddq    %mm3,     %mm1     " );      \
+-    asm( "movd     (%esi),   %mm2     " );      \
+-    asm( "pmuludq  %mm0,     %mm2     " );      \
+-    asm( "movd     4(%esi),  %mm4     " );      \
+-    asm( "pmuludq  %mm0,     %mm4     " );      \
+-    asm( "movd     8(%esi),  %mm6     " );      \
+-    asm( "pmuludq  %mm0,     %mm6     " );      \
+-    asm( "movd     12(%esi), %mm7     " );      \
+-    asm( "pmuludq  %mm0,     %mm7     " );      \
+-    asm( "paddq    %mm2,     %mm1     " );      \
+-    asm( "movd     4(%edi),  %mm3     " );      \
+-    asm( "paddq    %mm4,     %mm3     " );      \
+-    asm( "movd     8(%edi),  %mm5     " );      \
+-    asm( "paddq    %mm6,     %mm5     " );      \
+-    asm( "movd     12(%edi), %mm4     " );      \
+-    asm( "paddq    %mm4,     %mm7     " );      \
+-    asm( "movd     %mm1,     (%edi)   " );      \
+-    asm( "movd     16(%esi), %mm2     " );      \
+-    asm( "pmuludq  %mm0,     %mm2     " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "movd     20(%esi), %mm4     " );      \
+-    asm( "pmuludq  %mm0,     %mm4     " );      \
+-    asm( "paddq    %mm3,     %mm1     " );      \
+-    asm( "movd     24(%esi), %mm6     " );      \
+-    asm( "pmuludq  %mm0,     %mm6     " );      \
+-    asm( "movd     %mm1,     4(%edi)  " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "movd     28(%esi), %mm3     " );      \
+-    asm( "pmuludq  %mm0,     %mm3     " );      \
+-    asm( "paddq    %mm5,     %mm1     " );      \
+-    asm( "movd     16(%edi), %mm5     " );      \
+-    asm( "paddq    %mm5,     %mm2     " );      \
+-    asm( "movd     %mm1,     8(%edi)  " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "paddq    %mm7,     %mm1     " );      \
+-    asm( "movd     20(%edi), %mm5     " );      \
+-    asm( "paddq    %mm5,     %mm4     " );      \
+-    asm( "movd     %mm1,     12(%edi) " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "paddq    %mm2,     %mm1     " );      \
+-    asm( "movd     24(%edi), %mm5     " );      \
+-    asm( "paddq    %mm5,     %mm6     " );      \
+-    asm( "movd     %mm1,     16(%edi) " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "paddq    %mm4,     %mm1     " );      \
+-    asm( "movd     28(%edi), %mm5     " );      \
+-    asm( "paddq    %mm5,     %mm3     " );      \
+-    asm( "movd     %mm1,     20(%edi) " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "paddq    %mm6,     %mm1     " );      \
+-    asm( "movd     %mm1,     24(%edi) " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "paddq    %mm3,     %mm1     " );      \
+-    asm( "movd     %mm1,     28(%edi) " );      \
+-    asm( "addl     $32,      %edi     " );      \
+-    asm( "addl     $32,      %esi     " );      \
+-    asm( "psrlq    $32,      %mm1     " );      \
+-    asm( "movd     %mm1,     %ecx     " );
+-
+-#define MULADDC_STOP                            \
+-    asm( "emms                        " );      \
+-    asm( "movl   %0, %%ebx      " :: "m" (t));  \
+-    asm( "movl   %%ecx, %0      " : "=m" (c));  \
+-    asm( "movl   %%edi, %0      " : "=m" (d));  \
+-    asm( "movl   %%esi, %0      " : "=m" (s) :: \
+-    "eax", "ecx", "edx", "esi", "edi" );
++#define MULADDC_HUIT                    \
++        "                               \
++        movd     %%ecx,     %%mm1;      \
++        movd     %%ebx,     %%mm0;      \
++        movd     (%%edi),   %%mm3;      \
++        paddq    %%mm3,     %%mm1;      \
++        movd     (%%esi),   %%mm2;      \
++        pmuludq  %%mm0,     %%mm2;      \
++        movd     4(%%esi),  %%mm4;      \
++        pmuludq  %%mm0,     %%mm4;      \
++        movd     8(%%esi),  %%mm6;      \
++        pmuludq  %%mm0,     %%mm6;      \
++        movd     12(%%esi), %%mm7;      \
++        pmuludq  %%mm0,     %%mm7;      \
++        paddq    %%mm2,     %%mm1;      \
++        movd     4(%%edi),  %%mm3;      \
++        paddq    %%mm4,     %%mm3;      \
++        movd     8(%%edi),  %%mm5;      \
++        paddq    %%mm6,     %%mm5;      \
++        movd     12(%%edi), %%mm4;      \
++        paddq    %%mm4,     %%mm7;      \
++        movd     %%mm1,     (%%edi);    \
++        movd     16(%%esi), %%mm2;      \
++        pmuludq  %%mm0,     %%mm2;      \
++        psrlq    $32,       %%mm1;      \
++        movd     20(%%esi), %%mm4;      \
++        pmuludq  %%mm0,     %%mm4;      \
++        paddq    %%mm3,     %%mm1;      \
++        movd     24(%%esi), %%mm6;      \
++        pmuludq  %%mm0,     %%mm6;      \
++        movd     %%mm1,     4(%%edi);   \
++        psrlq    $32,       %%mm1;      \
++        movd     28(%%esi), %%mm3;      \
++        pmuludq  %%mm0,     %%mm3;      \
++        paddq    %%mm5,     %%mm1;      \
++        movd     16(%%edi), %%mm5;      \
++        paddq    %%mm5,     %%mm2;      \
++        movd     %%mm1,     8(%%edi);   \
++        psrlq    $32,       %%mm1;      \
++        paddq    %%mm7,     %%mm1;      \
++        movd     20(%%edi), %%mm5;      \
++        paddq    %%mm5,     %%mm4;      \
++        movd     %%mm1,     12(%%edi);  \
++        psrlq    $32,       %%mm1;      \
++        paddq    %%mm2,     %%mm1;      \
++        movd     24(%%edi), %%mm5;      \
++        paddq    %%mm5,     %%mm6;      \
++        movd     %%mm1,     16(%%edi);  \
++        psrlq    $32,       %%mm1;      \
++        paddq    %%mm4,     %%mm1;      \
++        movd     28(%%edi), %%mm5;      \
++        paddq    %%mm5,     %%mm3;      \
++        movd     %%mm1,     20(%%edi);  \
++        psrlq    $32,       %%mm1;      \
++        paddq    %%mm6,     %%mm1;      \
++        movd     %%mm1,     24(%%edi);  \
++        psrlq    $32,       %%mm1;      \
++        paddq    %%mm3,     %%mm1;      \
++        movd     %%mm1,     28(%%edi);  \
++        addl     $32,       %%edi;      \
++        addl     $32,       %%esi;      \
++        psrlq    $32,       %%mm1;      \
++        movd     %%mm1,     %%ecx;      \
++        "
++
++#define MULADDC_STOP            \
++        "                       \
++        emms;                   \
++        movl   %4, %%ebx;       \
++        movl   %%ecx, %1;       \
++        movl   %%edi, %2;       \
++        movl   %%esi, %3;       \
++        "                       \
++        : "=m" (t), "=m" (c), "=m" (d), "=m" (s)        \
++        : "m" (t), "m" (s), "m" (d), "m" (c), "m" (b)   \
++        : "eax", "ecx", "edx", "esi", "edi"             \
++    );
+ 
+ #else
+ 
+-#define MULADDC_STOP                            \
+-    asm( "movl   %0, %%ebx      " :: "m" (t));  \
+-    asm( "movl   %%ecx, %0      " : "=m" (c));  \
+-    asm( "movl   %%edi, %0      " : "=m" (d));  \
+-    asm( "movl   %%esi, %0      " : "=m" (s) :: \
+-    "eax", "ecx", "edx", "esi", "edi" );
+-
++#define MULADDC_STOP            \
++        "                       \
++        movl   %4, %%ebx;       \
++        movl   %%ecx, %1;       \
++        movl   %%edi, %2;       \
++        movl   %%esi, %3;       \
++        "                       \
++        : "=m" (t), "=m" (c), "=m" (d), "=m" (s)        \
++        : "m" (t), "m" (s), "m" (d), "m" (c), "m" (b)   \
++        : "eax", "ecx", "edx", "esi", "edi"             \
++    );
+ #endif /* SSE2 */
+ #endif /* i386 */
+ 
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/pdkim.c src/pdkim/pdkim.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/pdkim.c	2009-11-23 13:34:51.000000000 +0100
++++ src/pdkim/pdkim.c	2009-12-17 12:17:01.824459747 +0100
+@@ -20,7 +20,7 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/pdkim.c,v 1.11 2009/11/23 12:34:51 nm4 Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/pdkim.c,v 1.12 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -822,7 +822,7 @@
+               pub->srvtype = strdup(cur_val->str);
+             break;
+             case 't':
+-              if (strchr(cur_val->str,'t') != NULL) pub->testing = 1;
++              if (strchr(cur_val->str,'y') != NULL) pub->testing = 1;
+               if (strchr(cur_val->str,'s') != NULL) pub->no_subdomaining = 1;
+             break;
+             default:
+@@ -1304,7 +1304,7 @@
+     #ifdef PDKIM_DEBUG
+     if (ctx->debug_stream)
+       fprintf(ctx->debug_stream,
+-        "PDKIM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
++        "\nPDKIM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+     #endif
+   }
+ 
+@@ -1494,7 +1494,7 @@
+ 
+       if (rsa_pkcs1_sign( &rsa, RSA_PRIVATE,
+                           ((sig->algo == PDKIM_ALGO_RSA_SHA1)?
+-                             RSA_SHA1:RSA_SHA256),
++                             SIG_RSA_SHA1:SIG_RSA_SHA256),
+                           0,
+                           (unsigned char *)headerhash,
+                           (unsigned char *)sig->sigdata ) != 0) {
+@@ -1588,7 +1588,7 @@
+       if (rsa_pkcs1_verify(&rsa,
+                         RSA_PUBLIC,
+                         ((sig->algo == PDKIM_ALGO_RSA_SHA1)?
+-                             RSA_SHA1:RSA_SHA256),
++                             SIG_RSA_SHA1:SIG_RSA_SHA256),
+                         0,
+                         (unsigned char *)headerhash,
+                         (unsigned char *)sig->sigdata) != 0) {
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/rsa.c src/pdkim/rsa.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/rsa.c	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/rsa.c	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /*
+  *  The RSA public-key cryptosystem
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -26,7 +27,7 @@
+  *  http://www.cacr.math.uwaterloo.ca/hac/about/chap8.pdf
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/rsa.c,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/rsa.c,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #include "rsa.h"
+ #include "base64.h"
+@@ -36,6 +37,7 @@
+ #include <stdio.h>
+ 
+ 
++/* *************** begin copy from x509parse.c ********************/
+ /*
+  * ASN.1 DER decoding routines
+  */
+@@ -133,6 +135,8 @@
+ 
+     return( ret );
+ }
++/* ***************   end copy from x509parse.c ********************/
++
+ 
+ 
+ /*
+@@ -159,6 +163,9 @@
+  */
+ int rsa_check_pubkey( rsa_context *ctx )
+ {
++    if( !ctx->N.p || !ctx->E.p )
++        return( POLARSSL_ERR_RSA_KEY_CHECK_FAILED );
++
+     if( ( ctx->N.p[0] & 1 ) == 0 ||
+         ( ctx->E.p[0] & 1 ) == 0 )
+         return( POLARSSL_ERR_RSA_KEY_CHECK_FAILED );
+@@ -185,6 +192,9 @@
+     if( ( ret = rsa_check_pubkey( ctx ) ) != 0 )
+         return( ret );
+ 
++    if( !ctx->P.p || !ctx->Q.p || !ctx->D.p )
++        return( POLARSSL_ERR_RSA_KEY_CHECK_FAILED );
++
+     mpi_init( &PQ, &DE, &P1, &Q1, &H, &I, &G, NULL );
+ 
+     MPI_CHK( mpi_mul_mpi( &PQ, &ctx->P, &ctx->Q ) );
+@@ -355,11 +365,11 @@
+                        int mode, int *olen,
+                        unsigned char *input,
+                        unsigned char *output,
+-               int output_max_len)
++                       int output_max_len)
+ {
+     int ret, ilen;
+     unsigned char *p;
+-    unsigned char buf[512];
++    unsigned char buf[1024];
+ 
+     ilen = ctx->len;
+ 
+@@ -397,7 +407,7 @@
+     }
+ 
+     if (ilen - (int)(p - buf) > output_max_len)
+-        return( POLARSSL_ERR_RSA_OUTPUT_TO_LARGE );
++      return( POLARSSL_ERR_RSA_OUTPUT_TOO_LARGE );
+ 
+     *olen = ilen - (int)(p - buf);
+     memcpy( output, p, *olen );
+@@ -426,24 +436,37 @@
+ 
+             switch( hash_id )
+             {
+-                case RSA_RAW:
++                case SIG_RSA_RAW:
+                     nb_pad = olen - 3 - hashlen;
+                     break;
+ 
+-                case RSA_MD2:
+-                case RSA_MD4:
+-                case RSA_MD5:
+-                    nb_pad = olen - 3 - 16 - 18;
++                case SIG_RSA_MD2:
++                case SIG_RSA_MD4:
++                case SIG_RSA_MD5:
++                    nb_pad = olen - 3 - 34;
++                    break;
++
++                case SIG_RSA_SHA1:
++                    nb_pad = olen - 3 - 35;
++                    break;
++
++                case SIG_RSA_SHA224:
++                    nb_pad = olen - 3 - 47;
+                     break;
+ 
+-                case RSA_SHA1:
+-                    nb_pad = olen - 3 - 20 - 15;
++                case SIG_RSA_SHA256:
++                    nb_pad = olen - 3 - 51;
+                     break;
+ 
+-                case RSA_SHA256:
+-                    nb_pad = olen - 3 - 32 - 19;
++                case SIG_RSA_SHA384:
++                    nb_pad = olen - 3 - 67;
+                     break;
+ 
++                case SIG_RSA_SHA512:
++                    nb_pad = olen - 3 - 83;
++                    break;
++
++
+                 default:
+                     return( POLARSSL_ERR_RSA_BAD_INPUT_DATA );
+             }
+@@ -465,34 +488,49 @@
+ 
+     switch( hash_id )
+     {
+-        case RSA_RAW:
++        case SIG_RSA_RAW:
+             memcpy( p, hash, hashlen );
+             break;
+ 
+-        case RSA_MD2:
++        case SIG_RSA_MD2:
+             memcpy( p, ASN1_HASH_MDX, 18 );
+             memcpy( p + 18, hash, 16 );
+             p[13] = 2; break;
+ 
+-        case RSA_MD4:
++        case SIG_RSA_MD4:
+             memcpy( p, ASN1_HASH_MDX, 18 );
+             memcpy( p + 18, hash, 16 );
+             p[13] = 4; break;
+ 
+-        case RSA_MD5:
++        case SIG_RSA_MD5:
+             memcpy( p, ASN1_HASH_MDX, 18 );
+             memcpy( p + 18, hash, 16 );
+             p[13] = 5; break;
+ 
+-        case RSA_SHA1:
++        case SIG_RSA_SHA1:
+             memcpy( p, ASN1_HASH_SHA1, 15 );
+             memcpy( p + 15, hash, 20 );
+             break;
+ 
+-        case RSA_SHA256:
+-            memcpy( p, ASN1_HASH_SHA256, 19 );
++        case SIG_RSA_SHA224:
++            memcpy( p, ASN1_HASH_SHA2X, 19 );
++            memcpy( p + 19, hash, 28 );
++            p[1] += 28; p[14] = 4; p[18] += 28; break;
++
++        case SIG_RSA_SHA256:
++            memcpy( p, ASN1_HASH_SHA2X, 19 );
+             memcpy( p + 19, hash, 32 );
+-            break;
++            p[1] += 32; p[14] = 1; p[18] += 32; break;
++
++        case SIG_RSA_SHA384:
++            memcpy( p, ASN1_HASH_SHA2X, 19 );
++            memcpy( p + 19, hash, 48 );
++            p[1] += 48; p[14] = 2; p[18] += 48; break;
++
++        case SIG_RSA_SHA512:
++            memcpy( p, ASN1_HASH_SHA2X, 19 );
++            memcpy( p + 19, hash, 64 );
++            p[1] += 64; p[14] = 3; p[18] += 64; break;
+ 
+         default:
+             return( POLARSSL_ERR_RSA_BAD_INPUT_DATA );
+@@ -515,7 +553,7 @@
+ {
+     int ret, len, siglen;
+     unsigned char *p, c;
+-    unsigned char buf[512];
++    unsigned char buf[1024];
+ 
+     siglen = ctx->len;
+ 
+@@ -562,9 +600,9 @@
+         if( memcmp( p, ASN1_HASH_MDX, 18 ) != 0 )
+             return( POLARSSL_ERR_RSA_VERIFY_FAILED );
+ 
+-        if( ( c == 2 && hash_id == RSA_MD2 ) ||
+-            ( c == 4 && hash_id == RSA_MD4 ) ||
+-            ( c == 5 && hash_id == RSA_MD5 ) )
++        if( ( c == 2 && hash_id == SIG_RSA_MD2 ) ||
++            ( c == 4 && hash_id == SIG_RSA_MD4 ) ||
++            ( c == 5 && hash_id == SIG_RSA_MD5 ) )
+         {
+             if( memcmp( p + 18, hash, 16 ) == 0 )
+                 return( 0 );
+@@ -573,7 +611,7 @@
+         }
+     }
+ 
+-    if( len == 35 && hash_id == RSA_SHA1 )
++    if( len == 35 && hash_id == SIG_RSA_SHA1 )
+     {
+         if( memcmp( p, ASN1_HASH_SHA1, 15 ) == 0 &&
+             memcmp( p + 15, hash, 20 ) == 0 )
+@@ -581,17 +619,24 @@
+         else
+             return( POLARSSL_ERR_RSA_VERIFY_FAILED );
+     }
+-
+-    if( len == 51 && hash_id == RSA_SHA256 )
+-    {
+-        if( memcmp( p, ASN1_HASH_SHA256, 19 ) == 0 &&
+-            memcmp( p + 19, hash, 32 ) == 0 )
++    if( ( len == 19 + 28 && p[14] == 4 && hash_id == SIG_RSA_SHA224 ) ||
++        ( len == 19 + 32 && p[14] == 1 && hash_id == SIG_RSA_SHA256 ) ||
++        ( len == 19 + 48 && p[14] == 2 && hash_id == SIG_RSA_SHA384 ) ||
++        ( len == 19 + 64 && p[14] == 3 && hash_id == SIG_RSA_SHA512 ) )
++    {
++        c = p[1] - 17;
++        p[1] = 17;
++        p[14] = 0;
++
++        if( p[18] == c &&
++                memcmp( p, ASN1_HASH_SHA2X, 18 ) == 0 &&
++                memcmp( p + 19, hash, c ) == 0 )
+             return( 0 );
+         else
+             return( POLARSSL_ERR_RSA_VERIFY_FAILED );
+     }
+ 
+-    if( len == hashlen && hash_id == RSA_RAW )
++    if( len == hashlen && hash_id == SIG_RSA_RAW )
+     {
+         if( memcmp( p, hash, hashlen ) == 0 )
+             return( 0 );
+@@ -613,7 +658,6 @@
+               &ctx->E,  &ctx->N,  NULL );
+ }
+ 
+-
+ /*
+  * Parse a public RSA key
+ 
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/rsa.h src/pdkim/rsa.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/rsa.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/rsa.h	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file rsa.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,13 +21,16 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/rsa.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/rsa.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_RSA_H
+ #define POLARSSL_RSA_H
+ 
+ #include "bignum.h"
+ 
++/*
++ * RSA Error codes
++ */
+ #define POLARSSL_ERR_RSA_BAD_INPUT_DATA                    -0x0400
+ #define POLARSSL_ERR_RSA_INVALID_PADDING                   -0x0410
+ #define POLARSSL_ERR_RSA_KEY_GEN_FAILED                    -0x0420
+@@ -34,14 +38,24 @@
+ #define POLARSSL_ERR_RSA_PUBLIC_FAILED                     -0x0440
+ #define POLARSSL_ERR_RSA_PRIVATE_FAILED                    -0x0450
+ #define POLARSSL_ERR_RSA_VERIFY_FAILED                     -0x0460
+-#define POLARSSL_ERR_RSA_OUTPUT_TO_LARGE                   -0x0470
++#define POLARSSL_ERR_RSA_OUTPUT_TOO_LARGE                  -0x0470
+ 
+-#define POLARSSL_ERR_ASN1_OUT_OF_DATA                      -0x0014
+-#define POLARSSL_ERR_ASN1_UNEXPECTED_TAG                   -0x0016
+-#define POLARSSL_ERR_ASN1_INVALID_LENGTH                   -0x0018
+-#define POLARSSL_ERR_ASN1_LENGTH_MISMATCH                  -0x001A
+-#define POLARSSL_ERR_ASN1_INVALID_DATA                     -0x001C
++/* *************** begin copy from x509.h  ************************/
++/*
++ * ASN1 Error codes
++ *
++ * These error codes will be OR'ed to X509 error codes for
++ * higher error granularity.
++ */
++#define POLARSSL_ERR_ASN1_OUT_OF_DATA                      0x0014
++#define POLARSSL_ERR_ASN1_UNEXPECTED_TAG                   0x0016
++#define POLARSSL_ERR_ASN1_INVALID_LENGTH                   0x0018
++#define POLARSSL_ERR_ASN1_LENGTH_MISMATCH                  0x001A
++#define POLARSSL_ERR_ASN1_INVALID_DATA                     0x001C
+ 
++/*
++ * X509 Error codes
++ */
+ #define POLARSSL_ERR_X509_FEATURE_UNAVAILABLE              -0x0020
+ #define POLARSSL_ERR_X509_CERT_INVALID_PEM                 -0x0040
+ #define POLARSSL_ERR_X509_CERT_INVALID_FORMAT              -0x0060
+@@ -90,15 +104,20 @@
+ #define ASN1_CONSTRUCTED             0x20
+ #define ASN1_CONTEXT_SPECIFIC        0x80
+ 
++/* ***************   end copy from x509.h  ************************/
++
+ /*
+  * PKCS#1 constants
+  */
+-#define RSA_RAW         0
+-#define RSA_MD2         2
+-#define RSA_MD4         3
+-#define RSA_MD5         4
+-#define RSA_SHA1        5
+-#define RSA_SHA256      6
++#define SIG_RSA_RAW     0
++#define SIG_RSA_MD2     2
++#define SIG_RSA_MD4     3
++#define SIG_RSA_MD5     4
++#define SIG_RSA_SHA1    5
++#define SIG_RSA_SHA224  14
++#define SIG_RSA_SHA256  11
++#define SIG_RSA_SHA384  12
++#define SIG_RSA_SHA512  13
+ 
+ #define RSA_PUBLIC      0
+ #define RSA_PRIVATE     1
+@@ -109,6 +128,29 @@
+ #define RSA_SIGN        1
+ #define RSA_CRYPT       2
+ 
++#define ASN1_STR_CONSTRUCTED_SEQUENCE "\x30"
++#define ASN1_STR_NULL                 "\x05"
++#define ASN1_STR_OID                  "\x06"
++#define ASN1_STR_OCTET_STRING         "\x04"
++
++#define OID_DIGEST_ALG_MDX            "\x2A\x86\x48\x86\xF7\x0D\x02\x00"
++#define OID_HASH_ALG_SHA1             "\x2b\x0e\x03\x02\x1a"
++#define OID_HASH_ALG_SHA2X            "\x60\x86\x48\x01\x65\x03\x04\x02\x00"
++
++#define OID_ISO_MEMBER_BODIES         "\x2a"
++#define OID_ISO_IDENTIFIED_ORG        "\x2b"
++
++/*
++ * ISO Member bodies OID parts
++ */
++#define OID_COUNTRY_US                "\x86\x48"
++#define OID_RSA_DATA_SECURITY         "\x86\xf7\x0d"
++
++/*
++ * ISO Identified organization OID parts
++ */
++#define OID_OIW_SECSIG_SHA1           "\x0e\x03\x02\x1a"
++
+ /*
+  * DigestInfo ::= SEQUENCE {
+  *   digestAlgorithm DigestAlgorithmIdentifier,
+@@ -118,18 +160,31 @@
+  *
+  * Digest ::= OCTET STRING
+  */
+-#define ASN1_HASH_MDX                       \
+-    "\x30\x20\x30\x0C\x06\x08\x2A\x86\x48"  \
+-    "\x86\xF7\x0D\x02\x00\x05\x00\x04\x10"
+-
+-#define ASN1_HASH_SHA1                      \
+-    "\x30\x21\x30\x09\x06\x05\x2B\x0E\x03"  \
+-    "\x02\x1A\x05\x00\x04\x14"
+-
+-#define ASN1_HASH_SHA256                    \
+-    "\x30\x31\x30\x0d\x06\x09\x60\x86\x48"  \
+-    "\x01\x65\x03\x04\x02\x01\x05\x00\x04"  \
+-    "\x20"
++#define ASN1_HASH_MDX \
++( \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x20" \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x0C" \
++    ASN1_STR_OID "\x08" \
++    OID_DIGEST_ALG_MDX \
++    ASN1_STR_NULL "\x00" \
++    ASN1_STR_OCTET_STRING "\x10" \
++)
++
++#define ASN1_HASH_SHA1 \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x21" \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x09" \
++    ASN1_STR_OID "\x05" \
++    OID_HASH_ALG_SHA1 \
++    ASN1_STR_NULL "\x00" \
++    ASN1_STR_OCTET_STRING "\x14"
++
++#define ASN1_HASH_SHA2X \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x11" \
++    ASN1_STR_CONSTRUCTED_SEQUENCE "\x0d" \
++    ASN1_STR_OID "\x09" \
++    OID_HASH_ALG_SHA2X \
++    ASN1_STR_NULL "\x00" \
++    ASN1_STR_OCTET_STRING "\x00"
+ 
+ /**
+  * \brief          RSA context structure
+@@ -227,7 +282,8 @@
+  * \return         0 if successful, or an POLARSSL_ERR_RSA_XXX error code
+  *
+  * \note           This function does NOT take care of message
+- *                 padding. Also, be sure to set input[0] = 0.
++ *                 padding. Also, be sure to set input[0] = 0 or assure that
++ *                 input is smaller than N.
+  *
+  * \note           The input and output buffers must be large
+  *                 enough (eg. 128 bytes if RSA-1024 is used).
+@@ -257,7 +313,7 @@
+  *
+  * \param ctx      RSA context
+  * \param mode     RSA_PUBLIC or RSA_PRIVATE
+- * \param ilen     contains the the plaintext length
++ * \param ilen     contains the plaintext length
+  * \param input    buffer holding the data to be encrypted
+  * \param output   buffer that will hold the ciphertext
+  *
+@@ -279,7 +335,7 @@
+  * \param input    buffer holding the encrypted data
+  * \param output   buffer that will hold the plaintext
+  * \param olen     will contain the plaintext length
+- * \param output_max_len    maximum length of the output buffer
++ * \param output_max_len  maximum length of the output buffer
+  *
+  * \return         0 if successful, or an POLARSSL_ERR_RSA_XXX error code
+  *
+@@ -291,15 +347,15 @@
+                        int mode, int *olen,
+                        unsigned char *input,
+                        unsigned char *output,
+-               int output_max_len);
++                       int output_max_len );
+ 
+ /**
+  * \brief          Do a private RSA to sign a message digest
+  *
+  * \param ctx      RSA context
+  * \param mode     RSA_PUBLIC or RSA_PRIVATE
+- * \param hash_id  RSA_RAW, RSA_MD{2,4,5} or RSA_SHA{1,256}
+- * \param hashlen  message digest length (for RSA_RAW only)
++ * \param hash_id  SIG_RSA_RAW, SIG_RSA_MD{2,4,5} or SIG_RSA_SHA{1,224,256,384,512}
++ * \param hashlen  message digest length (for SIG_RSA_RAW only)
+  * \param hash     buffer holding the message digest
+  * \param sig      buffer that will hold the ciphertext
+  *
+@@ -321,8 +377,8 @@
+  *
+  * \param ctx      points to an RSA public key
+  * \param mode     RSA_PUBLIC or RSA_PRIVATE
+- * \param hash_id  RSA_RAW, RSA_MD{2,4,5} or RSA_SHA{1,256}
+- * \param hashlen  message digest length (for RSA_RAW only)
++ * \param hash_id  SIG_RSA_RAW, RSA_MD{2,4,5} or RSA_SHA{1,256}
++ * \param hashlen  message digest length (for SIG_RSA_RAW only)
+  * \param hash     buffer holding the message digest
+  * \param sig      buffer holding the ciphertext
+  *
+@@ -341,6 +397,8 @@
+ 
+ /**
+  * \brief          Free the components of an RSA key
++ *
++ * \param ctx      RSA Context to free
+  */
+ void rsa_free( rsa_context *ctx );
+ 
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha1.c src/pdkim/sha1.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha1.c	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/sha1.c	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /*
+  *  FIPS-180-1 compliant SHA-1 implementation
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -25,7 +26,7 @@
+  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/sha1.c,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/sha1.c,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #include "sha1.h"
+ 
+@@ -310,7 +311,7 @@
+ /*
+  * output = SHA-1( input buffer )
+  */
+-void sha1_oneshot( unsigned char *input, int ilen, unsigned char output[20] )
++void sha1( unsigned char *input, int ilen, unsigned char output[20] )
+ {
+     sha1_context ctx;
+ 
+@@ -363,7 +364,7 @@
+ 
+     if( keylen > 64 )
+     {
+-        sha1_oneshot( key, keylen, sum );
++        sha1( key, keylen, sum );
+         keylen = 20;
+         key = sum;
+     }
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha1.h src/pdkim/sha1.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha1.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/sha1.h	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file sha1.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,7 +21,7 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/sha1.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/sha1.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_SHA1_H
+ #define POLARSSL_SHA1_H
+@@ -28,6 +29,7 @@
+ /**
+  * \brief          SHA-1 context structure
+  */
++
+ #ifndef HAVE_SHA1_CONTEXT
+ #define HAVE_SHA1_CONTEXT
+ typedef struct sha1_context sha1_context;
+@@ -43,6 +45,7 @@
+     unsigned char opad[64];     /*!< HMAC: outer padding        */
+ };
+ 
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -78,7 +81,7 @@
+  * \param ilen     length of the input data
+  * \param output   SHA-1 checksum result
+  */
+-void sha1_oneshot( unsigned char *input, int ilen, unsigned char output[20] );
++void sha1( unsigned char *input, int ilen, unsigned char output[20] );
+ 
+ /**
+  * \brief          Output = SHA-1( file contents )
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha2.c src/pdkim/sha2.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha2.c	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/sha2.c	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /*
+  *  FIPS-180-2 compliant SHA-256 implementation
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -25,7 +26,7 @@
+  *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/sha2.c,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/sha2.c,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #include "sha2.h"
+ 
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha2.h src/pdkim/sha2.h
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/pdkim/sha2.h	2009-06-10 09:34:05.000000000 +0200
++++ src/pdkim/sha2.h	2009-12-17 12:17:01.824459747 +0100
+@@ -1,9 +1,10 @@
+ /**
+  * \file sha2.h
+  *
+- *  Based on XySSL: Copyright (C) 2006-2008  Christophe Devine
++ *  Copyright (C) 2006-2009, Paul Bakker <polarssl_maintainer at polarssl.org>
++ *  All rights reserved.
+  *
+- *  Copyright (C) 2009  Paul Bakker <polarssl_maintainer at polarssl dot org>
++ *  Joined copyright on original XySSL code with: Christophe Devine
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -20,7 +21,7 @@
+  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
+-/* $Cambridge: exim/exim-src/src/pdkim/sha2.h,v 1.2 2009/06/10 07:34:05 tom Exp $ */
++/* $Cambridge: exim/exim-src/src/pdkim/sha2.h,v 1.3 2009/12/07 13:05:07 tom Exp $ */
+ 
+ #ifndef POLARSSL_SHA2_H
+ #define POLARSSL_SHA2_H
+diff -ur /home/users/arekm/rpm/packages/exim/exim-4.71/src/transport.c src/transport.c
+--- /home/users/arekm/rpm/packages/exim/exim-4.71/src/transport.c	2009-11-16 20:50:37.000000000 +0100
++++ src/transport.c	2009-12-17 12:17:01.902130465 +0100
+@@ -1,4 +1,4 @@
+-/* $Cambridge: exim/exim-src/src/transport.c,v 1.25 2009/11/16 19:50:37 nm4 Exp $ */
++/* $Cambridge: exim/exim-src/src/transport.c,v 1.26 2009/12/15 08:23:15 tom Exp $ */
+ 
+ /*************************************************
+ *     Exim - an Internet mail transport agent    *
+@@ -1034,7 +1034,9 @@
+         if (dkim_strict_result != NULL) {
+           if ( (strcmpic(dkim_strict,US"1") == 0) ||
+                (strcmpic(dkim_strict,US"true") == 0) ) {
+-            save_errno = errno;
++            /* Set errno to something halfway meaningful */
++            save_errno = EACCES;
++            log_write(0, LOG_MAIN, "DKIM: message could not be signed, and dkim_strict is set. Deferring message delivery.");
+             rc = FALSE;
+             goto CLEANUP;
+           }

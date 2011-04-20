@@ -1,0 +1,248 @@
+diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
+--- exim-4.64.org/src/EDITME	2006-12-20 10:46:04.000000000 +0100
++++ exim-4.64/src/EDITME	2006-12-21 16:57:08.676246750 +0100
+@@ -100,7 +100,7 @@
+ # /usr/local/sbin. The installation script will try to create this directory,
+ # and any superior directories, if they do not exist.
+ 
+-BIN_DIRECTORY=/usr/exim/bin
++BIN_DIRECTORY=/usr/bin
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -116,7 +116,7 @@
+ # don't exist. It will also install a default runtime configuration if this
+ # file does not exist.
+ 
+-CONFIGURE_FILE=/usr/exim/configure
++CONFIGURE_FILE=/etc/mail/exim.conf
+ 
+ # It is possible to specify a colon-separated list of files for CONFIGURE_FILE.
+ # In this case, Exim will use the first of them that exists when it is run.
+@@ -134,7 +134,8 @@
+ # owner of a local mailbox.) Specifying these values as root is very strongly
+ # discouraged.
+ 
+-EXIM_USER=
++EXIM_UID=79
++EXIM_GID=79
+ 
+ # If you specify EXIM_USER as a name, this is looked up at build time, and the
+ # uid number is built into the binary. However, you can specify that this
+@@ -214,7 +215,7 @@
+ 
+ # This one is very special-purpose, so is not included by default.
+ 
+-# ROUTER_IPLOOKUP=yes
++ROUTER_IPLOOKUP=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -235,7 +236,7 @@
+ # This one is special-purpose, and commonly not required, so it is not
+ # included by default.
+ 
+-# TRANSPORT_LMTP=yes
++TRANSPORT_LMTP=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -244,9 +245,9 @@
+ # MBX, is included only when requested. If you do not know what this is about,
+ # leave these settings commented out.
+ 
+-# SUPPORT_MAILDIR=yes
+-# SUPPORT_MAILSTORE=yes
+-# SUPPORT_MBX=yes
++SUPPORT_MAILDIR=yes
++SUPPORT_MAILSTORE=yes
++SUPPORT_MBX=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -263,15 +263,15 @@
+ LOOKUP_LSEARCH=yes
+ LOOKUP_DNSDB=yes
+ 
+-# LOOKUP_CDB=yes
+-# LOOKUP_DSEARCH=yes
++LOOKUP_CDB=yes
++LOOKUP_DSEARCH=yes
+ # LOOKUP_IBASE=yes
+ # LOOKUP_LDAP=yes
+ # LOOKUP_MYSQL=yes
+ # LOOKUP_NIS=yes
+ # LOOKUP_NISPLUS=yes
+ # LOOKUP_ORACLE=yes
+-# LOOKUP_PASSWD=yes
++LOOKUP_PASSWD=yes
+ # LOOKUP_PGSQL=yes
+ # LOOKUP_SQLITE=yes
+ # LOOKUP_WHOSON=yes
+@@ -330,14 +331,14 @@
+ # and the MIME ACL. Please read the documentation to learn more about these
+ # features.
+ 
+-# WITH_CONTENT_SCAN=yes
++WITH_CONTENT_SCAN=yes
+ 
+ # If you want to use the deprecated "demime" condition in the DATA ACL,
+ # uncomment the line below. Doing so will also explicitly turn on the
+ # WITH_CONTENT_SCAN option. If possible, use the MIME ACL instead of
+ # the "demime" condition.
+ 
+-# WITH_OLD_DEMIME=yes
++WITH_OLD_DEMIME=yes
+ 
+ #------------------------------------------------------------------------------
+ # Compiling Exim with experimental features. These are documented in
+@@ -473,11 +474,11 @@
+ # included in the Exim binary. You will then need to set up the run time
+ # configuration to make use of the mechanism(s) selected.
+ 
+-# AUTH_CRAM_MD5=yes
++AUTH_CRAM_MD5=yes
+ # AUTH_CYRUS_SASL=yes
+-# AUTH_DOVECOT=yes
+-# AUTH_PLAINTEXT=yes
+-# AUTH_SPA=yes
++AUTH_DOVECOT=yes
++AUTH_PLAINTEXT=yes
++AUTH_SPA=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -576,10 +577,10 @@
+ # leave these settings commented out.
+ 
+ # This setting is required for any TLS support (either OpenSSL or GnuTLS)
+-# SUPPORT_TLS=yes
++SUPPORT_TLS=yes
+ 
+ # Uncomment this setting if you are using OpenSSL
+-# TLS_LIBS=-lssl -lcrypto
++TLS_LIBS=-lssl -lcrypto
+ 
+ # Uncomment these settings if you are using GnuTLS
+ # USE_GNUTLS=yes
+@@ -630,7 +631,7 @@
+ # Once you have done this, "make install" will build the info files and
+ # install them in the directory you have defined.
+ 
+-# INFO_DIRECTORY=/usr/share/info
++INFO_DIRECTORY=/usr/share/info
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -643,7 +644,7 @@
+ # %s. This will be replaced by one of the strings "main", "panic", or "reject"
+ # to form the final file names. Some installations may want something like this:
+ 
+-# LOG_FILE_PATH=/var/log/exim_%slog
++LOG_FILE_PATH=/var/log/exim/%s.log
+ 
+ # which results in files with names /var/log/exim_mainlog, etc. The directory
+ # in which the log files are placed must exist; Exim does not try to create
+@@ -692,7 +693,7 @@
+ # files. Both the name of the command and the suffix that it adds to files
+ # need to be defined here. See also the EXICYCLOG_MAX configuration.
+ 
+-COMPRESS_COMMAND=/usr/bin/gzip
++COMPRESS_COMMAND=/bin/gzip
+ COMPRESS_SUFFIX=gz
+ 
+ 
+@@ -700,7 +701,7 @@
+ # If the exigrep utility is fed compressed log files, it tries to uncompress
+ # them using this command.
+ 
+-ZCAT_COMMAND=/usr/bin/zcat
++ZCAT_COMMAND=/bin/zcat
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -709,7 +710,7 @@
+ # (version 5.004 or later) installed, set EXIM_PERL to perl.o. Using embedded
+ # Perl costs quite a lot of resources. Only do this if you really need it.
+ 
+-# EXIM_PERL=perl.o
++EXIM_PERL=perl.o
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -719,7 +720,7 @@
+ # that the local_scan API is made available by the linker. You may also need
+ # to add -ldl to EXTRALIBS so that dlopen() is available to Exim.
+ 
+-# EXPAND_DLFUNC=yes
++EXPAND_DLFUNC=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -729,11 +730,12 @@
+ # support, which is intended for use in conjunction with the SMTP AUTH
+ # facilities, is included only when requested by the following setting:
+ 
+-# SUPPORT_PAM=yes
++SUPPORT_PAM=yes
+ 
+ # You probably need to add -lpam to EXTRALIBS, and in some releases of
+ # GNU/Linux -ldl is also needed.
+ 
++EXTRALIBS=-lpam -ldl
+ 
+ #------------------------------------------------------------------------------
+ # Support for authentication via Radius is also available. The Exim support,
+@@ -780,7 +782,7 @@
+ # /var/pwcheck) and chown it to exim's user and group. Once you have installed
+ # pwcheck, you should arrange for it to be started by root at boot time.
+ 
+-# CYRUS_PWCHECK_SOCKET=/var/pwcheck/pwcheck
++CYRUS_PWCHECK_SOCKET=/var/lib/sasl/mux
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -797,7 +799,7 @@
+ # group. Once you have installed saslauthd, you should arrange for it to be
+ # started by root at boot time.
+ 
+-# CYRUS_SASLAUTHD_SOCKET=/var/state/saslauthd/mux
++CYRUS_SASLAUTHD_SOCKET=/var/lib/sasl2/mux
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -857,7 +859,7 @@
+ # is "yes", as well as supporting line editing, a history of input lines in the
+ # current run is maintained.
+ 
+-# USE_READLINE=yes
++USE_READLINE=yes
+ 
+ # You may need to add -ldl to EXTRALIBS when you set USE_READLINE=yes.
+ # Note that this option adds to the size of the Exim binary, because the
+@@ -932,7 +934,7 @@
+ # period (for example, /usr/exim/configure.host.in.some.domain). If this file
+ # does not exist, then the bare configuration file name is tried.
+ 
+-# CONFIGURE_FILE_USE_NODE=yes
++CONFIGURE_FILE_USE_NODE=yes
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -1105,7 +1107,7 @@
+ # be changed here. The default is 0640 so that information from the spool is
+ # available to anyone who is a member of the Exim group.
+ 
+-# SPOOL_MODE=0640
++SPOOL_MODE=0640
+ 
+ 
+ #------------------------------------------------------------------------------
+@@ -1164,6 +1164,6 @@
+ # feature should only be used in very exceptional circumstances. YOU HAVE BEEN
+ # WARNED.
+ 
+-# ENABLE_DISABLE_FSYNC=yes
++ENABLE_DISABLE_FSYNC=yes
+ 
+ # End of EDITME for Exim 4.
