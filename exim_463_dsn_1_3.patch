@@ -523,9 +523,9 @@ diff -urN exim-4.64.org/src/readconf.c exim-4.64/src/readconf.c
 --- exim-4.64.org/src/readconf.c	2006-12-20 10:46:04.000000000 +0100
 +++ exim-4.64/src/readconf.c	2006-12-21 16:43:20.820509000 +0100
 @@ -203,6 +203,9 @@
-   { "dns_ipv4_lookup",          opt_stringptr,   &dns_ipv4_lookup },
    { "dns_retrans",              opt_time,        &dns_retrans },
    { "dns_retry",                opt_int,         &dns_retry },
+   { "dns_use_edns0",            opt_int,         &dns_use_edns0 },
 +#ifdef SUPPORT_DSN
 +  { "dsn",                      opt_bool,        &dsn },
 +#endif
