@@ -8,13 +8,14 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
+%bcond_with	dynamic # dynamic modules
 #
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.76
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -152,6 +153,9 @@ Header files for Exim.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe dla Exima.
 
+%global	dynamic_type	yes
+%{?with_dynamic:%global dynamic_type 2}
+
 %prep
 %setup -q -a1 -a7
 %patch0 -p1
@@ -181,31 +185,47 @@ SUPPORT_DSN=yes
 %{?with_spf:EXPERIMENTAL_SPF=yes}
 %{?with_srs:EXPERIMENTAL_SRS=yes}
 %if %{with mysql}
-LOOKUP_MYSQL=2
+LOOKUP_MYSQL=%{dynamic_type}
+# for dynamic
 LOOKUP_MYSQL_INCLUDE=-I%{_includedir}/mysql
 LOOKUP_MYSQL_LIBS=-lmysqlclient
+# for static
+LOOKUP_INCLUDE+=-I%{_includedir}/mysql
+LOOKUP_LIBS+=-lmysqlclient
 %endif
 %if %{with pgsql}
-LOOKUP_PGSQL=2
+LOOKUP_PGSQL=%{dynamic_type}
+# for dynamic
 LOOKUP_PGSQL_INCLUDE=-I%{_includedir}/pgsql
 LOOKUP_PGSQL_LIBS=-lpq
+# for static
+LOOKUP_INCLUDE+=-I%{_includedir}/pgsql
+LOOKUP_LIBS+=-lpq
 %endif
 %if %{with sqlite}
-LOOKUP_SQLITE=2
+LOOKUP_SQLITE=%{dynamic_type}
+# for dynamic
 LOOKUP_SQLITE_LIBS=-lsqlite3
+# for static
+LOOKUP_LIBS+=-lsqlite3
 %endif
 %if %{with whoson}
-LOOKUP_WHOSON=2
+LOOKUP_WHOSON=%{dynamic_type}
+# for dynamic
 LOOKUP_WHOSON_LIBS=-lwhoson
+# for static
+LOOKUP_LIBS+=-lwhoson
 %endif
 %{?with_sasl:AUTH_CYRUS_SASL=yes}
 %if %{with ldap}
-LOOKUP_LDAP=yes
+LOOKUP_LDAP=%{dynamic_type}
 LDAP_LIB_TYPE=OPENLDAP2
-# currently dynamic ldap lookup not supported
-# LOOKUP_LDAP_LIBS=-lldap -llber
+# for dynamic
+LOOKUP_LDAP_LIBS=-lldap -llber
+# for static
+LOOKUP_LIBS+=-lldap -llber
 %endif
-LOOKUP_LIBS=%{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2} %{?with_ldap:-lldap -llber}
+LOOKUP_LIBS+=%{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}
 EOF
 
 # have to be after Local/Makefile-Linux creation
@@ -232,7 +252,7 @@ install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon $RPM_BUILD_ROOT%{_bindir}
-install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
+%{?with_dynamic:install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules}
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.weekly
@@ -328,12 +348,14 @@ fi
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
+%if %{with dynamic}
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/modules
 %{?with_mysql:%attr(755,root,root) %{_libdir}/%{name}/modules/mysql.so}
 %{?with_pgsql:%attr(755,root,root) %{_libdir}/%{name}/modules/pgsql.so}
 %{?with_sqlite:%attr(755,root,root) %{_libdir}/%{name}/modules/sqlite.so}
 %{?with_whoson:%attr(755,root,root) %{_libdir}/%{name}/modules/whoson.so}
+%endif
 %{_mandir}/man8/*
 
 %files X11
