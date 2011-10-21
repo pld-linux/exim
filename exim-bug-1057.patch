@@ -1,14 +1,16 @@
 diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
 --- exim-4.73_RC1/src/malware.c	2010-12-23 14:19:35.000000000 +0000
 +++ exim-4.73_RC1-new/src/malware.c	2011-01-05 09:58:34.000000000 +0000
-@@ -12,6 +12,16 @@
+@@ -12,6 +12,18 @@
  #include "exim.h"
  #ifdef WITH_CONTENT_SCAN
  
 +/* The maximum number of clamd servers that are supported in the configuration */
 +#define MAX_CLAMD_SERVERS 32
++#define MAX_CLAMD_SERVERS_S "32"
 +/* Maximum length of the hostname that can be specified in the clamd address list */
 +#define MAX_CLAMD_ADDRESS_LENGTH 64
++#define MAX_CLAMD_ADDRESS_LENGTH_S "64"
 +
 +typedef struct clamd_address_container {
 +  uschar tcp_addr[MAX_CLAMD_ADDRESS_LENGTH];
@@ -18,7 +20,7 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
  /* declaration of private routines */
  static int mksd_scan_packed(int sock, uschar *scan_filename);
  static int malware_internal(uschar **listptr, uschar *eml_filename, BOOL faking);
-@@ -1295,7 +1305,7 @@
+@@ -1295,7 +1307,7 @@
       * WITH_OLD_CLAMAV_STREAM is defined.
       * See Exim bug 926 for details.  */
      else if (strcmpic(scanner_name,US"clamd") == 0) {
@@ -27,7 +29,7 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
        uschar clamd_options_buffer[1024];
        uschar clamd_options_default[] = "/tmp/clamd";
        uschar *p, *vname, *result_tag, *response_end;
-@@ -1304,16 +1314,16 @@
+@@ -1304,16 +1316,16 @@
        unsigned int port;
        uschar file_name[1024];
        uschar av_buffer[1024];
@@ -49,7 +51,7 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
  #ifdef WITH_OLD_CLAMAV_STREAM
        uschar av_buffer2[1024];
        int sockData;
-@@ -1327,16 +1337,60 @@
+@@ -1327,16 +1339,60 @@
          /* no options supplied, use default options */
          clamd_options = clamd_options_default;
        }
@@ -89,7 +91,7 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
 +              (clamd_address_container *)store_get(sizeof(clamd_address_container));
 +
 +          /* extract host and port part */
-+          if( sscanf(CS address, "%" MAX_CLAMD_ADDRESS_LENGTH "s %u", this_clamd->tcp_addr,
++          if( sscanf(CS address, "%" MAX_CLAMD_ADDRESS_LENGTH_S "s %u", this_clamd->tcp_addr,
 +                                            &(this_clamd->tcp_port)) != 2 ) {
 +            log_write(0, LOG_MAIN|LOG_PANIC,
 +                      "malware acl condition: clamd: invalid address '%s'", address);
@@ -100,8 +102,8 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
 +          num_servers++;
 +          if (num_servers >= MAX_CLAMD_SERVERS) {
 +            log_write(0, LOG_MAIN|LOG_PANIC,
-+                  "More than " MAX_CLAMD_SERVERS " clamd servers specified; "
-+                  "only using the first " MAX_CLAMD_SERVERS );
++                  "More than " MAX_CLAMD_SERVERS_S " clamd servers specified; "
++                  "only using the first " MAX_CLAMD_SERVERS_S );
 +            break;
 +          }
 +        } while ((address = string_nextinlist(&av_scanner_work, &sep,
@@ -118,7 +120,7 @@ diff -urN exim-4.73_RC1/src/malware.c exim-4.73_RC1-new/src/malware.c
  
        /* See the discussion of response formats below to see why we really don't
        like colons in filenames when passing filenames to ClamAV. */
-@@ -1347,45 +1401,72 @@
+@@ -1347,45 +1403,72 @@
  	return DEFER;
        }
  
