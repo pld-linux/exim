@@ -242,7 +242,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
 install -d $RPM_BUILD_ROOT/etc/{cron.{daily,weekly},logrotate.d,rc.d/init.d,sysconfig,pam.d,security}
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,%{_prefix}/lib}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,/usr/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archive,}/exim,mail}
 install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 install -d $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
@@ -267,7 +267,7 @@ install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
 
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/sendmail
-ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_prefix}/lib/sendmail
+ln -sf %{_bindir}/exim $RPM_BUILD_ROOT/usr/lib/sendmail
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/mailq
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rsmtp
 ln -sf %{_bindir}/exim $RPM_BUILD_ROOT%{_sbindir}/rmail
@@ -343,7 +343,7 @@ fi
 %attr(755,root,root) %{_sbindir}/rsmtp
 %attr(755,root,root) %{_sbindir}/runq
 %attr(755,root,root) %{_sbindir}/sendmail
-%attr(755,root,root) %{_prefix}/lib/sendmail
+%attr(755,root,root) /usr/lib/sendmail
 %attr(754,root,root) /etc/cron.weekly/exim.cron.db
 %attr(750,exim,root) %dir %{_var}/log/exim
 %attr(750,exim,root) %dir %{_var}/log/archive/exim
