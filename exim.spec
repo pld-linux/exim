@@ -47,11 +47,11 @@ Patch2:		%{name}4-cflags.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-#Patch6:		%{name}-bug-1056.patch
+
 # http://sourceforge.net/projects/eximdsn/
 Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		%{name}-dkim.patch
+
 Patch10:	%{name}-force-sigalrm.patch
 Patch11:	%{name}-bug-1057.patch
 URL:		http://www.exim.org/
@@ -164,10 +164,10 @@ Pliki nagłówkowe dla Exima.
 %patch2 -p1
 %patch4 -p1
 %patch5 -p1
-#%patch6 -p1
+
 %patch7 -p1
 %patch8 -p1
-#%patch9 -p0
+
 %patch10 -p1
 %patch11 -p1
 
