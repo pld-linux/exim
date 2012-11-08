@@ -10,4 +10,4 @@ ALLOW_TCP_CONNECTIONS=yes
 #EXIM_EXTRA_CONFIGS="/etc/mail/exim.client.conf"
 
 # queue time
-QUEUE=15m
+QUEUE=5m
