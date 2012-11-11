@@ -116,6 +116,15 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
  #------------------------------------------------------------------------------
+@@ -610,7 +610,7 @@
+ # one that is set in the headers_charset option. The default setting is
+ # defined by this setting:
+ 
+-HEADERS_CHARSET="ISO-8859-1"
++HEADERS_CHARSET="UTF-8"
+ 
+ # If you are going to make use of $header_xxx expansions in your configuration
+ # file, or if your users are going to use them in filter files, and the normal
 @@ -690,11 +690,11 @@
  # leave these settings commented out.
  
