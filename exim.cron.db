@@ -5,6 +5,16 @@ SPOOLDIR="$(/usr/bin/exim -bP spool_directory | /bin/sed 's/.*=[[:space:]]\(.*\)
 
 [ ! -d "$SPOOLDIR" ] && echo "Spooldir [$SPOOLDIR] is not a directory" && exit 1
 
-/usr/bin/find $SPOOLDIR/db -maxdepth 1 -name '*.lockfile' -or -type f -printf '%f\0' | xargs -0r -n 1 /usr/bin/exim_tidydb $SPOOLDIR > /dev/null
+for db in $(/usr/bin/find $SPOOLDIR/db -maxdepth 1 -name '*.lockfile' -or -type f -printf '%f\n'); do
+	t=
+	case "$db" in
+		callout)
+			t="-t 3d"
+			;;
+		*)
+			;;
+	esac
+	/usr/bin/exim_tidydb $t $SPOOLDIR $db > /dev/null
+done
 
 exit 0
