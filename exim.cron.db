@@ -9,12 +9,22 @@ for db in $(/usr/bin/find $SPOOLDIR/db -maxdepth 1 -name '*.lockfile' -or -type 
 	t=
 	case "$db" in
 		callout)
-			t="-t 3d"
+			t="-t 7d"
 			;;
 		*)
 			;;
 	esac
 	/usr/bin/exim_tidydb $t $SPOOLDIR $db > /dev/null
+	# Try to lower it's size if it is bigger than 300M. Result still can be bigger if the db contains
+	# so much unexpired data.
+	toobig=$(/usr/bin/find $SPOOLDIR/db/$db -size +300M)
+	if [ -n "$toobig" ]; then
+		/usr/bin/exim_dumpdb $SPOOLDIR $db | /usr/bin/exim_dbmbuild -nowarn - $SPOOLDIR/db/$db.new > /dev/null
+		chown exim:exim $SPOOLDIR/db/$db.new
+		chmod 640 $SPOOLDIR/db/$db.new
+		mv $SPOOLDIR/db/$db.new $SPOOLDIR/db/$db
+	fi
+
 done
 
 exit 0
