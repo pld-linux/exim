@@ -89,6 +89,7 @@ Requires(pre):	/usr/sbin/useradd
 Requires:	findutils
 Requires:	pam >= 0.79.0
 Requires:	rc-scripts
+Requires:	which
 Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
