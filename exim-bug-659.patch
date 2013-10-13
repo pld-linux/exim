@@ -1,21 +1,8 @@
-From 4f061bd7f1cd0d2410731f194cf1e6d23014df0d Mon Sep 17 00:00:00 2001
-From: Todd Lyons <tlyons@exim.org>
-Date: Sat, 12 Oct 2013 09:42:31 -0700
-Subject: [PATCH] Bug 1334: AutoDetect compression type in exigrep
-
-Does not use any extra perl modules.
-Attempts hard coded types first, so no extra code for the standard
-  case.
-Easy to add more compression types.
----
- src/src/exigrep.src |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
-
 diff --git a/src/src/exigrep.src b/src/src/exigrep.src
-index 0950b58..eadf4c7 100644
+index 0950b58..9e0ced3 100644
 --- a/src/src/exigrep.src
 +++ b/src/src/exigrep.src
-@@ -124,6 +124,50 @@ elsif ( ($invert && (($insensitive && !/$pattern/io) || !/$pattern/o)) ||
+@@ -124,6 +124,60 @@ elsif ( ($invert && (($insensitive && !/$pattern/io) || !/$pattern/o)) ||
    { print "$_\n"; }
  }
  
@@ -37,7 +24,7 @@ index 0950b58..eadf4c7 100644
 +  {
 +  my $ext = shift();
 +  my $c = $compressors->{$ext}->{cmd};
-+  $compressors->{$ext}->{bin} = `which $c`;
++  $compressors->{$ext}->{bin} = `which $c 2>/dev/null`;
 +  chomp($compressors->{$ext}->{bin});
 +  }
 +
@@ -56,8 +43,18 @@ index 0950b58..eadf4c7 100644
 +    {
 +    if ($filename =~ /\.(?:$ext)$/)
 +      {
-+      $cmdline = $compressors->{$ext}->{bin} ." ".
-+                 $compressors->{$ext}->{args};
++      # Undecided:
++      # 1) Better to just print the error and return...
++      if ($compressors->{$ext}->{bin} eq '')
++        {
++        warn("Didn't find $ext decompressor for $filename\n");
++        return undef;
++        }
++      # 2) ...or just return undef that will result in no output
++      $cmdline = ($compressors->{$ext}->{bin} eq '') ?
++                 undef :
++                 $compressors->{$ext}->{bin} ." ".
++                   $compressors->{$ext}->{args};
 +      last;
 +      }
 +    }
@@ -66,7 +63,7 @@ index 0950b58..eadf4c7 100644
  
  # The main program. Extract the pattern and make sure any relevant characters
  # are quoted if the -l flag is given. The -t flag gives a time-on-queue value
-@@ -154,6 +198,11 @@ if (@ARGV)
+@@ -154,6 +208,11 @@ if (@ARGV)
        open(LOG, "ZCAT_COMMAND $filename |") ||
          die "Unable to zcat $filename: $!\n";
        }
@@ -78,6 +75,3 @@ index 0950b58..eadf4c7 100644
      else
        {
        open(LOG, "<$filename") || die "Unable to open $filename: $!\n";
--- 
-1.7.9.5
-
