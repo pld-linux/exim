@@ -9,13 +9,13 @@
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
-
+#
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.80.1
-Release:	15
+Release:	14
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -51,7 +51,7 @@ Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 # http://sourceforge.net/projects/eximdsn/
 Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		%{name}-bug-659.patch
+Patch9:		exim-bug-659.patch
 Patch10:	%{name}-force-sigalrm.patch
 Patch11:	%{name}-bug-1057.patch
 URL:		http://www.exim.org/
@@ -258,7 +258,7 @@ install build-Linux-*/eximon $RPM_BUILD_ROOT%{_bindir}
 %{?with_dynamic:install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules}
 
 install %{SOURCE5} .
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily/%{name}-db
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
@@ -345,7 +345,7 @@ fi
 %attr(755,root,root) %{_sbindir}/runq
 %attr(755,root,root) %{_sbindir}/sendmail
 %attr(755,root,root) /usr/lib/sendmail
-%attr(754,root,root) /etc/cron.daily/exim-db
+%attr(754,root,root) /etc/cron.daily/exim.cron.db
 %attr(750,exim,root) %dir %{_var}/log/exim
 %attr(750,exim,root) %dir %{_var}/log/archive/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
