@@ -9,6 +9,7 @@
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
+%bcond_without	hiredis # without redis
 %bcond_with	dsn	# DSN
 #
 Summary:	University of Cambridge Mail Transfer Agent
@@ -56,6 +57,7 @@ Patch10:	%{name}-force-sigalrm.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
+%{?with_hiredis:BuildRequires:	hiredis-devel}
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_mysql:BuildRequires:	mysql-devel}
@@ -182,8 +184,22 @@ XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
 SUPPORT_DSN=yes
-%{?with_spf:EXPERIMENTAL_SPF=yes}
-%{?with_srs:EXPERIMENTAL_SRS=yes}
+EXPERIMENTAL_DCC=yes
+EXPERIMENTAL_PRDR=yes
+EXPERIMENTAL_TPDA=yes
+EXPERIMENTAL_OCSP=yes
+%if %{with spf}
+EXPERIMENTAL_SPF=yes
+LOOKUP_LIBS+=-lspf2
+%endif
+%if %{with srs}
+EXPERIMENTAL_SRS=yes
+LOOKUP_LIBS+=-lsrs_alt
+%endif
+%if %{with hiredis}
+EXPERIMENTAL_REDIS=yes
+LOOKUP_LIBS+=-lhiredis
+%endif
 %if %{with mysql}
 LOOKUP_MYSQL=%{dynamic_type}
 # for dynamic
@@ -216,7 +232,10 @@ LOOKUP_WHOSON_LIBS=-lwhoson
 # for static
 LOOKUP_LIBS+=-lwhoson
 %endif
-%{?with_sasl:AUTH_CYRUS_SASL=yes}
+%if %{with sasl}
+AUTH_CYRUS_SASL=yes
+LOOKUP_LIBS+=-lsasl2
+%endif
 %if %{with ldap}
 LOOKUP_LDAP=%{dynamic_type}
 LDAP_LIB_TYPE=OPENLDAP2
@@ -225,7 +244,6 @@ LOOKUP_LDAP_LIBS=-lldap -llber
 # for static
 LOOKUP_LIBS+=-lldap -llber
 %endif
-LOOKUP_LIBS+=%{?with_spf:-lspf2} %{?with_srs:-lsrs_alt} %{?with_sasl:-lsasl2}
 EOF
 
 # have to be after Local/Makefile-Linux creation
