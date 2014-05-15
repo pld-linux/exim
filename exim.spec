@@ -8,20 +8,21 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
+%bcond_with	dsn	# DSN support
 #
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.75
+Version:	4.82
 Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	427fb74bbd2afbea759e6da38f25af17
+# Source0-md5:	feb933baa4db773c2ef76b794c60b647
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	51744a0fc94ef403cb049dfc9f059ada
+# Source1-md5:	072326f172ddbda684ba5cc8bc85e0aa
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -34,8 +35,7 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-Source13:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/FAQ.txt.bz2
-# Source13-md5:	ff781bd31fb1d574c8b9d33f4bfd34a7
+
 Source14:	ftp://ftp.csx.cam.ac.uk/pub/software/email/exim/exim4/config.samples.tar.bz2
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
@@ -160,12 +160,11 @@ Pliki nagłówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 #%patch6 -p1
-%patch7 -p1
+%{?with_dsn:%patch7 -p1}
 %patch8 -p1
 #%patch9 -p0
 %patch10 -p1
 
-install %{SOURCE13} doc/FAQ.txt.bz2
 install %{SOURCE14} doc/config.samples.tar.bz2
 
 install -d Local

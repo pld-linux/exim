@@ -96,7 +96,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  #------------------------------------------------------------------------------
  # Compiling Exim with experimental features. These are documented in
-@@ -473,11 +474,11 @@
+@@ -579,15 +579,15 @@
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
  
@@ -104,27 +104,42 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
 +AUTH_CRAM_MD5=yes
  # AUTH_CYRUS_SASL=yes
 -# AUTH_DOVECOT=yes
++AUTH_DOVECOT=yes
+ # AUTH_GSASL=yes
+ # AUTH_GSASL_PC=libgsasl
+ # AUTH_HEIMDAL_GSSAPI=yes
+ # AUTH_HEIMDAL_GSSAPI_PC=heimdal-gssapi
 -# AUTH_PLAINTEXT=yes
 -# AUTH_SPA=yes
-+AUTH_DOVECOT=yes
 +AUTH_PLAINTEXT=yes
 +AUTH_SPA=yes
  
  
  #------------------------------------------------------------------------------
-@@ -576,10 +577,10 @@
+@@ -610,7 +610,7 @@
+ # one that is set in the headers_charset option. The default setting is
+ # defined by this setting:
+ 
+-HEADERS_CHARSET="ISO-8859-1"
++HEADERS_CHARSET="UTF-8"
+ 
+ # If you are going to make use of $header_xxx expansions in your configuration
+ # file, or if your users are going to use them in filter files, and the normal
+@@ -690,11 +690,11 @@
  # leave these settings commented out.
  
  # This setting is required for any TLS support (either OpenSSL or GnuTLS)
 -# SUPPORT_TLS=yes
 +SUPPORT_TLS=yes
  
- # Uncomment this setting if you are using OpenSSL
+ # Uncomment one of these settings if you are using OpenSSL; pkg-config vs not
+-# USE_OPENSSL_PC=openssl
 -# TLS_LIBS=-lssl -lcrypto
++USE_OPENSSL_PC=openssl
 +TLS_LIBS=-lssl -lcrypto
  
- # Uncomment these settings if you are using GnuTLS
- # USE_GNUTLS=yes
+ # Uncomment the first and either the second or the third of these if you
+ # are using GnuTLS.  If you have pkg-config, then the second, else the third.
 @@ -630,7 +631,7 @@
  # Once you have done this, "make install" will build the info files and
  # install them in the directory you have defined.

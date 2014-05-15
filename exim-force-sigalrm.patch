@@ -18,15 +18,15 @@
  /* Enter the never-ending loop... */
  
  for (;;)
-@@ -1624,6 +1626,8 @@
-     {
-     DEBUG(D_any) debug_printf("SIGALRM received\n");
+@@ -1753,6 +1753,8 @@
+       {
+       DEBUG(D_any) debug_printf("SIGALRM received\n");
  
-+    time(&sigalrm_seen_last);
++      time(&sigalrm_seen_last);
 +
-     /* Do a full queue run in a child process, if required, unless we already
-     have enough queue runners on the go. If we are not running as root, a
-     re-exec is required. */
+       /* Do a full queue run in a child process, if required, unless we already
+       have enough queue runners on the go. If we are not running as root, a
+       re-exec is required. */
 @@ -1885,11 +1889,19 @@
  
    else
