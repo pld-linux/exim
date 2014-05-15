@@ -1,0 +1,12 @@
+--- exim-4.82/src/ip.c~	2013-10-25 02:46:27.000000000 +0200
++++ exim-4.82/src/ip.c	2014-05-15 11:33:48.683945055 +0200
+@@ -468,6 +468,9 @@
+ else if (af == AF_INET6)
+   {
+   *level = IPPROTO_IPV6;
++#ifndef IPV6_TCLASS
++#define IPV6_TCLASS 67
++#endif
+   *optname = IPV6_TCLASS;
+   }
+ #endif
