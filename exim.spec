@@ -10,8 +10,9 @@
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
+%bcond_without	ocsp	# without experimental OCSP
 %bcond_with	dsn	# DSN
-#
+
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
@@ -189,7 +190,7 @@ SUPPORT_DSN=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_TPDA=yes
-EXPERIMENTAL_OCSP=yes
+%{?with_ocsp:EXPERIMENTAL_OCSP=yes}
 %if %{with spf}
 EXPERIMENTAL_SPF=yes
 LOOKUP_LIBS+=-lspf2
