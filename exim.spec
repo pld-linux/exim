@@ -43,6 +43,7 @@ Source16:	%{name}on.png
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
+Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
@@ -157,6 +158,7 @@ Pliki nagłówkowe dla Exima.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %patch4 -p1
 %patch5 -p1
 #%patch6 -p1
