@@ -40,7 +40,7 @@ start() {
 	fi
 
 	msg_starting "Exim"
-	daemon exim \
+	daemon /usr/bin/exim \
 		$( is_yes "$ALLOW_TCP_CONNECTIONS" && echo -bd ) \
 		$( [ -n "$QUEUE" ] && echo -q$QUEUE )
 	for CONFIG in $EXIM_EXTRA_CONFIGS; do
@@ -84,7 +84,7 @@ reload() {
 		return
 	fi
 
-	run_cmd "Checking exim configuration" exim -bV
+	run_cmd "Checking exim configuration" /usr/bin/exim -bV
 	if [ $? -eq 0 ]; then
 		msg_reloading "Exim"
 		killproc exim -HUP
