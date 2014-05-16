@@ -13,6 +13,13 @@
 %bcond_without	ocsp	# without experimental OCSP
 %bcond_with	dsn	# DSN
 
+%if "%{pld_release}" == "ac"
+# requires openssl SNI
+%undefine	with_ocsp
+# hiredis build segfaults on ac-alpha
+%undefine	with_hiredis
+%endif
+
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
