@@ -103,6 +103,7 @@ Requires:	which
 Provides:	group(exim)
 Provides:	smtpdaemon
 Provides:	user(exim)
+Obsoletes:	exipick
 Obsoletes:	smtpdaemon
 Conflicts:	logrotate < 3.8.3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
