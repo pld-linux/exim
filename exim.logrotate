@@ -1,29 +1,27 @@
 /var/log/exim/main.log {
     olddir /var/log/archive/exim
     create 640 exim exim
-    postrotate
-	/bin/killall -HUP exim
-    endscript
+    daily
+    delaycompress
 }
 
 /var/log/exim/reject.log {
     olddir /var/log/archive/exim
     create 640 exim exim
-    postrotate
-	/bin/killall -HUP exim
-    endscript
+    daily
+    delaycompress
 }
+
 /var/log/exim/panic.log {
     olddir /var/log/archive/exim
     create 640 exim exim
-    postrotate
-	/bin/killall -HUP exim
-    endscript
+    daily
+    delaycompress
 }
+
 /var/log/exim/process.log {
     olddir /var/log/archive/exim
     create 640 exim exim
-    postrotate
-	/bin/killall -HUP exim
-    endscript
+    daily
+    delaycompress
 }
