@@ -11,7 +11,7 @@
 %bcond_without	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
 %bcond_without	ocsp	# without experimental OCSP
-%bcond_with	dsn	# DSN
+%bcond_without	dsn	# DSN
 
 %if "%{pld_release}" == "ac"
 # requires openssl SNI
@@ -24,15 +24,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.82.1
-Release:	2
+Version:	4.83
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	4544696ce6689ba9141a0697f25a74cb
+# Source0-md5:	fc6790f346a50a3c87be96b335b9c8ae
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	a4aa8645868e54944c6540b3f8b798ea
+# Source1-md5:	f128a7f04e65ea80bb3f76e6fa3d0747
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -58,10 +58,8 @@ Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 
-# http://sourceforge.net/projects/eximdsn/
-Patch7:		%{name}_463_dsn_1_3.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		exim-bug-659.patch
+
 Patch10:	%{name}-force-sigalrm.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
@@ -178,9 +176,8 @@ Pliki nagłówkowe dla Exima.
 %patch4 -p1
 %patch5 -p1
 
-%{?with_dsn:%patch7 -p1}
 %patch8 -p1
-%patch9 -p2
+
 %patch10 -p1
 
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -198,6 +195,9 @@ SUPPORT_DSN=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_TPDA=yes
+EXPERIMENTAL_PROXY=yes
+EXPERIMENTAL_CERTNAMES=yes
+%{?with_dsn:EXPERIMENTAL_DSN=yes}
 %{?with_ocsp:EXPERIMENTAL_OCSP=yes}
 %if %{with spf}
 EXPERIMENTAL_SPF=yes
