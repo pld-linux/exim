@@ -10,12 +10,9 @@
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
-%bcond_without	ocsp	# without experimental OCSP
 %bcond_without	dsn	# DSN
 
 %if "%{pld_release}" == "ac"
-# requires openssl SNI
-%undefine	with_ocsp
 # hiredis build segfaults on ac-alpha
 %undefine	with_hiredis
 %endif
@@ -201,7 +198,6 @@ EXPERIMENTAL_TPDA=yes
 EXPERIMENTAL_PROXY=yes
 EXPERIMENTAL_CERTNAMES=yes
 %{?with_dsn:EXPERIMENTAL_DSN=yes}
-%{?with_ocsp:EXPERIMENTAL_OCSP=yes}
 %if %{with spf}
 EXPERIMENTAL_SPF=yes
 LOOKUP_LIBS+=-lspf2
