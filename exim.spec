@@ -182,6 +182,7 @@ Pliki nagłówkowe dla Exima.
 
 %patch10 -p1
 
+install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
 
 install -d Local
@@ -259,6 +260,8 @@ LOOKUP_LIBS+=-lldap -llber
 %endif
 EOF
 
+%{!?with_dsn:sed -i -e 's|dsn_advertise_hosts|#dsn_advertise_hosts|g exim4.conf}
+
 # have to be after Local/Makefile-Linux creation
 cp -f src/EDITME Local/Makefile
 cp -f exim_monitor/EDITME Local/eximon.conf
@@ -289,8 +292,8 @@ install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install	%{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
+install %{SOURCE11} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+install exim4.conf $RPM_BUILD_ROOT%{_sysconfdir}/mail/exim.conf
 install {doc,man}/*.8 $RPM_BUILD_ROOT%{_mandir}/man8
 install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/mail/aliases
 install %{SOURCE15} $RPM_BUILD_ROOT/etc/pam.d/smtp
