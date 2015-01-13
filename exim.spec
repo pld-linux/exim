@@ -21,15 +21,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.84
-Release:	3
+Version:	4.85
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	3d14522e604b687b9e515f5aa739b2c0
+# Source0-md5:	ebae28762b6f125726283dc9434e8709
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	18835729357264ecff7c5468b05ccc80
+# Source1-md5:	ac087bcf14337f152adfdf8b64145c37
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -54,7 +54,6 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		%{name}-exigrep.patch
 
 Patch8:		%{name}-spam-timeout.patch
 
@@ -173,7 +172,6 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
 
 %patch8 -p1
 
@@ -194,7 +192,7 @@ X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 SUPPORT_DSN=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
-EXPERIMENTAL_TPDA=yes
+EXPERIMENTAL_EVENT=yes
 EXPERIMENTAL_PROXY=yes
 EXPERIMENTAL_CERTNAMES=yes
 %{?with_dsn:EXPERIMENTAL_DSN=yes}
