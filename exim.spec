@@ -190,6 +190,7 @@ XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
 SUPPORT_DSN=yes
+EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_EVENT=yes
