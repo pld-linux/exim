@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.85
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -58,6 +58,7 @@ Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 Patch8:		%{name}-spam-timeout.patch
 
 Patch10:	%{name}-force-sigalrm.patch
+Patch11:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -176,10 +177,9 @@ Pliki nagłówkowe dla Exima.
 %patch8 -p1
 
 %patch10 -p1
-
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
-
+%patch11 -p1
 install -d Local
 cat << 'EOF' >> Local/Makefile-Linux
 CC=%{__cc}

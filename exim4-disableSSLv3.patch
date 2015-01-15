@@ -1,0 +1,12 @@
+diff -urN eximorg/exim4.conf exim/exim4.conf
+--- eximorg/exim4.conf	2015-01-13 09:39:15.705251985 +0100
++++ exim/exim4.conf	2015-01-13 09:43:24.017910803 +0100
+@@ -70,6 +70,8 @@
+ # tls_privatekey = /etc/openssl/mail.key
+ # tls_advertise_hosts = *
+ 
++openssl_options = +no_sslv2 +no_sslv3
++
+ # You can use self-signed cerficates (you will need openssl-tools package):
+ 
+ # openssl genrsa -out /etc/openssl/mail.key 1024
