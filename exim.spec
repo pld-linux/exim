@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.85
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -42,7 +42,6 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-
 Source14:	ftp://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
@@ -54,11 +53,10 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-
 Patch8:		%{name}-spam-timeout.patch
-
 Patch10:	%{name}-force-sigalrm.patch
-Patch11:	%{name}4-disableSSLv3.patch
+Patch11:	openssl_build_fix.patch
+Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -173,13 +171,12 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-
 %patch8 -p1
-
 %patch10 -p1
+%patch11 -p1
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
-%patch11 -p1
+%patch20 -p1
 install -d Local
 cat << 'EOF' >> Local/Makefile-Linux
 CC=%{__cc}
