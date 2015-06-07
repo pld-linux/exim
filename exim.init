@@ -32,6 +32,34 @@ else
 	exit 0
 fi
 
+checkconfig() {
+	local details=${1:-0} ret
+
+	RETVAL=0
+	if [ $details = 1 ]; then
+		for CONFIG in /etc/mail/exim.conf $EXIM_EXTRA_CONFIGS; do
+			run_cmd "Checking exim configuration ($CONFIG)" exim -bV -C $CONFIG
+			ret=$?
+			if [ $ret != 0 ]; then
+				RETVAL=$ret
+			fi
+		done
+	else
+		for CONFIG in /etc/mail/exim.conf $EXIM_EXTRA_CONFIGS; do
+			exim -bV -C $CONFIG > /dev/null 2>&1
+			ret=$?
+			if [ $ret != 0 ]; then
+				show "Checking %s configuration (%s)" "exim" "$CONFIG"; fail
+				RETVAL=$ret
+			fi
+		done
+		if [ $RETVAL != 0 ]; then
+			nls 'Configuration test failed. See details with %s "checkconfig"' $0
+			exit $RETVAL
+		fi
+	fi
+}
+
 start() {
 	# Start daemons.
 	if [ -f /var/lock/subsys/exim ]; then
@@ -73,6 +101,7 @@ condrestart() {
 		return
 	fi
 
+	checkconfig
 	stop
 	start
 }
@@ -84,12 +113,10 @@ reload() {
 		return
 	fi
 
-	run_cmd "Checking exim configuration" /usr/bin/exim -bV
-	if [ $? -eq 0 ]; then
-		msg_reloading "Exim"
-		killproc exim -HUP
-		RETVAL=$?
-	fi
+	checkconfig
+	msg_reloading "Exim"
+	killproc exim -HUP
+	RETVAL=$?
 }
 
 RETVAL=0
@@ -102,6 +129,7 @@ case "$1" in
 	stop
 	;;
   restart)
+	checkconfig
 	stop
 	start
 	;;
@@ -112,8 +140,7 @@ case "$1" in
 	reload
 	;;
   checkconfig|configtest)
-	exim -bV
-	RETVAL=$?
+	checkconfig 1
 	;;
   status)
 	status exim
