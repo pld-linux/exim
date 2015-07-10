@@ -10,3 +10,14 @@ diff -urN exim-4.62.org/src/spam.c exim-4.62/src/spam.c
          /* connection OK */
          break;
        };
+--- exim-4.85/src/spam.h~	2015-01-06 00:40:11.000000000 +0100
++++ exim-4.85/src/spam.h	2015-07-10 14:04:36.437933012 +0200
+@@ -10,7 +10,7 @@
+ #ifdef WITH_CONTENT_SCAN
+ 
+ /* timeout for reading and writing spamd */
+-#define SPAMD_TIMEOUT 120
++#define SPAMD_TIMEOUT 240
+ 
+ /* maximum length of the spam bar */
+ #define MAX_SPAM_BAR_CHARS 50
