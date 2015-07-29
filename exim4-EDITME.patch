@@ -60,7 +60,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
  #------------------------------------------------------------------------------
-@@ -263,15 +263,15 @@
+@@ -263,15 +264,15 @@
  LOOKUP_LSEARCH=yes
  LOOKUP_DNSDB=yes
  
@@ -96,7 +96,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  #------------------------------------------------------------------------------
  # Compiling Exim with experimental features. These are documented in
-@@ -579,15 +579,15 @@
+@@ -629,15 +630,15 @@ FIXED_NEVER_USERS=root
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
  
@@ -111,12 +111,13 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  # AUTH_HEIMDAL_GSSAPI_PC=heimdal-gssapi
 -# AUTH_PLAINTEXT=yes
 -# AUTH_SPA=yes
+-# AUTH_TLS=yes
 +AUTH_PLAINTEXT=yes
 +AUTH_SPA=yes
++AUTH_TLS=yes
  
  
- #------------------------------------------------------------------------------
-@@ -610,7 +610,7 @@
+@@ -610,7 +611,7 @@
  # one that is set in the headers_charset option. The default setting is
  # defined by this setting:
  
@@ -125,7 +126,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  # If you are going to make use of $header_xxx expansions in your configuration
  # file, or if your users are going to use them in filter files, and the normal
-@@ -690,11 +690,11 @@
+@@ -690,11 +691,11 @@
  # leave these settings commented out.
  
  # This setting is required for any TLS support (either OpenSSL or GnuTLS)
@@ -168,14 +169,14 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
 @@ -700,7 +701,7 @@
- # If the exigrep utility is fed compressed log files, it tries to uncompress
- # them using this command.
- 
+ # ZCAT_COMMAND=zcat
+ #
+ # Or specify the full pathname:
 -ZCAT_COMMAND=/usr/bin/zcat
 +ZCAT_COMMAND=/bin/zcat
  
- 
  #------------------------------------------------------------------------------
+ # Compiling in support for embedded Perl: If you want to be able to
 @@ -709,7 +710,7 @@
  # (version 5.004 or later) installed, set EXIM_PERL to perl.o. Using embedded
  # Perl costs quite a lot of resources. Only do this if you really need it.
@@ -253,7 +254,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  
  
  #------------------------------------------------------------------------------
-@@ -1164,6 +1164,6 @@
+@@ -1164,6 +1166,6 @@
  # feature should only be used in very exceptional circumstances. YOU HAVE BEEN
  # WARNED.
  

@@ -1,23 +1,11 @@
-diff -urN exim-4.62.org/src/spam.c exim-4.62/src/spam.c
---- exim-4.62.org/src/spam.c	2006-04-28 12:32:23.000000000 +0200
-+++ exim-4.62/src/spam.c	2006-06-08 10:20:26.000000000 +0200
-@@ -147,7 +147,7 @@
-                       AF_INET,
-                       spamd_address_vector[current_server]->tcp_addr,
-                       spamd_address_vector[current_server]->tcp_port,
--                      5 ) > -1) {
-+                      15 ) > -1) {
-         /* connection OK */
-         break;
-       };
---- exim-4.85/src/spam.h~	2015-01-06 00:40:11.000000000 +0100
-+++ exim-4.85/src/spam.h	2015-07-10 14:04:36.437933012 +0200
-@@ -10,7 +10,7 @@
- #ifdef WITH_CONTENT_SCAN
+--- exim-4.86/src/spam.c~	2015-07-23 23:20:37.000000000 +0200
++++ exim-4.86/src/spam.c	2015-07-29 10:41:57.918864020 +0200
+@@ -344,7 +344,7 @@ start = time(NULL);
  
- /* timeout for reading and writing spamd */
--#define SPAMD_TIMEOUT 120
-+#define SPAMD_TIMEOUT 240
- 
- /* maximum length of the spam bar */
- #define MAX_SPAM_BAR_CHARS 50
+     for (;;)
+       {
+-      if (  (spamd_sock = ip_streamsocket(sd->hostspec, &errstr, 5)) >= 0
++      if (  (spamd_sock = ip_streamsocket(sd->hostspec, &errstr, 15)) >= 0
+          || sd->retry <= 0
+ 	 )
+ 	break;

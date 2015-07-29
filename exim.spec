@@ -10,7 +10,6 @@
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
-%bcond_without	dsn	# DSN
 
 %if "%{pld_release}" == "ac"
 # hiredis build segfaults on ac-alpha
@@ -21,15 +20,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.85
-Release:	5
+Version:	4.86
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	ebae28762b6f125726283dc9434e8709
+# Source0-md5:	797f248ef3e0c0e2f178e915f88fc4e9
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	ac087bcf14337f152adfdf8b64145c37
+# Source1-md5:	64eae24e1f268fa843a9de77e1c4009a
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -53,10 +52,10 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		exim-bug-1639.patch
+
 Patch8:		%{name}-spam-timeout.patch
 Patch10:	%{name}-force-sigalrm.patch
-Patch11:	openssl_build_fix.patch
+
 Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
@@ -172,10 +171,10 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
+
 %patch8 -p1
 %patch10 -p1
-%patch11 -p1
+
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
 %patch20 -p1
@@ -188,14 +187,11 @@ LOOKUP_CDB=yes
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
-SUPPORT_DSN=yes
 EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_EVENT=yes
 EXPERIMENTAL_PROXY=yes
-EXPERIMENTAL_CERTNAMES=yes
-%{?with_dsn:EXPERIMENTAL_DSN=yes}
 %if %{with spf}
 EXPERIMENTAL_SPF=yes
 LOOKUP_LIBS+=-lspf2
@@ -253,8 +249,6 @@ LOOKUP_LDAP_LIBS=-lldap -llber
 LOOKUP_LIBS+=-lldap -llber
 %endif
 EOF
-
-%{!?with_dsn:sed -i -e 's|dsn_advertise_hosts|#dsn_advertise_hosts|g exim4.conf}
 
 # have to be after Local/Makefile-Linux creation
 cp -f src/EDITME Local/Makefile
