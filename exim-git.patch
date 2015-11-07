@@ -1149,3 +1149,87 @@ index d392fda..6411c7e 100644
              US"callout")
         || !smtp_get_port(tf->port, addr, &port, US"callout")
         )
+
+commit 1bd52978055bc07dfa150d296ffb344f10fff7fe
+Author: Jeremy Harris <jgh146exb@wizmail.org>
+Date:   Mon Nov 2 19:03:26 2015 +0000
+
+    Avoid misaligned access in cached lookup.  Bug 1708
+    
+    (cherry picked from commit 98b98887f926be87eabccc7919e57ce625c63c03)
+
+diff --git a/src/src/search.c b/src/src/search.c
+index cd522da..ccad250 100644
+--- a/src/src/search.c
++++ b/src/src/search.c
+@@ -540,10 +540,10 @@ else
+       }
+     else
+       {
+-      t = store_get(sizeof(tree_node) + len + sizeof(expiring_data));
+-      e = (expiring_data *)((char *)t + sizeof(tree_node) + len);
++      e = store_get(sizeof(expiring_data) + sizeof(tree_node) + len);
+       e->expiry = do_cache == UINT_MAX ? 0 : time(NULL)+do_cache;
+       e->ptr = data;
++      t = (tree_node *)(e+1);
+       memcpy(t->name, keystring, len);
+       t->data.ptr = e;
+       tree_insertnode(&c->item_cache, t);
+
+commit e7c3de301824738c6f302e02e566f9da75d3130c
+Author: Jeremy Harris <jgh146exb@wizmail.org>
+Date:   Thu Oct 15 21:40:17 2015 +0100
+
+    DKIM: ignore space & tab embedded in base64 during decode.  Bug 1700
+    
+    (cherry picked from commit 0f557e9065b0bcfce38ee1fea5fc947bf0c5431c)
+
+diff --git a/src/src/pdkim/base64.c b/src/src/pdkim/base64.c
+index a82fc2d..1395be4 100644
+--- a/src/src/pdkim/base64.c
++++ b/src/src/pdkim/base64.c
+@@ -128,20 +128,22 @@ int base64_decode( unsigned char *dst, int *dlen,
+ 
+     for( i = j = n = 0; i < slen; i++ )
+     {
++	unsigned char c = src[i];
++
+         if( ( slen - i ) >= 2 &&
+-            src[i] == '\r' && src[i + 1] == '\n' )
++            c == '\r' && src[i + 1] == '\n' )
+             continue;
+ 
+-        if( src[i] == '\n' )
++        if( c == '\n' || c == ' ' || c == '\t' )
+             continue;
+ 
+-        if( src[i] == '=' && ++j > 2 )
++        if( c == '=' && ++j > 2 )
+             return( POLARSSL_ERR_BASE64_INVALID_CHARACTER );
+ 
+-        if( src[i] > 127 || base64_dec_map[src[i]] == 127 )
++        if( c > 127 || base64_dec_map[src[i]] == 127 )
+             return( POLARSSL_ERR_BASE64_INVALID_CHARACTER );
+ 
+-        if( base64_dec_map[src[i]] < 64 && j != 0 )
++        if( base64_dec_map[c] < 64 && j != 0 )
+             return( POLARSSL_ERR_BASE64_INVALID_CHARACTER );
+ 
+         n++;
+@@ -160,11 +162,13 @@ int base64_decode( unsigned char *dst, int *dlen,
+ 
+    for( j = 3, n = x = 0, p = dst; i > 0; i--, src++ )
+    {
+-        if( *src == '\r' || *src == '\n' )
++	unsigned char c = *src;
++
++        if( c == '\r' || c == '\n' || c == ' ' || c == '\t' )
+             continue;
+ 
+-        j -= ( base64_dec_map[*src] == 64 );
+-        x  = (x << 6) | ( base64_dec_map[*src] & 0x3F );
++        j -= ( base64_dec_map[c] == 64 );
++        x  = (x << 6) | ( base64_dec_map[c] & 0x3F );
+ 
+         if( ++n == 4 )
+         {
