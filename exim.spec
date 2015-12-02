@@ -21,7 +21,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.86
-Release:	5
+Release:	6
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -54,7 +54,7 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-
+Patch6:		exim-dkim.patch
 Patch8:		%{name}-spam-timeout.patch
 Patch10:	%{name}-force-sigalrm.patch
 
@@ -175,6 +175,7 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p2
 
 %patch8 -p1
 %patch10 -p1
