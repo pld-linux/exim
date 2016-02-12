@@ -69,6 +69,7 @@ start() {
 
 	msg_starting "Exim"
 	daemon /usr/bin/exim \
+		-oP /var/spool/exim/exim-daemon.pid \
 		$( is_yes "$ALLOW_TCP_CONNECTIONS" && echo -bd ) \
 		$( [ -n "$QUEUE" ] && echo -q$QUEUE )
 	for CONFIG in $EXIM_EXTRA_CONFIGS; do
