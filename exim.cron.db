@@ -1,7 +1,7 @@
 #!/bin/sh
 cd /
 
-SPOOLDIR="$(/usr/bin/exim -bP spool_directory | /bin/sed 's/.*=[[:space:]]\(.*\)/\1/')"
+SPOOLDIR="$(/usr/bin/exim -bP spool_directory 2> /dev/null | /bin/sed 's/.*=[[:space:]]\(.*\)/\1/')"
 
 [ ! -d "$SPOOLDIR" ] && echo "Spooldir [$SPOOLDIR] is not a directory" && exit 1
 
