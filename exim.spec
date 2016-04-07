@@ -10,6 +10,8 @@
 %bcond_without	srs	# without srs support
 %bcond_without	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
+# opendmarc.spec not ready, so off by default
+%bcond_with	dmarc	# DMARC support
 
 %if "%{pld_release}" == "ac"
 # hiredis build segfaults on ac-alpha
@@ -20,15 +22,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.86.2
-Release:	2
+Version:	4.87
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	1443a4a88d6b78ad9b6a681c51437b55
+# Source0-md5:	2effc2bd47ad2dc010f655c11a1b1173
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	b8766a100c4f5a9c7bd11e88fab6c80b
+# Source1-md5:	f6ee36fd8d024912c053d113970938f5
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -45,7 +47,7 @@ Source14:	ftp://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
-# git log -p exim-4_86..exim-4_86+fixes --reverse -- . ":(exclude)doc/doc-*" ":(exclude)test" ":(exclude).*" > exim-git.patch
+# git log -p exim-4_87..exim-4_87+fixes --reverse -- . ":(exclude)doc/doc-*" ":(exclude)test" ":(exclude).*" > exim-git.patch
 Patch100:	%{name}-git.patch
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
@@ -54,15 +56,16 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		exim-dkim.patch
+
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		%{name}-callout-address.patch
+
 Patch10:	%{name}-force-sigalrm.patch
 
 Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
+%{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_hiredis:BuildRequires:	hiredis-devel}
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
@@ -168,7 +171,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-%patch100 -p2
+#%patch100 -p2
 
 %patch0 -p1
 %patch1 -p1
@@ -176,10 +179,9 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
 
 %patch8 -p1
-%patch9 -p2
+
 %patch10 -p1
 
 install %{SOURCE4} exim4.conf
@@ -197,8 +199,12 @@ X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
-EXPERIMENTAL_EVENT=yes
-EXPERIMENTAL_PROXY=yes
+EXPERIMENTAL_DSN_INFO=yes
+SUPPORT_PROXY=yes
+%if %{with dmarc}
+EXPERIMENTAL_DMARC=yes
+LOOKUP_LIBS+=-lopendmarc
+%endif
 %if %{with spf}
 EXPERIMENTAL_SPF=yes
 LOOKUP_LIBS+=-lspf2
@@ -208,7 +214,7 @@ EXPERIMENTAL_SRS=yes
 LOOKUP_LIBS+=-lsrs_alt
 %endif
 %if %{with hiredis}
-EXPERIMENTAL_REDIS=yes
+LOOKUP_REDIS=yes
 LOOKUP_LIBS+=-lhiredis
 %endif
 %if %{with mysql}
