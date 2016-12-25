@@ -12,6 +12,7 @@
 %bcond_without	hiredis # without redis
 # opendmarc.spec not ready, so off by default
 %bcond_with	dmarc	# DMARC support
+%bcond_without	lmdb	# LMDB support
 
 %if "%{pld_release}" == "ac"
 # hiredis build segfaults on ac-alpha
@@ -22,15 +23,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.87
-Release:	3
+Version:	4.88
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	2effc2bd47ad2dc010f655c11a1b1173
+# Source0-md5:	4cc10c910fd18bb9e299e98bc0a32ed2
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	f6ee36fd8d024912c053d113970938f5
+# Source1-md5:	8c428933dd52ab8bf12f21c22083d5a3
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -67,8 +68,10 @@ URL:		http://www.exim.org/
 BuildRequires:	db-devel
 %{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_hiredis:BuildRequires:	hiredis-devel}
+BuildRequires:	libidn-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
+%{?with_lmdb:BuildRequires:	lmdb-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.3.0}
 BuildRequires:	openssl-devel >= 0.9.7d
@@ -200,6 +203,9 @@ EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
+EXPERIMENTAL_QUEUEFILE=yes
+SUPPORT_I18N=yes
+LDFLAGS+= -lidn
 SUPPORT_PROXY=yes
 %if %{with dmarc}
 EXPERIMENTAL_DMARC=yes
@@ -260,6 +266,10 @@ LDAP_LIB_TYPE=OPENLDAP2
 LOOKUP_LDAP_LIBS=-lldap -llber
 # for static
 LOOKUP_LIBS+=-lldap -llber
+%endif
+%if %{with lmdb}
+EXPERIMENTAL_LMDB=yes
+LOOKUP_LIBS+=-llmdb
 %endif
 EOF
 

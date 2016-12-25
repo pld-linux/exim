@@ -79,23 +79,15 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  # LOOKUP_PGSQL=yes
  # LOOKUP_SQLITE=yes
  # LOOKUP_WHOSON=yes
-@@ -330,14 +331,14 @@
+@@ -391,7 +391,7 @@ EXIM_MONITOR=eximon.bin
  # and the MIME ACL. Please read the documentation to learn more about these
  # features.
  
 -# WITH_CONTENT_SCAN=yes
 +WITH_CONTENT_SCAN=yes
  
- # If you want to use the deprecated "demime" condition in the DATA ACL,
- # uncomment the line below. Doing so will also explicitly turn on the
- # WITH_CONTENT_SCAN option. If possible, use the MIME ACL instead of
- # the "demime" condition.
- 
--# WITH_OLD_DEMIME=yes
-+WITH_OLD_DEMIME=yes
- 
  #------------------------------------------------------------------------------
- # Compiling Exim with experimental features. These are documented in
+ # If you're using ClamAV and are backporting fixes to an old version, instead
 @@ -629,15 +630,15 @@ FIXED_NEVER_USERS=root
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
