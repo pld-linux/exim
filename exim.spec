@@ -23,15 +23,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.88
+Version:	4.89
 Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	4cc10c910fd18bb9e299e98bc0a32ed2
+# Source0-md5:	ef78f2f669e429988c61d2dfb5a340b9
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	8c428933dd52ab8bf12f21c22083d5a3
+# Source1-md5:	47382a69ca8beb441b8d017dffa00942
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -69,6 +69,7 @@ BuildRequires:	db-devel
 %{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_hiredis:BuildRequires:	hiredis-devel}
 BuildRequires:	libidn-devel
+BuildRequires:	libidn2-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_lmdb:BuildRequires:	lmdb-devel}
@@ -205,7 +206,8 @@ EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
 EXPERIMENTAL_QUEUEFILE=yes
 SUPPORT_I18N=yes
-LDFLAGS+= -lidn
+SUPPORT_I18N_2008=yes
+LDFLAGS+= -lidn -lidn2
 SUPPORT_PROXY=yes
 %if %{with dmarc}
 EXPERIMENTAL_DMARC=yes

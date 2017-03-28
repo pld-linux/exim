@@ -101,13 +101,13 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  # AUTH_GSASL_PC=libgsasl
  # AUTH_HEIMDAL_GSSAPI=yes
  # AUTH_HEIMDAL_GSSAPI_PC=heimdal-gssapi
+ # AUTH_HEIMDAL_GSSAPI_PC=heimdal-gssapi heimdal-krb5
 -# AUTH_PLAINTEXT=yes
 -# AUTH_SPA=yes
 -# AUTH_TLS=yes
 +AUTH_PLAINTEXT=yes
 +AUTH_SPA=yes
 +AUTH_TLS=yes
- 
  
 @@ -610,7 +611,7 @@
  # one that is set in the headers_charset option. The default setting is
