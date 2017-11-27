@@ -71,6 +71,7 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
  # LOOKUP_IBASE=yes
  # LOOKUP_LDAP=yes
  # LOOKUP_MYSQL=yes
+ # LOOKUP_MYSQL_PC=mariadb
  # LOOKUP_NIS=yes
  # LOOKUP_NISPLUS=yes
  # LOOKUP_ORACLE=yes
@@ -78,7 +79,6 @@ diff -urN exim-4.64.org/src/EDITME exim-4.64/src/EDITME
 +LOOKUP_PASSWD=yes
  # LOOKUP_PGSQL=yes
  # LOOKUP_SQLITE=yes
- # LOOKUP_WHOSON=yes
 @@ -391,7 +391,7 @@ EXIM_MONITOR=eximon.bin
  # and the MIME ACL. Please read the documentation to learn more about these
  # features.
