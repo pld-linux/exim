@@ -1,11 +1,12 @@
 --- exim-4.86/src/spam.c~	2015-07-23 23:20:37.000000000 +0200
 +++ exim-4.86/src/spam.c	2015-07-29 10:41:57.918864020 +0200
 @@ -344,7 +344,7 @@ start = time(NULL);
- 
      for (;;)
        {
+       /*XXX could potentially use TFO early-data here */
 -      if (  (spamd_sock = ip_streamsocket(sd->hostspec, &errstr, 5)) >= 0
 +      if (  (spamd_sock = ip_streamsocket(sd->hostspec, &errstr, 15)) >= 0
           || sd->retry <= 0
  	 )
  	break;
+
