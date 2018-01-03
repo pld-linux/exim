@@ -19,12 +19,13 @@
 %undefine	with_hiredis
 %endif
 
+%include	/usr/lib/rpm/macros.perl
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.90
-Release:	4
+Release:	5
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -83,6 +84,7 @@ BuildRequires:	perl-devel >= 1:5.6.0
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	readline-devel
 BuildRequires:	rpm >= 4.4.9-56
+BuildRequires:	rpm-perlprov >= 4.1-13
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_sqlite:BuildRequires:	sqlite3-devel}
 %{?with_whoson:BuildRequires:	whoson-devel}
