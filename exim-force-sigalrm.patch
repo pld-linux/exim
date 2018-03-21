@@ -42,7 +42,7 @@
 +    if ((queue_interval > 0) && (time_diff > (2*queue_interval)))
 +      {
 +        sigalrm_seen = TRUE;
-+        log_write(0, LOG_MAIN|LOG_PANIC, "daemon: queue-runner not run for %lds. Forcing. Is SIGALRM delivery broken on this system ?", time_diff);
++        log_write(0, LOG_MAIN|LOG_PANIC, "daemon: queue-runner not run for %ds. Forcing. Is SIGALRM delivery broken on this system ?", time_diff);
 +      }
      }
  
