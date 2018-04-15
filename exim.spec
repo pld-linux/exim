@@ -203,6 +203,7 @@ LOOKUP_CDB=yes
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
+EXPERIMENTAL_ARC=yes
 EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
@@ -217,7 +218,7 @@ EXPERIMENTAL_DMARC=yes
 LOOKUP_LIBS+=-lopendmarc
 %endif
 %if %{with spf}
-EXPERIMENTAL_SPF=yes
+SUPPORT_SPF=yes
 LOOKUP_LIBS+=-lspf2
 %endif
 %if %{with srs}
