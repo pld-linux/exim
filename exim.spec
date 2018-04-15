@@ -25,7 +25,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.91
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -204,11 +204,11 @@ XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
 EXPERIMENTAL_ARC=yes
-EXPERIMENTAL_DANE=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
 EXPERIMENTAL_QUEUEFILE=yes
+SUPPORT_DANE=yes
 SUPPORT_I18N=yes
 SUPPORT_I18N_2008=yes
 LDFLAGS+= -lidn -lidn2
