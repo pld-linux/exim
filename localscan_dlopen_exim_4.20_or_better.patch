@@ -74,7 +74,7 @@ diff -urN exim-4.14-0/src/globals.h exim-4.14-1/src/globals.h
 diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
 --- exim-4.14-0/src/local_scan.c	Tue Mar 11 04:20:20 2003
 +++ exim-4.14-1/src/local_scan.c	Sun Mar 23 15:34:15 2003
-@@ -5,60 +5,131 @@
+@@ -5,61 +5,131 @@
  /* Copyright (c) University of Cambridge 1995 - 2003 */
  /* See the file NOTICE for conditions of use and distribution. */
  
@@ -86,6 +86,7 @@ diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
 -Local/local_scan.c, and edit the copy. To use your version instead of the
 -default, you must set
 -
+-HAVE_LOCAL_SCAN=yes
 -LOCAL_SCAN_SOURCE=Local/local_scan.c
 -
 -in your Local/Makefile. This makes it easy to copy your version for use with

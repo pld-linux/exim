@@ -25,7 +25,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.91
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
@@ -51,7 +51,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	abd612ef67d49fdfffe8c63da1ba39fb
+# Patch100-md5:	a3758d59413ab02d5025c63d84ed6189
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -61,8 +61,6 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
 
 Patch8:		%{name}-spam-timeout.patch
-
-Patch10:	%{name}-force-sigalrm.patch
 
 Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
@@ -178,7 +176,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-#%patch100 -p2
+%patch100 -p2
 
 %patch0 -p1
 %patch1 -p1
@@ -188,8 +186,6 @@ Pliki nagłówkowe dla Exima.
 %patch5 -p1
 
 %patch8 -p1
-
-%patch10 -p1
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
