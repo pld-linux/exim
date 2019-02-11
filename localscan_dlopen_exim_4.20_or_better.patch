@@ -264,6 +264,6 @@ diff -urN exim-4.14-0/src/readconf.c exim-4.14-1/src/readconf.c
 +#ifdef DLOPEN_LOCAL_SCAN
 +  { "local_scan_path",          opt_stringptr,   &local_scan_path },
 +#endif
+ #ifdef HAVE_LOCAL_SCAN
    { "local_scan_timeout",       opt_time,        &local_scan_timeout },
-   { "local_sender_retain",      opt_bool,        &local_sender_retain },
-   { "localhost_number",         opt_stringptr,   &host_number_string },
+ #endif

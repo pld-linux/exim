@@ -24,15 +24,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.91
-Release:	19
+Version:	4.92
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	e4db1e9013227539acfd662c3cf816d9
+# Source0-md5:	c2c34e7e0c3956d2b93c458106c9dc22
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	587e1e9018b593f5c0a19a8205235db9
+# Source1-md5:	ab60afdcf56f28e85d74f299ffc12cf7
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -176,7 +176,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-%patch100 -p2
+#%patch100 -p2
 
 %patch0 -p1
 %patch1 -p1
@@ -361,7 +361,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
-%doc exim-html-*/doc/html
+%doc exim-html-*/exim-html-*/doc/html
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
