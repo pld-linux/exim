@@ -17,6 +17,8 @@
 
 QUEUE=1h
 
+EXIM_CONFIG=/etc/mail/exim.conf
+
 # Source exim configureation.
 if [ -f /etc/sysconfig/exim ]; then
 	. /etc/sysconfig/exim
@@ -37,7 +39,7 @@ checkconfig() {
 
 	RETVAL=0
 	if [ $details = 1 ]; then
-		for CONFIG in /etc/mail/exim.conf $EXIM_EXTRA_CONFIGS; do
+		for CONFIG in "$EXIM_CONFIG" $EXIM_EXTRA_CONFIGS; do
 			run_cmd "Checking exim configuration ($CONFIG)" exim -bV -C $CONFIG
 			ret=$?
 			if [ $ret != 0 ]; then
@@ -45,8 +47,8 @@ checkconfig() {
 			fi
 		done
 	else
-		for CONFIG in /etc/mail/exim.conf $EXIM_EXTRA_CONFIGS; do
-			exim -bV -C $CONFIG > /dev/null 2>&1
+		for CONFIG in "$EXIM_CONFIG" $EXIM_EXTRA_CONFIGS; do
+			exim -bV -C "$CONFIG" > /dev/null 2>&1
 			ret=$?
 			if [ $ret != 0 ]; then
 				show "Checking %s configuration (%s)" "exim" "$CONFIG"; fail
@@ -71,7 +73,8 @@ start() {
 	daemon /usr/bin/exim \
 		-oP /var/spool/exim/exim-daemon.pid \
 		$( is_yes "$ALLOW_TCP_CONNECTIONS" && echo -bd ) \
-		$( [ -n "$QUEUE" ] && echo -q$QUEUE )
+		$( [ -n "$QUEUE" ] && echo -q$QUEUE ) \
+		-C "$EXIM_CONFIG"
 	for CONFIG in $EXIM_EXTRA_CONFIGS; do
 			msg_starting "Exim ($CONFIG)"
 			daemon exim \
