@@ -24,15 +24,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.92.3
-Release:	4
+Version:	4.93
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	c9c72bfcaa391bca3da5441af58e8858
+# Source0-md5:	d8a9342b2c0f2275717ba1f9fafbc3aa
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	b084f88d9d1d346f21c38a36d7b16251
+# Source1-md5:	1985746cb7fbe8141c9f4b7fc6adece3
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -51,7 +51,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	722a9915d1a0c59953fd68c55030487b
+# Patch100-md5:	3c82284c70beeaf89becc1157d7cd100
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -59,8 +59,7 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		exim-bug-1891.patch
-Patch7:		dsn-references.patch
+
 Patch8:		%{name}-spam-timeout.patch
 
 Patch20:	%{name}4-disableSSLv3.patch
@@ -177,16 +176,14 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-%patch100 -p2
-
+#%patch100 -p2
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
-%patch7 -p2
+
 %patch8 -p1
 
 install %{SOURCE4} exim4.conf
@@ -212,7 +209,7 @@ SUPPORT_I18N_2008=yes
 LDFLAGS+= -lidn -lidn2
 SUPPORT_PROXY=yes
 %if %{with dmarc}
-EXPERIMENTAL_DMARC=yes
+SUPPORT_DMARC=yes
 LOOKUP_LIBS+=-lopendmarc
 %endif
 %if %{with spf}
@@ -275,6 +272,7 @@ LOOKUP_LIBS+=-lldap -llber
 EXPERIMENTAL_LMDB=yes
 LOOKUP_LIBS+=-llmdb
 %endif
+DLOPEN_LOCAL_SCAN=yes
 EOF
 
 # have to be after Local/Makefile-Linux creation

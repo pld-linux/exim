@@ -1,24 +1,22 @@
-The initial version of this patch was originally posted David Woodhouse, and
-dman gets the credit for first integrating it with SA-Exim.
+Description: Allow one to use and switch between different local_scan functions
+ without recompiling exim.
+ http://marc.merlins.org/linux/exim/files/sa-exim-current/ Original patch from
+ David Woodhouse, modified first by Derrick 'dman' Hudson and then by Marc
+ MERLIN for SA-Exim and minor/major API version tracking
+Author: David Woodhouse, Derrick 'dman' Hudson, Marc MERLIN
+Origin: other, http://marc.merlins.org/linux/exim/files/sa-exim-current/
+Forwarded: no
+Last-Update: 2019-10-20
 
-I have since then maintained it by first making a few minor changes, and
-later switching it to a major/minor number scheme to support upgrades in
-the exim API that don't affect backward compatibility (you can rely on
-a feature denoted by the minor number and be compatible with future versions
-of exim until Philip has to break the API and increase the major number)
-
-Marc MERLIN <marc_soft@merlins.org>
-
-diff -urN exim-4.14-0/src/EDITME exim-4.14-1/src/EDITME
---- exim-4.14-0/src/EDITME	Tue Mar 11 04:20:18 2003
-+++ exim-4.14-1/src/EDITME	Sun Mar 23 15:34:15 2003
-@@ -388,6 +388,20 @@
+--- a/src/EDITME
++++ b/src/EDITME
+@@ -868,6 +868,21 @@ HEADERS_CHARSET="ISO-8859-1"
  
  
  #------------------------------------------------------------------------------
 +# On systems which support dynamic loading of shared libraries, Exim can
 +# load a local_scan function specified in its config file instead of having
-+# to be recompiled with the desired local_scan function. For a full 
++# to be recompiled with the desired local_scan function. For a full
 +# description of the API to this function, see the Exim specification.
 +
 +DLOPEN_LOCAL_SCAN=yes
@@ -27,58 +25,54 @@ diff -urN exim-4.14-0/src/EDITME exim-4.14-1/src/EDITME
 +# linker flags.  Without it, the loaded .so won't be able to access any
 +# functions from exim.
 +
-+LFLAGS=-rdynamic -ldl
++LDFLAGS += -rdynamic
++CFLAGS += -fvisibility=hidden
 +
 +#------------------------------------------------------------------------------
  # The default distribution of Exim contains only the plain text form of the
  # documentation. Other forms are available separately. If you want to install
  # the documentation in "info" format, first fetch the Texinfo documentation
-diff -urNad 50_localscan_dlopen.tmp/src/config.h.defaults 50_localscan_dlopen/src/config.h.defaults
---- 50_localscan_dlopen.tmp/src/config.h.defaults      Sun Dec 29 11:55:42 2002
-+++ 50_localscan_dlopen/src/config.h.defaults  Sun Dec 29 11:56:44 2002
-@@ -17,6 +17,8 @@
- #define AUTH_PLAINTEXT
- #define AUTH_SPA
+--- a/src/config.h.defaults
++++ b/src/config.h.defaults
+@@ -33,6 +33,8 @@ Do not put spaces between # and the 'def
+ 
+ #define AUTH_VARS                     3
  
 +#define DLOPEN_LOCAL_SCAN
 +
  #define BIN_DIRECTORY
  
  #define CONFIGURE_FILE
-diff -urN exim-4.14-0/src/globals.c exim-4.14-1/src/globals.c
---- exim-4.14-0/src/globals.c	Tue Mar 11 04:20:20 2003
-+++ exim-4.14-1/src/globals.c	Sun Mar 23 15:34:15 2003
-@@ -103,6 +103,9 @@
- uschar *tls_verify_hosts       = NULL;
- #endif
+--- a/src/globals.c
++++ b/src/globals.c
+@@ -115,6 +115,10 @@ int     dsn_ret                = 0;
+ const pcre  *regex_DSN         = NULL;
+ uschar *dsn_advertise_hosts    = NULL;
  
 +#ifdef DLOPEN_LOCAL_SCAN
 +uschar *local_scan_path        = NULL;
 +#endif
- 
- /* Input-reading functions for messages, so we can use special ones for
- incoming TCP/IP. The defaults use stdin. We never need these for any
-diff -urN exim-4.14-0/src/globals.h exim-4.14-1/src/globals.h
---- exim-4.14-0/src/globals.h	Tue Mar 11 04:20:20 2003
-+++ exim-4.14-1/src/globals.h	Sun Mar 23 15:34:15 2003
-@@ -67,6 +67,9 @@
- extern uschar *tls_verify_hosts;       /* Mandatory client verification */
- #endif
++
+ #ifndef DISABLE_TLS
+ BOOL    gnutls_compat_mode     = FALSE;
+ BOOL    gnutls_allow_auto_pkcs11 = FALSE;
+--- a/src/globals.h
++++ b/src/globals.h
+@@ -144,6 +144,9 @@ extern int      dsn_ret;               /
+ extern const pcre  *regex_DSN;         /* For recognizing DSN settings */
+ extern uschar  *dsn_advertise_hosts;   /* host for which TLS is advertised */
  
 +#ifdef DLOPEN_LOCAL_SCAN
 +extern uschar *local_scan_path;        /* Path to local_scan() library */
 +#endif
- 
  /* Input-reading functions for messages, so we can use special ones for
  incoming TCP/IP. */
-diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
---- exim-4.14-0/src/local_scan.c	Tue Mar 11 04:20:20 2003
-+++ exim-4.14-1/src/local_scan.c	Sun Mar 23 15:34:15 2003
-@@ -5,61 +5,131 @@
- /* Copyright (c) University of Cambridge 1995 - 2003 */
+ 
+--- a/src/local_scan.c
++++ b/src/local_scan.c
+@@ -6,22 +6,6 @@
  /* See the file NOTICE for conditions of use and distribution. */
  
-+#include "exim.h"
  
 -/******************************************************************************
 -This file contains a template local_scan() function that just returns ACCEPT.
@@ -96,13 +90,13 @@ diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
 -******************************************************************************/
 -
 -
--/* This is the only Exim header that you should include. The effect of
--including any other Exim header is not defined, and may change from release to
--release. Use only the documented interface! */
--
--#include "local_scan.h"
--
--
+ /* This is the only Exim header that you should include. The effect of
+ including any other Exim header is not defined, and may change from release to
+ release. Use only the documented interface! */
+@@ -29,37 +13,129 @@ release. Use only the documented interfa
+ #include "local_scan.h"
+ 
+ 
 -/* This is a "do-nothing" version of a local_scan() function. The arguments
 -are:
 -
@@ -169,8 +163,8 @@ diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
 +else
 +#endif
 +  return LOCAL_SCAN_ACCEPT;
-+}
-+
+ }
+ 
 +#ifdef DLOPEN_LOCAL_SCAN
 +
 +static int load_local_scan_library(void)
@@ -244,20 +238,46 @@ diff -urN exim-4.14-0/src/local_scan.c exim-4.14-1/src/local_scan.c
 +  {
 +  dlclose(local_scan_lib);
 +  log_write(0, LOG_MAIN|LOG_REJECT, "local_scan() library doesn't contain "
-+    "local_scan() function - message temporarily rejected");      
++    "local_scan() function - message temporarily rejected");
 +  return FALSE;
 +  }
-+
 +return TRUE;
- }
++}
 +
 +#endif /* DLOPEN_LOCAL_SCAN */
- 
++
++
  /* End of local_scan.c */
-diff -urN exim-4.14-0/src/readconf.c exim-4.14-1/src/readconf.c
---- exim-4.14-0/src/readconf.c	Tue Mar 11 04:20:22 2003
-+++ exim-4.14-1/src/readconf.c	Sun Mar 23 15:34:15 2003
-@@ -182,6 +182,9 @@
+--- a/src/local_scan.h
++++ b/src/local_scan.h
+@@ -17,6 +17,7 @@ settings, and the store functions. */
+ 
+ #include <stdarg.h>
+ #include <sys/types.h>
++#pragma GCC visibility push(default)
+ #include "config.h"
+ #include "mytypes.h"
+ #include "store.h"
+@@ -149,6 +150,9 @@ extern header_line *header_list;       /
+ extern BOOL    host_checking;          /* Set when checking a host */
+ extern uschar *interface_address;      /* Interface for incoming call */
+ extern int     interface_port;         /* Port number for incoming call */
++#ifdef DLOPEN_LOCAL_SCAN
++extern uschar *local_scan_path;
++#endif
+ extern uschar *message_id;             /* Internal id of message being handled */
+ extern uschar *received_protocol;      /* Name of incoming protocol */
+ extern int     recipients_count;       /* Number of recipients */
+@@ -207,4 +211,6 @@ extern uschar * string_copyn_function(co
+ extern uschar * string_copy_taint_function(const uschar *, BOOL tainted);
+ #endif
+ 
++#pragma GCC visibility pop
++
+ /* End of local_scan.h */
+--- a/src/readconf.c
++++ b/src/readconf.c
+@@ -203,6 +203,9 @@ static optionlist optionlist_config[] =
    { "local_from_prefix",        opt_stringptr,   &local_from_prefix },
    { "local_from_suffix",        opt_stringptr,   &local_from_suffix },
    { "local_interfaces",         opt_stringptr,   &local_interfaces },
@@ -267,3 +287,21 @@ diff -urN exim-4.14-0/src/readconf.c exim-4.14-1/src/readconf.c
  #ifdef HAVE_LOCAL_SCAN
    { "local_scan_timeout",       opt_time,        &local_scan_timeout },
  #endif
+--- a/src/string.c
++++ b/src/string.c
+@@ -413,6 +413,7 @@ return ss;
+ 
+ #if (defined(HAVE_LOCAL_SCAN) || defined(EXPAND_DLFUNC)) \
+ 	&& !defined(MACRO_PREDEF) && !defined(COMPILE_UTILITY)
++#pragma GCC visibility push(default)
+ /*************************************************
+ *            Copy and save string                *
+ *************************************************/
+@@ -465,6 +466,7 @@ Ustrncpy(ss, s, n);
+ ss[n] = 0;
+ return ss;
+ }
++#pragma GCC visibility pop
+ #endif
+ 
+ 
