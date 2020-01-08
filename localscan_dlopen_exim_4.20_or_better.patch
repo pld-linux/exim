@@ -93,7 +93,7 @@ Last-Update: 2019-10-20
  /* This is the only Exim header that you should include. The effect of
  including any other Exim header is not defined, and may change from release to
  release. Use only the documented interface! */
-@@ -29,37 +13,129 @@ release. Use only the documented interfa
+@@ -29,37 +13,130 @@ release. Use only the documented interfa
  #include "local_scan.h"
  
  
@@ -123,6 +123,7 @@ Last-Update: 2019-10-20
 -*/
 +#ifdef DLOPEN_LOCAL_SCAN
 +#include <dlfcn.h>
++#include <stdlib.h>
 +static int (*local_scan_fn)(int fd, uschar **return_text) = NULL;
 +static int load_local_scan_library(void);
 +#endif
@@ -305,3 +306,4 @@ Last-Update: 2019-10-20
  #endif
  
  
+

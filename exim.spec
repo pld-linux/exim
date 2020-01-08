@@ -8,7 +8,7 @@
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
 %bcond_without	srs	# without srs support
-%bcond_without	dynamic # dynamic modules
+%bcond_with	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
 # opendmarc.spec not ready, so off by default
 %bcond_with	dmarc	# DMARC support
@@ -25,7 +25,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.93
-Release:	7
+Release:	8
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
