@@ -19,7 +19,6 @@
 %undefine	with_hiredis
 %endif
 
-%include	/usr/lib/rpm/macros.perl
 Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
