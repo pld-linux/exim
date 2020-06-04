@@ -2,8 +2,8 @@
 set -e
 url=git://git.exim.org/exim.git
 package=exim
-tag=exim-4.93
-branch=exim-4.93+fixes
+tag=exim-4.94
+branch=exim-4.94+fixes
 out=$package-git.patch
 repo=$package.git
 

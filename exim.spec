@@ -23,15 +23,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.93
-Release:	21
+Version:	4.94
+Release:	1
 Epoch:		2
 License:	GPL
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	d8a9342b2c0f2275717ba1f9fafbc3aa
+# Source0-md5:	5773e8a0379bd621d57bc66c36ffff17
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	1985746cb7fbe8141c9f4b7fc6adece3
+# Source1-md5:	e840b2f90c08bdaa8c7a356c5cab79dd
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -50,7 +50,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	d4accdf0befbdde28ddec7dad4365f27
+# Patch100-md5:	551720b919d7bc3b21be4c51972444d8
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -58,7 +58,6 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		zstd.patch
 
 Patch8:		%{name}-spam-timeout.patch
 
@@ -183,7 +182,6 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
 
 %patch8 -p1
 
@@ -204,6 +202,7 @@ EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
 EXPERIMENTAL_QUEUEFILE=yes
+EXPERIMENTAL_QUEUE_RAMP=yes
 SUPPORT_DANE=yes
 SUPPORT_I18N=yes
 SUPPORT_I18N_2008=yes

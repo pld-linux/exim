@@ -279,14 +279,14 @@ Last-Update: 2019-10-20
 --- a/src/readconf.c
 +++ b/src/readconf.c
 @@ -203,6 +203,9 @@ static optionlist optionlist_config[] =
-   { "local_from_prefix",        opt_stringptr,   &local_from_prefix },
-   { "local_from_suffix",        opt_stringptr,   &local_from_suffix },
-   { "local_interfaces",         opt_stringptr,   &local_interfaces },
+   { "local_from_prefix",        opt_stringptr,   {&local_from_prefix} },
+   { "local_from_suffix",        opt_stringptr,   {&local_from_suffix} },
+   { "local_interfaces",         opt_stringptr,   {&local_interfaces} },
 +#ifdef DLOPEN_LOCAL_SCAN
-+  { "local_scan_path",          opt_stringptr,   &local_scan_path },
++  { "local_scan_path",          opt_stringptr,   {&local_scan_path} },
 +#endif
  #ifdef HAVE_LOCAL_SCAN
-   { "local_scan_timeout",       opt_time,        &local_scan_timeout },
+   { "local_scan_timeout",       opt_time,        {&local_scan_timeout} },
  #endif
 --- a/src/string.c
 +++ b/src/string.c
