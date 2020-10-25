@@ -26,7 +26,7 @@ Name:		exim
 Version:	4.94
 Release:	10
 Epoch:		2
-License:	GPL
+License:	GPL v2+
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
 # Source0-md5:	5773e8a0379bd621d57bc66c36ffff17
@@ -65,7 +65,6 @@ Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
-%{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_hiredis:BuildRequires:	hiredis-devel}
 BuildRequires:	libidn-devel
 BuildRequires:	libidn2-devel
@@ -73,6 +72,7 @@ BuildRequires:	libidn2-devel
 %{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_lmdb:BuildRequires:	lmdb-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.3.0}
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
@@ -365,14 +365,13 @@ fi
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
+%attr(754,root,root) /etc/cron.daily/exim.cron.db
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
 %attr(754,root,root) /etc/rc.d/init.d/exim
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/exim
 %attr(4755,root,root) %{_bindir}/exim
-%attr(770,root,exim) %dir %{_var}/spool/exim
-%attr(750,exim,exim) %dir %{_var}/spool/exim/db
-%attr(700,exim,root) %dir %{_var}/spool/exim/input
-%attr(750,exim,root) %dir %{_var}/spool/exim/msglog
 %attr(755,root,root) %{_bindir}/exim_*
 %attr(755,root,root) %{_bindir}/exinext
 %attr(755,root,root) %{_bindir}/exiwhat
@@ -391,12 +390,13 @@ fi
 %attr(755,root,root) %{_sbindir}/runq
 %attr(755,root,root) %{_sbindir}/sendmail
 %attr(755,root,root) /usr/lib/sendmail
-%attr(754,root,root) /etc/cron.daily/exim.cron.db
 %attr(750,exim,root) %dir %{_var}/log/exim
 %attr(750,exim,root) %dir %{_var}/log/archive/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/smtp
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/security/blacklist.smtp
+%attr(770,root,exim) %dir %{_var}/spool/exim
+%attr(750,exim,exim) %dir %{_var}/spool/exim/db
+%attr(700,exim,root) %dir %{_var}/spool/exim/input
+%attr(750,exim,root) %dir %{_var}/spool/exim/msglog
 %if %{with dynamic}
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/modules
@@ -405,7 +405,14 @@ fi
 %{?with_sqlite:%attr(755,root,root) %{_libdir}/%{name}/modules/sqlite.so}
 %{?with_whoson:%attr(755,root,root) %{_libdir}/%{name}/modules/whoson.so}
 %endif
-%{_mandir}/man8/*
+%{_mandir}/man8/exicyclog.8*
+%{_mandir}/man8/exigrep.8*
+%{_mandir}/man8/exim.8*
+%{_mandir}/man8/exim_*.8*
+%{_mandir}/man8/eximstats.8*
+%{_mandir}/man8/exinext.8*
+%{_mandir}/man8/exiqsumm.8*
+%{_mandir}/man8/exiwhat.8*
 
 %files X11
 %defattr(644,root,root,755)
@@ -413,6 +420,7 @@ fi
 %attr(755,root,root) %{_bindir}/eximon.bin
 %{_desktopdir}/eximon.desktop
 %{_pixmapsdir}/eximon.png
+%{_mandir}/man8/eximon.8*
 
 %files devel
 %defattr(644,root,root,755)
