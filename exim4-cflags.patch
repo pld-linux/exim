@@ -1,13 +1,11 @@
-diff -urN exim-4.60.org/OS/Makefile-Linux exim-4.60/OS/Makefile-Linux
---- exim-4.60.org/OS/Makefile-Linux	2005-11-28 11:57:32.000000000 +0100
-+++ exim-4.60/OS/Makefile-Linux	2006-02-17 20:17:00.698452750 +0100
-@@ -13,7 +13,7 @@
- CHMOD_COMMAND=look_for_it
- 
+--- exim-4.94.org/OS/Makefile-Linux	2020-05-30 22:35:38.000000000 +0200
++++ exim-4.94/OS/Makefile-Linux	2020-11-27 08:08:51.397823884 +0100
+@@ -16,7 +16,7 @@ CHMOD_COMMAND=look_for_it
+ # The system cc may be gcc or clang; do not force gcc
+ CC=cc
  # Preserve CFLAGS and CFLAGS_DYNAMIC from the caller/environment
 -CFLAGS ?= -O -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 +CFLAGS ?= -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $(CUSTOM_CFLAGS)
  CFLAGS_DYNAMIC ?= -shared -rdynamic
  
  DBMLIB = -ldb
-

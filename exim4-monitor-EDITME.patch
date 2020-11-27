@@ -1,6 +1,5 @@
-diff -urN exim-3.15.orig/exim_monitor/EDITME exim-3.15/exim_monitor/EDITME
---- exim-3.15.orig/exim_monitor/EDITME	Wed Jun 14 09:57:45 2000
-+++ exim-3.15/exim_monitor/EDITME	Sat Jul 15 18:45:44 2000
+--- exim-4.94.org/exim_monitor/EDITME	2020-05-30 22:35:38.000000000 +0200
++++ exim-4.94/exim_monitor/EDITME	2020-11-27 08:07:47.762469263 +0100
 @@ -149,7 +149,7 @@
  # will be displayed as the second stripchart. This can be used to keep
  # a display of a mail spool partition on the screen.
@@ -8,5 +7,5 @@ diff -urN exim-3.15.orig/exim_monitor/EDITME exim-3.15/exim_monitor/EDITME
 -# SIZE_STRIPCHART=/var/mail
 +SIZE_STRIPCHART=/var/spool/exim
  
- # The name of the size stripchar will be the last component of SIZE_STRIPCHART
+ # The name of the size stripchart will be the last component of SIZE_STRIPCHART
  # unless the following variable is set to override it.
