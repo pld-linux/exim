@@ -50,7 +50,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	b66ef47d261dab43db2a23a02936e443
+# Patch100-md5:	54895004038a44750ff6f9a63c15d60a
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
