@@ -28,8 +28,8 @@
  
  # If you specify EXIM_USER as a name, this is looked up at build time, and the
  # uid number is built into the binary. However, you can specify that this
-@@ -211,11 +212,11 @@ SPOOL_DIRECTORY=/var/spool/exim
- # If you are buliding with TLS, the library configuration must be done:
+@@ -211,11 +211,11 @@ SPOOL_DIRECTORY=/var/spool/exim
+ # If you are building with TLS, the library configuration must be done:
  
  # Uncomment this if you are using OpenSSL
 -# USE_OPENSSL=yes

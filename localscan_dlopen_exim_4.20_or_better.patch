@@ -1,19 +1,18 @@
-diff -urN exim-4.94.org/src/config.h.defaults exim-4.94/src/config.h.defaults
---- exim-4.94.org/src/config.h.defaults	2020-05-30 22:35:38.000000000 +0200
-+++ exim-4.94/src/config.h.defaults	2020-11-27 08:10:34.967732017 +0100
-@@ -33,6 +33,8 @@
- 
- #define AUTH_VARS                     3
- 
-+#define DLOPEN_LOCAL_SCAN
-+
- #define BIN_DIRECTORY
- 
- #define CONFIGURE_FILE
-diff -urN exim-4.94.org/src/EDITME exim-4.94/src/EDITME
---- exim-4.94.org/src/EDITME	2020-11-27 08:10:27.727507700 +0100
-+++ exim-4.94/src/EDITME	2020-11-27 08:10:34.967732017 +0100
-@@ -878,6 +878,21 @@
+Description: Allow one to use and switch between different local_scan functions
+ without recompiling exim.
+ http://marc.merlins.org/linux/exim/files/sa-exim-current/ Original patch from
+ David Woodhouse, modified first by Derrick 'dman' Hudson and then by Marc
+ MERLIN for SA-Exim and minor/major API version tracking
+Author: David Woodhouse, Derrick 'dman' Hudson, Marc MERLIN
+Origin: other, http://marc.merlins.org/linux/exim/files/sa-exim-current/
+Forwarded: https://bugs.exim.org/show_bug.cgi?id=2671
+Last-Update: 2021-07-28
+
+--- a/src/EDITME
++++ b/src/EDITME
+@@ -881,10 +881,25 @@
+ # as the traditional crypt() function.
+ # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
  
  
  #------------------------------------------------------------------------------
@@ -35,10 +34,28 @@ diff -urN exim-4.94.org/src/EDITME exim-4.94/src/EDITME
  # The default distribution of Exim contains only the plain text form of the
  # documentation. Other forms are available separately. If you want to install
  # the documentation in "info" format, first fetch the Texinfo documentation
-diff -urN exim-4.94.org/src/globals.c exim-4.94/src/globals.c
---- exim-4.94.org/src/globals.c	2020-11-27 08:10:27.714173954 +0100
-+++ exim-4.94/src/globals.c	2020-11-27 08:10:34.967732017 +0100
-@@ -117,6 +117,10 @@
+ # sources from the ftp directory and unpack them, which should create files
+ # with the extension "texinfo" in the doc directory. You may find that the
+--- a/src/config.h.defaults
++++ b/src/config.h.defaults
+@@ -33,10 +33,12 @@
+ #define AUTH_SPA
+ #define AUTH_TLS
+ 
+ #define AUTH_VARS                     4
+ 
++#define DLOPEN_LOCAL_SCAN
++
+ #define BIN_DIRECTORY
+ 
+ #define CONFIGURE_FILE
+ #define CONFIGURE_FILE_USE_EUID
+ #define CONFIGURE_FILE_USE_NODE
+--- a/src/globals.c
++++ b/src/globals.c
+@@ -119,10 +119,14 @@
+ uschar *dsn_envid              = NULL;
+ int     dsn_ret                = 0;
  const pcre  *regex_DSN         = NULL;
  uschar *dsn_advertise_hosts    = NULL;
  
@@ -49,10 +66,13 @@ diff -urN exim-4.94.org/src/globals.c exim-4.94/src/globals.c
  #ifndef DISABLE_TLS
  BOOL    gnutls_compat_mode     = FALSE;
  BOOL    gnutls_allow_auto_pkcs11 = FALSE;
-diff -urN exim-4.94.org/src/globals.h exim-4.94/src/globals.h
---- exim-4.94.org/src/globals.h	2020-11-27 08:10:27.714173954 +0100
-+++ exim-4.94/src/globals.h	2020-11-27 08:10:34.967732017 +0100
-@@ -148,6 +148,9 @@
+ uschar *hosts_require_alpn     = NULL;
+ uschar *openssl_options        = NULL;
+--- a/src/globals.h
++++ b/src/globals.h
+@@ -154,10 +154,13 @@
+ extern uschar  *dsn_envid;             /* DSN envid string */
+ extern int      dsn_ret;               /* DSN ret type*/
  extern const pcre  *regex_DSN;         /* For recognizing DSN settings */
  extern uschar  *dsn_advertise_hosts;   /* host for which TLS is advertised */
  
@@ -62,10 +82,13 @@ diff -urN exim-4.94.org/src/globals.h exim-4.94/src/globals.h
  /* Input-reading functions for messages, so we can use special ones for
  incoming TCP/IP. */
  
-diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
---- exim-4.94.org/src/local_scan.c	2020-05-30 22:35:38.000000000 +0200
-+++ exim-4.94/src/local_scan.c	2020-11-27 08:10:34.967732017 +0100
-@@ -6,22 +6,6 @@
+ extern int (*lwr_receive_getc)(unsigned);
+ extern uschar * (*lwr_receive_getbuf)(unsigned *);
+--- a/src/local_scan.c
++++ b/src/local_scan.c
+@@ -4,60 +4,135 @@
+ 
+ /* Copyright (c) University of Cambridge 1995 - 2009 */
  /* See the file NOTICE for conditions of use and distribution. */
  
  
@@ -88,10 +111,10 @@ diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
  /* This is the only Exim header that you should include. The effect of
  including any other Exim header is not defined, and may change from release to
  release. Use only the documented interface! */
-@@ -29,37 +13,130 @@
+ 
  #include "local_scan.h"
  
- 
+-
 -/* This is a "do-nothing" version of a local_scan() function. The arguments
 -are:
 -
@@ -118,7 +141,6 @@ diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
 -*/
 +#ifdef DLOPEN_LOCAL_SCAN
 +#include <dlfcn.h>
-+#include <stdlib.h>
 +static int (*local_scan_fn)(int fd, uschar **return_text) = NULL;
 +static int load_local_scan_library(void);
 +#endif
@@ -126,9 +148,8 @@ diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
  int
  local_scan(int fd, uschar **return_text)
  {
- fd = fd;                      /* Keep picky compilers happy */
- return_text = return_text;
 -return LOCAL_SCAN_ACCEPT;
++
 +#ifdef DLOPEN_LOCAL_SCAN
 +/* local_scan_path is defined AND not the empty string */
 +if (local_scan_path && *local_scan_path)
@@ -159,8 +180,8 @@ diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
 +else
 +#endif
 +  return LOCAL_SCAN_ACCEPT;
- }
- 
++}
++
 +#ifdef DLOPEN_LOCAL_SCAN
 +
 +static int load_local_scan_library(void)
@@ -238,16 +259,16 @@ diff -urN exim-4.94.org/src/local_scan.c exim-4.94/src/local_scan.c
 +  return FALSE;
 +  }
 +return TRUE;
-+}
-+
+ }
+ 
 +#endif /* DLOPEN_LOCAL_SCAN */
 +
-+
  /* End of local_scan.c */
-diff -urN exim-4.94.org/src/local_scan.h exim-4.94/src/local_scan.h
---- exim-4.94.org/src/local_scan.h	2020-05-30 22:35:38.000000000 +0200
-+++ exim-4.94/src/local_scan.h	2020-11-27 08:10:34.967732017 +0100
-@@ -27,6 +27,7 @@
+--- a/src/local_scan.h
++++ b/src/local_scan.h
+@@ -25,10 +25,11 @@
+ /* Some basic types that make some things easier, the Exim configuration
+ settings, and the store functions. */
  
  #include <stdarg.h>
  #include <sys/types.h>
@@ -255,7 +276,11 @@ diff -urN exim-4.94.org/src/local_scan.h exim-4.94/src/local_scan.h
  #include "config.h"
  #include "mytypes.h"
  #include "store.h"
-@@ -166,6 +167,9 @@
+ 
+ 
+@@ -164,10 +165,13 @@
+ extern header_line *header_last;       /* Final header */
+ extern header_line *header_list;       /* First header */
  extern BOOL    host_checking;          /* Set when checking a host */
  extern uschar *interface_address;      /* Interface for incoming call */
  extern int     interface_port;         /* Port number for incoming call */
@@ -265,30 +290,38 @@ diff -urN exim-4.94.org/src/local_scan.h exim-4.94/src/local_scan.h
  extern uschar *message_id;             /* Internal id of message being handled */
  extern uschar *received_protocol;      /* Name of incoming protocol */
  extern int     recipients_count;       /* Number of recipients */
-@@ -235,4 +239,6 @@
+ extern recipient_item *recipients_list;/* List of recipient addresses */
+ extern unsigned char *sender_address;  /* Sender address */
+@@ -233,6 +237,8 @@
+ extern pid_t    child_open_exim_function(int *, const uschar *);
+ extern pid_t    child_open_exim2_function(int *, uschar *, uschar *, const uschar *);
  extern pid_t    child_open_function(uschar **, uschar **, int, int *, int *, BOOL, const uschar *);
  #endif
  
 +#pragma GCC visibility pop
 +
  /* End of local_scan.h */
-diff -urN exim-4.94.org/src/readconf.c exim-4.94/src/readconf.c
---- exim-4.94.org/src/readconf.c	2020-11-27 08:10:27.704173644 +0100
-+++ exim-4.94/src/readconf.c	2020-11-27 08:10:34.967732017 +0100
-@@ -205,6 +205,9 @@
+--- a/src/readconf.c
++++ b/src/readconf.c
+@@ -213,10 +213,13 @@
+ #endif
+   { "local_from_check",         opt_bool,        {&local_from_check} },
    { "local_from_prefix",        opt_stringptr,   {&local_from_prefix} },
    { "local_from_suffix",        opt_stringptr,   {&local_from_suffix} },
    { "local_interfaces",         opt_stringptr,   {&local_interfaces} },
 +#ifdef DLOPEN_LOCAL_SCAN
-+  { "local_scan_path",          opt_stringptr,   {&local_scan_path} },
++  { "local_scan_path",          opt_stringptr,   &local_scan_path },
 +#endif
  #ifdef HAVE_LOCAL_SCAN
    { "local_scan_timeout",       opt_time,        {&local_scan_timeout} },
  #endif
-diff -urN exim-4.94.org/src/string.c exim-4.94/src/string.c
---- exim-4.94.org/src/string.c	2020-11-27 08:10:27.704173644 +0100
-+++ exim-4.94/src/string.c	2020-11-27 08:10:34.971065453 +0100
-@@ -418,6 +418,7 @@
+   { "local_sender_retain",      opt_bool,        {&local_sender_retain} },
+   { "localhost_number",         opt_stringptr,   {&host_number_string} },
+--- a/src/string.c
++++ b/src/string.c
+@@ -416,10 +416,11 @@
+ 
+ 
  
  #if (defined(HAVE_LOCAL_SCAN) || defined(EXPAND_DLFUNC)) \
  	&& !defined(MACRO_PREDEF) && !defined(COMPILE_UTILITY)
@@ -296,7 +329,11 @@ diff -urN exim-4.94.org/src/string.c exim-4.94/src/string.c
  /*************************************************
  *            Copy and save string                *
  *************************************************/
-@@ -470,6 +471,7 @@
+ 
+ /*
+@@ -468,10 +469,11 @@
+ uschar *ss = store_get(n + 1, is_tainted(s));
+ Ustrncpy(ss, s, n);
  ss[n] = 0;
  return ss;
  }
@@ -304,3 +341,5 @@ diff -urN exim-4.94.org/src/string.c exim-4.94/src/string.c
  #endif
  
  
+ /*************************************************
+ *     Copy and save string in malloc'd store     *
