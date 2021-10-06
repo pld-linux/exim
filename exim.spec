@@ -58,6 +58,7 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
 Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
+Patch6:		ssl.patch
 
 Patch8:		%{name}-spam-timeout.patch
 
@@ -182,6 +183,7 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %patch8 -p1
 
