@@ -86,7 +86,7 @@ Last-Update: 2021-07-28
  extern uschar * (*lwr_receive_getbuf)(unsigned *);
 --- a/src/local_scan.c
 +++ b/src/local_scan.c
-@@ -4,60 +4,135 @@
+@@ -4,60 +4,136 @@
  
  /* Copyright (c) University of Cambridge 1995 - 2009 */
  /* See the file NOTICE for conditions of use and distribution. */
@@ -141,6 +141,7 @@ Last-Update: 2021-07-28
 -*/
 +#ifdef DLOPEN_LOCAL_SCAN
 +#include <dlfcn.h>
++#include <stdlib.h>
 +static int (*local_scan_fn)(int fd, uschar **return_text) = NULL;
 +static int load_local_scan_library(void);
 +#endif
