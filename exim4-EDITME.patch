@@ -112,6 +112,15 @@
  
  # If you have content scanning you may wish to only include some of the scanner
  # interfaces.  Uncomment any of these lines to remove that code.
+@@ -587,7 +587,7 @@ DISABLE_MAL_MKS=yes
+ 
+ # Uncomment the following lines to add SRS (Sender Rewriting Scheme) support
+ # using only native facilities.
+-# SUPPORT_SRS=yes
++SUPPORT_SRS=yes
+ 
+ 
+ #------------------------------------------------------------------------------
 @@ -752,18 +753,18 @@ FIXED_NEVER_USERS=root
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.

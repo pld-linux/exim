@@ -6,11 +6,11 @@ Description: Allow one to use and switch between different local_scan functions
 Author: David Woodhouse, Derrick 'dman' Hudson, Marc MERLIN
 Origin: other, http://marc.merlins.org/linux/exim/files/sa-exim-current/
 Forwarded: https://bugs.exim.org/show_bug.cgi?id=2671
-Last-Update: 2021-07-28
+Last-Update: 2022-04-24
 
 --- a/src/EDITME
 +++ b/src/EDITME
-@@ -881,10 +881,25 @@
+@@ -871,10 +871,25 @@
  # as the traditional crypt() function.
  # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
  
@@ -38,7 +38,7 @@ Last-Update: 2021-07-28
  # with the extension "texinfo" in the doc directory. You may find that the
 --- a/src/config.h.defaults
 +++ b/src/config.h.defaults
-@@ -33,10 +33,12 @@
+@@ -31,10 +31,12 @@
  #define AUTH_SPA
  #define AUTH_TLS
  
@@ -53,10 +53,10 @@ Last-Update: 2021-07-28
  #define CONFIGURE_FILE_USE_NODE
 --- a/src/globals.c
 +++ b/src/globals.c
-@@ -119,10 +119,14 @@
+@@ -115,10 +115,14 @@
  uschar *dsn_envid              = NULL;
  int     dsn_ret                = 0;
- const pcre  *regex_DSN         = NULL;
+ const pcre2_code  *regex_DSN         = NULL;
  uschar *dsn_advertise_hosts    = NULL;
  
 +#ifdef DLOPEN_LOCAL_SCAN
@@ -70,15 +70,16 @@ Last-Update: 2021-07-28
  uschar *openssl_options        = NULL;
 --- a/src/globals.h
 +++ b/src/globals.h
-@@ -154,10 +154,13 @@
+@@ -153,10 +153,14 @@
  extern uschar  *dsn_envid;             /* DSN envid string */
  extern int      dsn_ret;               /* DSN ret type*/
- extern const pcre  *regex_DSN;         /* For recognizing DSN settings */
+ extern const pcre2_code  *regex_DSN;         /* For recognizing DSN settings */
  extern uschar  *dsn_advertise_hosts;   /* host for which TLS is advertised */
  
 +#ifdef DLOPEN_LOCAL_SCAN
 +extern uschar *local_scan_path;        /* Path to local_scan() library */
 +#endif
++
  /* Input-reading functions for messages, so we can use special ones for
  incoming TCP/IP. */
  
@@ -86,9 +87,9 @@ Last-Update: 2021-07-28
  extern uschar * (*lwr_receive_getbuf)(unsigned *);
 --- a/src/local_scan.c
 +++ b/src/local_scan.c
-@@ -4,60 +4,136 @@
- 
+@@ -5,60 +5,135 @@
  /* Copyright (c) University of Cambridge 1995 - 2009 */
+ /* Copyright (c) The Exim Maintainers 2021 */
  /* See the file NOTICE for conditions of use and distribution. */
  
  
@@ -141,7 +142,6 @@ Last-Update: 2021-07-28
 -*/
 +#ifdef DLOPEN_LOCAL_SCAN
 +#include <dlfcn.h>
-+#include <stdlib.h>
 +static int (*local_scan_fn)(int fd, uschar **return_text) = NULL;
 +static int load_local_scan_library(void);
 +#endif
@@ -293,7 +293,7 @@ Last-Update: 2021-07-28
  extern int     recipients_count;       /* Number of recipients */
  extern recipient_item *recipients_list;/* List of recipient addresses */
  extern unsigned char *sender_address;  /* Sender address */
-@@ -233,6 +237,8 @@
+@@ -234,6 +238,8 @@
  extern pid_t    child_open_exim_function(int *, const uschar *);
  extern pid_t    child_open_exim2_function(int *, uschar *, uschar *, const uschar *);
  extern pid_t    child_open_function(uschar **, uschar **, int, int *, int *, BOOL, const uschar *);
@@ -304,7 +304,7 @@ Last-Update: 2021-07-28
  /* End of local_scan.h */
 --- a/src/readconf.c
 +++ b/src/readconf.c
-@@ -213,10 +213,13 @@
+@@ -210,10 +210,13 @@
  #endif
    { "local_from_check",         opt_bool,        {&local_from_check} },
    { "local_from_prefix",        opt_stringptr,   {&local_from_prefix} },
@@ -332,11 +332,11 @@ Last-Update: 2021-07-28
  *************************************************/
  
  /*
-@@ -468,10 +469,11 @@
- uschar *ss = store_get(n + 1, is_tainted(s));
- Ustrncpy(ss, s, n);
- ss[n] = 0;
- return ss;
+@@ -461,10 +462,11 @@
+ uschar *
+ string_copyn_function(const uschar * s, int n)
+ {
+ return string_copyn(s, n);
  }
 +#pragma GCC visibility pop
  #endif

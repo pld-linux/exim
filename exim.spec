@@ -7,7 +7,6 @@
 %bcond_without	sasl	# without SASL
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
-%bcond_without	srs	# without srs support
 %bcond_with	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
 # opendmarc.spec not ready, so off by default
@@ -23,15 +22,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.95
-Release:	4
+Version:	4.96
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
 Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	0c66c53a7c9ebdcfae04f9d25821333d
+# Source0-md5:	e04a7a2a3456facba0b86dcec0ef4865
 Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	ce74af7115255c4184d97829575bf080
+# Source1-md5:	786f30ba262d34dfd47a10387f845d60
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -56,12 +55,11 @@ Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
 Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
-# http://marc.merlins.org/linux/exim/files/sa-exim-cvs/localscan_dlopen_exim_4.20_or_better.patch
-Patch5:		localscan_dlopen_%{name}_4.20_or_better.patch
-Patch6:		ssl.patch
+# dlopen patch from debian
+Patch5:		90_localscan_dlopen.dpatch
+
 Patch7:		linelength-show.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:		seen.patch
 
 Patch20:	%{name}4-disableSSLv3.patch
 URL:		http://www.exim.org/
@@ -71,14 +69,13 @@ BuildRequires:	db-devel
 BuildRequires:	libidn-devel
 BuildRequires:	libidn2-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
-%{?with_srs:BuildRequires:	libsrs_alt-devel >= 1.0}
 %{?with_lmdb:BuildRequires:	lmdb-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_dmarc:BuildRequires:	opendmarc-devel}
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.3.0}
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
-BuildRequires:	pcre-devel
+BuildRequires:	pcre2-8-devel
 BuildRequires:	perl-devel >= 1:5.6.0
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	readline-devel
@@ -184,10 +181,9 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
+
 %patch7 -p1
 %patch8 -p1
-%patch9 -p2
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -218,10 +214,6 @@ LOOKUP_LIBS+=-lopendmarc
 %if %{with spf}
 SUPPORT_SPF=yes
 LOOKUP_LIBS+=-lspf2
-%endif
-%if %{with srs}
-EXPERIMENTAL_SRS_ALT=yes
-LOOKUP_LIBS+=-lsrs_alt
 %endif
 %if %{with hiredis}
 LOOKUP_REDIS=yes
