@@ -7,6 +7,9 @@ branch=exim-4.95+fixes
 out=$package-git.patch
 repo=$package.git
 
+echo "No usable branch on upstream git repository... exiting" >&2
+exit 1
+
 # use filterdiff, etc to exclude bad chunks from diff
 filter() {
 	cat
