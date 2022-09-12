@@ -2,17 +2,16 @@
 set -e
 url=git://git.exim.org/exim.git
 package=exim
-tag=exim-4.95
-branch=exim-4.95+fixes
+tag=exim-4.96
+branch=master
 out=$package-git.patch
 repo=$package.git
 
-echo "No usable branch on upstream git repository... exiting" >&2
-exit 1
-
 # use filterdiff, etc to exclude bad chunks from diff
 filter() {
-	cat
+    filterdiff \
+        -x '*/test/*' \
+        -x '*/doc/*'
 }
 
 if [ ! -d $repo ]; then
@@ -21,7 +20,7 @@ fi
 
 cd $repo
 	git fetch origin +$branch:$branch +refs/tags/$tag:refs/tags/$tag
-	git log -p --reverse $tag..$branch ":(exclude)doc/doc-*" ":(exclude)test" ":(exclude).*" | filter > ../$out.tmp
+	git log -p --reverse --first-parent $tag..$branch ":(exclude)doc/doc-*" ":(exclude)test" ":(exclude).*" | filter > ../$out.tmp
 cd ..
 
 if cmp -s $out{,.tmp}; then
