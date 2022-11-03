@@ -23,7 +23,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.96
-Release:	5
+Release:	6
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -174,7 +174,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-%patch100 -p2
+#%patch100 -p2
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
