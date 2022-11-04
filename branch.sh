@@ -11,7 +11,8 @@ repo=$package.git
 filter() {
     filterdiff \
         -x '*/test/*' \
-        -x '*/doc/*'
+        -x '*/doc/*' \
+        -x '*/release-process/*'
 }
 
 if [ ! -d $repo ]; then
