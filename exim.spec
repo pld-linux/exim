@@ -57,7 +57,8 @@ Patch3:		exim-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # dlopen patch from debian
 Patch5:		90_localscan_dlopen.dpatch
-
+# local fixes for debian patch
+Patch6:         90_localscan_dlopen-fixes.dpatch
 Patch7:		linelength-show.patch
 Patch8:		%{name}-spam-timeout.patch
 
@@ -181,7 +182,7 @@ Pliki nagłówkowe dla Exima.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-
+%patch6 -p1
 %patch7 -p1
 %patch8 -p1
 
