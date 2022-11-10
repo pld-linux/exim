@@ -1,0 +1,26 @@
+diff --git a/src/src/transports/autoreply.c b/src/src/transports/autoreply.c
+index 211e32810..ddf241c7b 100644
+--- a/src/src/transports/autoreply.c
++++ b/src/src/transports/autoreply.c
+@@ -271,6 +271,7 @@ uschar *logfile, *oncelog;
+ uschar *cache_buff = NULL;
+ uschar *cache_time = NULL;
+ uschar *message_id = NULL;
++uschar *ar_return_path = NULL;
+ header_line *h;
+ time_t now = time(NULL);
+ time_t once_repeat_sec = 0;
+@@ -564,8 +565,11 @@ if (file)
+   }
+ 
+ /* Make a subprocess to send the message */
+-
+-if ((pid = child_open_exim(&fd, US"autoreply")) < 0)
++if (tblock->return_path)
++    ar_return_path = expand_string(tblock->return_path);
++if (!ar_return_path)
++    ar_return_path =  US"<>";
++if ((pid = child_open_exim2_function(&fd, ar_return_path, bounce_sender_authentication, US"autoreply")) < 0)
+   {
+   /* Creation of child failed; defer this delivery. */
+ 
