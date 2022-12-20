@@ -6,11 +6,11 @@ Description: Allow one to use and switch between different local_scan functions
 Author: David Woodhouse, Derrick 'dman' Hudson, Marc MERLIN
 Origin: other, http://marc.merlins.org/linux/exim/files/sa-exim-current/
 Forwarded: https://bugs.exim.org/show_bug.cgi?id=2671
-Last-Update: 2022-04-24
+Last-Update: 2022-12-19
 
 --- a/src/EDITME
 +++ b/src/EDITME
-@@ -871,10 +871,25 @@
+@@ -874,10 +874,25 @@ HEADERS_CHARSET="ISO-8859-1"
  # as the traditional crypt() function.
  # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
  
@@ -38,7 +38,7 @@ Last-Update: 2022-04-24
  # with the extension "texinfo" in the doc directory. You may find that the
 --- a/src/config.h.defaults
 +++ b/src/config.h.defaults
-@@ -31,10 +31,12 @@
+@@ -31,10 +31,12 @@ Do not put spaces between # and the 'def
  #define AUTH_SPA
  #define AUTH_TLS
  
@@ -53,7 +53,7 @@ Last-Update: 2022-04-24
  #define CONFIGURE_FILE_USE_NODE
 --- a/src/globals.c
 +++ b/src/globals.c
-@@ -115,10 +115,14 @@
+@@ -115,10 +115,14 @@ tls_support tls_out = {
  uschar *dsn_envid              = NULL;
  int     dsn_ret                = 0;
  const pcre2_code  *regex_DSN         = NULL;
@@ -70,7 +70,7 @@ Last-Update: 2022-04-24
  uschar *openssl_options        = NULL;
 --- a/src/globals.h
 +++ b/src/globals.h
-@@ -153,10 +153,14 @@
+@@ -153,10 +153,14 @@ extern uschar *tls_advertise_hosts;    /
  extern uschar  *dsn_envid;             /* DSN envid string */
  extern int      dsn_ret;               /* DSN ret type*/
  extern const pcre2_code  *regex_DSN;         /* For recognizing DSN settings */
@@ -87,10 +87,10 @@ Last-Update: 2022-04-24
  extern uschar * (*lwr_receive_getbuf)(unsigned *);
 --- a/src/local_scan.c
 +++ b/src/local_scan.c
-@@ -5,60 +5,135 @@
- /* Copyright (c) University of Cambridge 1995 - 2009 */
+@@ -5,60 +5,136 @@
  /* Copyright (c) The Exim Maintainers 2021 */
  /* See the file NOTICE for conditions of use and distribution. */
+ /* SPDX-License-Identifier: GPL-2.0-or-later */
  
  
 -/******************************************************************************
@@ -142,6 +142,7 @@ Last-Update: 2022-04-24
 -*/
 +#ifdef DLOPEN_LOCAL_SCAN
 +#include <dlfcn.h>
++#include <stdlib.h>
 +static int (*local_scan_fn)(int fd, uschar **return_text) = NULL;
 +static int load_local_scan_library(void);
 +#endif
@@ -267,7 +268,7 @@ Last-Update: 2022-04-24
  /* End of local_scan.c */
 --- a/src/local_scan.h
 +++ b/src/local_scan.h
-@@ -25,10 +25,11 @@
+@@ -25,10 +25,11 @@ store.c
  /* Some basic types that make some things easier, the Exim configuration
  settings, and the store functions. */
  
@@ -279,7 +280,7 @@ Last-Update: 2022-04-24
  #include "store.h"
  
  
-@@ -164,10 +165,13 @@
+@@ -164,10 +165,13 @@ extern const uschar *headers_charset;  /
  extern header_line *header_last;       /* Final header */
  extern header_line *header_list;       /* First header */
  extern BOOL    host_checking;          /* Set when checking a host */
@@ -293,7 +294,7 @@ Last-Update: 2022-04-24
  extern int     recipients_count;       /* Number of recipients */
  extern recipient_item *recipients_list;/* List of recipient addresses */
  extern unsigned char *sender_address;  /* Sender address */
-@@ -234,6 +238,8 @@
+@@ -234,6 +238,8 @@ extern uschar * string_copy_taint_functi
  extern pid_t    child_open_exim_function(int *, const uschar *);
  extern pid_t    child_open_exim2_function(int *, uschar *, uschar *, const uschar *);
  extern pid_t    child_open_function(uschar **, uschar **, int, int *, int *, BOOL, const uschar *);
@@ -304,7 +305,7 @@ Last-Update: 2022-04-24
  /* End of local_scan.h */
 --- a/src/readconf.c
 +++ b/src/readconf.c
-@@ -210,10 +210,13 @@
+@@ -210,10 +210,13 @@ static optionlist optionlist_config[] =
  #endif
    { "local_from_check",         opt_bool,        {&local_from_check} },
    { "local_from_prefix",        opt_stringptr,   {&local_from_prefix} },
@@ -320,7 +321,7 @@ Last-Update: 2022-04-24
    { "localhost_number",         opt_stringptr,   {&host_number_string} },
 --- a/src/string.c
 +++ b/src/string.c
-@@ -416,10 +416,11 @@
+@@ -416,10 +416,11 @@ return ss;
  
  
  
@@ -332,7 +333,7 @@ Last-Update: 2022-04-24
  *************************************************/
  
  /*
-@@ -461,10 +462,11 @@
+@@ -461,10 +462,11 @@ Returns:    copy of string in new store
  uschar *
  string_copyn_function(const uschar * s, int n)
  {
