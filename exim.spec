@@ -289,7 +289,7 @@ install -d $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
-	build-Linux-*/{exigrep,exiqgrep,exipick,eximstats,exiqsumm,convert4r4} \
+	build-Linux-*/{exigrep,exiqgrep,exipick,eximstats,exim_msgdate,exiqsumm,convert4r4} \
 	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
