@@ -10,6 +10,7 @@ repo=$package.git
 # use filterdiff, etc to exclude bad chunks from diff
 filter() {
     filterdiff \
+        -x '*/Readme.pod' \
         -x '*/test/*' \
         -x '*/doc/*' \
         -x '*/release-process/*'
