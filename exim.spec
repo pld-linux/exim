@@ -23,7 +23,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.96
-Release:	22
+Release:	23
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -49,19 +49,19 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	3a0a59d51d6434951a4d3d84df68fc11
+# Patch100-md5:	4fe63e59eab5429873b78dafd8fba6d7
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
-Patch3:		exim-defs.patch
+Patch3:		%{name}-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # dlopen patch from debian
 Patch5:		90_localscan_dlopen.dpatch
 # local fixes for debian patch
-Patch6:         90_localscan_dlopen-fixes.dpatch
+Patch6:		90_localscan_dlopen-fixes.dpatch
 Patch7:		linelength-show.patch
 Patch8:		%{name}-spam-timeout.patch
-Patch9:         autoreply-return-path.patch
+Patch9:		autoreply-return-path.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -76,6 +76,7 @@ BuildRequires:	libidn2-devel
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
 BuildRequires:	pcre2-8-devel
+BuildRequires:	perl-File-FcntlLock
 BuildRequires:	perl-devel >= 1:5.6.0
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	readline-devel
