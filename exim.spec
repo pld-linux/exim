@@ -23,7 +23,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.96
-Release:	24
+Release:	25
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -49,7 +49,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	0ea3e11e6f8a3371f1ffe042a9f7a83c
+# Patch100-md5:	a08ce639b3a3652899a84ff606e66517
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -62,6 +62,7 @@ Patch6:		90_localscan_dlopen-fixes.dpatch
 Patch7:		linelength-show.patch
 Patch8:		%{name}-spam-timeout.patch
 Patch9:		autoreply-return-path.patch
+Patch10:        unofficial-hotfix.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -186,6 +187,7 @@ Pliki nagłówkowe dla Exima.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p2
+%patch10 -p2
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
