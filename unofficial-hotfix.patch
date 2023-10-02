@@ -41,42 +41,6 @@ index 078aad0..54966e6 100644
  if (ob->server_param2)
    {
    uschar * s = expand_string(ob->server_param2);
-diff --git a/src/src/auths/spa.c b/src/src/auths/spa.c
-index 222ccea..66967d6 100644
---- a/src/src/auths/spa.c
-+++ b/src/src/auths/spa.c
-@@ -166,12 +166,18 @@ if (auth_get_no64_data(&data, msgbuf) != OK)
-   return FAIL;
- 
- /* dump client response */
--if (spa_base64_to_bits(CS &response, sizeof(response), CCS data) < 0)
-+int l = spa_base64_to_bits(CS &response, sizeof(response), CCS data);
-+if (l < 0)
-   {
-   DEBUG(D_auth) debug_printf("auth_spa_server(): bad base64 data in "
-     "response: %s\n", data);
-   return FAIL;
-   }
-+if(l < (char *)&response.buffer - (char *)&response)return FAIL;
-+unsigned long o = IVAL(&response.uUser.offset, 0);
-+if((l < o) || (l - o < SVAL(&response.uUser.len, 0)))return FAIL;
-+o = IVAL(&response.ntResponse.offset, 0);
-+if((l < o) || (l - o < 24))return FAIL;
- 
- /***************************************************************
- PH 07-Aug-2003: The original code here was this:
-@@ -346,7 +352,10 @@ if (!smtp_read_response(sx, US buffer, buffsize, '3', timeout))
- 
- /* convert the challenge into the challenge struct */
- DSPA("\n\n%s authenticator: challenge (%s)\n\n", ablock->name, buffer + 4);
--spa_base64_to_bits(CS (&challenge), sizeof(challenge), CCS (buffer + 4));
-+int l = spa_base64_to_bits(CS (&challenge), sizeof(challenge), CCS (buffer + 4));
-+if((l < 0) || (l < (char *)&challenge.buffer - (char *)&challenge))return FAIL;
-+unsigned long o = IVAL(&challenge.uDomain.offset, 0);
-+if((l < o) || (l - o < SVAL(&challenge.uDomain.len, 0)))return FAIL;
- 
- spa_build_auth_response(&challenge, &response, CS username, CS password);
- spa_bits_to_base64(US msgbuf, US &response, spa_request_length(&response));
 diff --git a/src/src/proxy.c b/src/src/proxy.c
 index fbce111..8dd7034 100644
 --- a/src/src/proxy.c
