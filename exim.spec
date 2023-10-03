@@ -49,7 +49,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	a08ce639b3a3652899a84ff606e66517
+# Patch100-md5:	e915e596f4bdd857f1e6b5881d57b835
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -62,8 +62,7 @@ Patch6:		90_localscan_dlopen-fixes.dpatch
 Patch7:		linelength-show.patch
 Patch8:		%{name}-spam-timeout.patch
 Patch9:		autoreply-return-path.patch
-Patch10:        CVE-2023-42114+42115+42116-fixes.patch
-Patch11:        unofficial-hotfix.patch
+Patch10:        unofficial-hotfix.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -189,7 +188,6 @@ Pliki nagłówkowe dla Exima.
 %patch8 -p1
 %patch9 -p2
 %patch10 -p2
-%patch11 -p2
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
