@@ -23,7 +23,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.97
-Release:	13
+Release:	14
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -49,7 +49,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	3cd8f000adfb9270142d29c654d7b5d0
+# Patch100-md5:	eef923600fc1e8d56d0d6fa23ca28887
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
