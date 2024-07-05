@@ -119,8 +119,8 @@
 -# SUPPORT_SRS=yes
 +SUPPORT_SRS=yes
  
- 
- #------------------------------------------------------------------------------
+ # Uncomment the following to remove support for the ESMTP extension "WELLKNOWN"
+ # DISABLE_WELLKNOWN=yes
 @@ -752,18 +753,18 @@ FIXED_NEVER_USERS=root
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
