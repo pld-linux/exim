@@ -3,7 +3,7 @@
 %bcond_without	pgsql	# without PostgreSQL support
 %bcond_without	mysql	# without MySQL support
 %bcond_without	sqlite	# without sqlite
-%bcond_without	whoson	# without whoson support
+%bcond_with	whoson	# without whoson support
 %bcond_without	sasl	# without SASL
 %bcond_without	ldap	# without LDAP support
 %bcond_without	spf	# without spf support
@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.98
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
