@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.98
-Release:	3
+Release:	4
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -284,7 +284,7 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/mail
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/{exim,mail}
 install -d $RPM_BUILD_ROOT/etc/{cron.daily,logrotate.d,rc.d/init.d,sysconfig,pam.d,security}
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_sbindir},%{_mandir}/man8,/usr/lib}
 install -d $RPM_BUILD_ROOT%{_var}/{spool/exim/{db,input,msglog},log/{archive,}/exim,mail}
@@ -324,6 +324,8 @@ install -d $RPM_BUILD_ROOT%{_includedir}/%{name}
 install src/{local_scan,store,mytypes}.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 install build-Linux-*/config.h $RPM_BUILD_ROOT%{_includedir}/%{name}
 
+touch $RPM_BUILD_ROOT%{_sysconfdir}/exim/trusted_configs
+
 touch $RPM_BUILD_ROOT%{_var}/log/exim/{main,reject,panic,process}.log
 
 touch $RPM_BUILD_ROOT/etc/security/blacklist.smtp
@@ -361,6 +363,8 @@ fi
 %defattr(644,root,root,755)
 %doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
 %doc exim-html-*/exim-html-*/doc/html
+%dir %{_sysconfdir}/exim
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/exim/trusted_configs
 %dir %{_sysconfdir}/mail
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases

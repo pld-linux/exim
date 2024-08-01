@@ -121,6 +121,15 @@
  
  # Uncomment the following to remove support for the ESMTP extension "WELLKNOWN"
  # DISABLE_WELLKNOWN=yes
+@@ -751,7 +751,7 @@ FIXED_NEVER_USERS=root
+ # the TRUSTED_CONFIG_LIST file, then root privileges are not dropped by Exim.
+ 
+ # TRUSTED_CONFIG_LIST=/usr/exim/trusted_configs
+-
++TRUSTED_CONFIG_LIST=/etc/exim/trusted_configs
+ 
+ #------------------------------------------------------------------------------
+ # Uncommenting this option disables the use of the -D command line option,
 @@ -752,18 +753,18 @@ FIXED_NEVER_USERS=root
  # included in the Exim binary. You will then need to set up the run time
  # configuration to make use of the mechanism(s) selected.
