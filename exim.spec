@@ -21,15 +21,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.98.2
-Release:	3
+Version:	4.99
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
-Source0:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	d77f25be77fed6296fa5792d0cea425e
-Source1:	ftp://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	f5f5e1115f595f73d312e2d77e271055
+Source0:	https://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
+# Source0-md5:	66b3c16e64bb62bc372369f201ea5c40
+Source1:	https://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
+# Source1-md5:	1347946146a59c7e871d8bd49889b98d
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -48,7 +48,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	7fef441251ecbc00567ae8ba75d9c96c
+# Patch100-md5:	d41d8cd98f00b204e9800998ecf8427e
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -58,11 +58,9 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		90_localscan_dlopen.dpatch
 # local fixes for debian patch
 Patch6:		90_localscan_dlopen-fixes.dpatch
-Patch7:		linelength-show.patch
+
 Patch8:		%{name}-spam-timeout.patch
 Patch9:		autoreply-return-path.patch
-Patch10:        unofficial-hotfix.patch
-Patch11:	gcc15.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -184,11 +182,9 @@ Pliki nagłówkowe dla Exima.
 %patch -P4 -p1
 %patch -P5 -p1
 %patch -P6 -p1
-%patch -P7 -p1
+
 %patch -P8 -p1
 %patch -P9 -p2
-%patch -P10 -p2
-%patch -P11 -p2
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -205,7 +201,9 @@ EXPERIMENTAL_ARC=yes
 EXPERIMENTAL_DCC=yes
 EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
+EXPERIMENTAL_NMH=yes
 EXPERIMENTAL_QUEUEFILE=yes
+#EXPERIMENTAL_SPF_PERL=yes
 EXPERIMENTAL_XCLIENT=yes
 SUPPORT_DANE=yes
 SUPPORT_I18N=yes
@@ -295,7 +293,7 @@ install -d $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
 
 install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	build-Linux-*/exi{cyclog,next,what} %{SOURCE10} \
-	build-Linux-*/{exigrep,exiqgrep,exipick,eximstats,exim_msgdate,exiqsumm,convert4r4} \
+	build-Linux-*/{exigrep,exiqgrep,exipick,eximstats,exim_msgdate,exiqsumm} \
 	util/unknownuser.sh \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
@@ -388,7 +386,6 @@ fi
 %attr(755,root,root) %{_bindir}/exiqsumm
 %attr(755,root,root) %{_bindir}/unknownuser.sh
 %attr(755,root,root) %{_bindir}/newaliases
-%attr(755,root,root) %{_bindir}/convert4r4
 %attr(755,root,root) %{_sbindir}/mailq
 %attr(755,root,root) %{_sbindir}/rmail
 %attr(755,root,root) %{_sbindir}/rsmtp

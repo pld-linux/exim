@@ -294,14 +294,13 @@ Last-Update: 2023-09-09
  extern int     recipients_count;       /* Number of recipients */
  extern recipient_item *recipients_list;/* List of recipient addresses */
  extern const unsigned char *sender_address;	/* Sender address */
-@@ -245,6 +249,8 @@ extern uschar * string_copy_taint_functi
- extern pid_t    child_open_exim_function(int *, const uschar *);
- extern pid_t    child_open_exim2_function(int *, uschar *, uschar *, const uschar *);
+@@ -253,5 +253,7 @@ extern pid_t    child_open_exim2_functio
  extern pid_t    child_open_function(uschar **, uschar **, int, int *, int *, BOOL, const uschar *);
  #endif
  
 +#pragma GCC visibility pop
 +
+ #endif	/* whole file */
  /* End of local_scan.h */
 --- a/src/readconf.c
 +++ b/src/readconf.c

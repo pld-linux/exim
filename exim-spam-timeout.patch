@@ -1,12 +1,11 @@
---- exim-4.86/src/spam.c~	2015-07-23 23:20:37.000000000 +0200
-+++ exim-4.86/src/spam.c	2015-07-29 10:41:57.918864020 +0200
-@@ -344,7 +344,7 @@ start = time(NULL);
+--- exim-4.99/src/spam.c~	2025-10-27 14:16:13.000000000 +0100
++++ exim-4.99/src/spam.c	2025-10-28 15:09:54.413387339 +0100
+@@ -315,7 +315,7 @@ start = time(NULL);
      for (;;)
        {
        /*XXX could potentially use TFO early-data here */
 -      if (  (spamd_cctx.sock = ip_streamsocket(sd->hostspec, &errstr, 5, NULL)) >= 0
 +      if (  (spamd_cctx.sock = ip_streamsocket(sd->hostspec, &errstr, 15, NULL)) >= 0
-          || sd->retry <= 0
+          || sd->retry == 0
  	 )
  	break;
-

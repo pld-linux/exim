@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
-url=git://git.exim.org/exim.git
+url=https://code.exim.org/exim/exim.git
 package=exim
-tag=exim-4.98
+tag=exim-4.99
 #branch=exim-4.97+fixes
 branch=master
 out=$package-git.patch

@@ -2,14 +2,15 @@ diff --git a/src/src/transports/autoreply.c b/src/src/transports/autoreply.c
 index 211e32810..ddf241c7b 100644
 --- a/src/src/transports/autoreply.c
 +++ b/src/src/transports/autoreply.c
-@@ -271,6 +271,7 @@ uschar *logfile, *oncelog;
- uschar *cache_buff = NULL;
- uschar *cache_time = NULL;
- uschar *message_id = NULL;
-+uschar *ar_return_path = NULL;
- header_line *h;
- time_t now = time(NULL);
- time_t once_repeat_sec = 0;
+@@ -274,7 +274,7 @@ EXIM_DB * dbm_file = NULL;
+ BOOL file_expand, return_message;
+ const uschar * from, * reply_to, * to, * cc, * bcc, * subject, * headers;
+ const uschar * text, * file, * logfile, * oncelog;
+-uschar * cache_buff = NULL, * cache_time = NULL, * message_id = NULL;
++uschar * cache_buff = NULL, * cache_time = NULL, * message_id = NULL, * ar_return_path = NULL;
+ header_line * h;
+ time_t now = time(NULL), once_repeat_sec = 0;
+ FILE * ff = NULL, * fp;
 @@ -564,8 +565,11 @@ if (file)
    }
  

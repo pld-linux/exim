@@ -130,9 +130,9 @@
  
  #------------------------------------------------------------------------------
  # Uncommenting this option disables the use of the -D command line option,
-@@ -752,18 +753,18 @@ FIXED_NEVER_USERS=root
- # included in the Exim binary. You will then need to set up the run time
- # configuration to make use of the mechanism(s) selected.
+@@ -880,18 +880,18 @@ TRUSTED_CONFIG_LIST=/etc/exim/trusted_co
+ # core exim build.  This gets them linked with the module instead.
+ # The heimdal does build but we have no test coverage so it is not know to work.
  
 -# AUTH_CRAM_MD5=yes
 +AUTH_CRAM_MD5=yes
@@ -199,15 +199,15 @@
  
  #------------------------------------------------------------------------------
  # Compiling in support for embedded Perl: If you want to be able to
-@@ -968,7 +983,7 @@ ZCAT_COMMAND=/usr/bin/zcat
- # (version 5.004 or later) installed, set EXIM_PERL to perl.o. Using embedded
+@@ -1100,7 +1100,7 @@ ZCAT_COMMAND=/bin/zcat
  # Perl costs quite a lot of resources. Only do this if you really need it.
+ #
  
 -# EXIM_PERL=perl.o
 +EXIM_PERL=perl.o
  
- 
- #------------------------------------------------------------------------------
+ # For a dynamic module build add also SUPPORT_PERL=2 and SUPPORT_PAM_(INCLUED,LIBS)
+ #SUPPORT_PERL=2
 @@ -978,7 +993,7 @@ ZCAT_COMMAND=/usr/bin/zcat
  # that the local_scan API is made available by the linker. You may also need
  # to add -ldl to EXTRALIBS so that dlopen() is available to Exim.
@@ -217,9 +217,9 @@
  
  
  #------------------------------------------------------------------------------
-@@ -988,11 +1003,12 @@ ZCAT_COMMAND=/usr/bin/zcat
- # support, which is intended for use in conjunction with the SMTP AUTH
- # facilities, is included only when requested by the following setting:
+@@ -1127,11 +1127,12 @@ EXPAND_DLFUNC=yes
+ #
+ # For a dynamic module build add SUPPORT_PAM=2 and SUPPORT_PAM_LIBS=-lpam
  
 -# SUPPORT_PAM=yes
 +SUPPORT_PAM=yes
