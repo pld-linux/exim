@@ -47,8 +47,8 @@ Source14:	ftp://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
-Patch100:	%{name}-git.patch
-# Patch100-md5:	d41d8cd98f00b204e9800998ecf8427e
+#Patch100:	%{name}-git.patch
+## Patch100-md5:	d41d8cd98f00b204e9800998ecf8427e
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
