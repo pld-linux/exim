@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.99
-Release:	3
+Release:	5
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -48,7 +48,7 @@ Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
 Patch100:	%{name}-git.patch
-# Patch100-md5:	7bff932ff48c172c1556d610ce4296f4
+# Patch100-md5:	32989fb6d6977c82095b97b6c532e34b
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -56,11 +56,8 @@ Patch3:		%{name}-defs.patch
 Patch4:		%{name}4-Makefile-Default.patch
 # dlopen patch from debian
 Patch5:		90_localscan_dlopen.dpatch
-# local fixes for debian patch
-Patch6:		90_localscan_dlopen-fixes.dpatch
-
-Patch8:		%{name}-spam-timeout.patch
-Patch9:		autoreply-return-path.patch
+Patch6:		%{name}-spam-timeout.patch
+Patch7:		autoreply-return-path.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -174,7 +171,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-#%%patch -P100 -p2
+%patch -P100 -p2
 %patch -P0 -p1
 %patch -P1 -p1
 %patch -P2 -p1
@@ -182,9 +179,7 @@ Pliki nagłówkowe dla Exima.
 %patch -P4 -p1
 %patch -P5 -p1
 %patch -P6 -p1
-
-%patch -P8 -p1
-%patch -P9 -p2
+%patch -P7 -p2
 
 install %{SOURCE4} exim4.conf
 install %{SOURCE14} doc/config.samples.tar.bz2
@@ -194,12 +189,12 @@ CC=%{__cc}
 CUSTOM_CFLAGS=%{rpmcppflags} %{rpmcflags}
 CFLAGS_DYNAMIC=-shared -rdynamic -fPIC %{rpmldflags}
 LOOKUP_CDB=yes
+LOOKUP_PSL=yes
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
 X11_LD_LIB=%{_prefix}/X11R6/%{_lib}
 %{?with_dynamic:LOOKUP_MODULE_DIR=%{_libdir}/%{name}/modules}
 EXPERIMENTAL_ARC=yes
 EXPERIMENTAL_DCC=yes
-EXPERIMENTAL_PRDR=yes
 EXPERIMENTAL_DSN_INFO=yes
 EXPERIMENTAL_NMH=yes
 EXPERIMENTAL_QUEUEFILE=yes
@@ -207,9 +202,10 @@ EXPERIMENTAL_QUEUEFILE=yes
 EXPERIMENTAL_XCLIENT=yes
 SUPPORT_DANE=yes
 SUPPORT_I18N=yes
+SUPPORT_I18N_PC=libidn
 SUPPORT_I18N_2008=yes
+SUPPORT_I18N_2008_PC=libidn2
 SUPPORT_MOVE_FROZEN_MESSAGES=yes
-LDFLAGS+= -lidn -lidn2
 SUPPORT_PROXY=yes
 %if %{with dmarc}
 SUPPORT_DMARC=yes
@@ -268,7 +264,7 @@ LOOKUP_LDAP_LIBS=-lldap -llber
 LOOKUP_LIBS+=-lldap -llber
 %endif
 %if %{with lmdb}
-EXPERIMENTAL_LMDB=yes
+LOOKUP_LMDB=%{dynamic_type}
 LOOKUP_LIBS+=-llmdb
 %endif
 DLOPEN_LOCAL_SCAN=yes

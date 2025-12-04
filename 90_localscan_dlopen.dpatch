@@ -10,7 +10,9 @@ Last-Update: 2023-09-09
 
 --- a/src/EDITME
 +++ b/src/EDITME
-@@ -902,10 +902,25 @@ HEADERS_CHARSET="ISO-8859-1"
+@@ -996,14 +996,29 @@ HEADERS_CHARSET="ISO-8859-1"
+ # Exim is seen as very low priority. In practice, if you need to, you can
+ # define DEFAULT_CRYPT to the name of any function that has the same interface
  # as the traditional crypt() function.
  # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
  
@@ -36,9 +38,13 @@ Last-Update: 2023-09-09
  # the documentation in "info" format, first fetch the Texinfo documentation
  # sources from the ftp directory and unpack them, which should create files
  # with the extension "texinfo" in the doc directory. You may find that the
+ # version number of the texinfo files is different to your Exim version number,
+ # because the main documentation isn't updated as often as the code. For
 --- a/src/config.h.defaults
 +++ b/src/config.h.defaults
-@@ -31,10 +31,12 @@ Do not put spaces between # and the 'def
+@@ -29,14 +29,16 @@ Do not put spaces between # and the 'def
+ #define AUTH_HEIMDAL_GSSAPI
+ #define AUTH_PLAINTEXT
  #define AUTH_SPA
  #define AUTH_TLS
  
@@ -51,9 +57,13 @@ Last-Update: 2023-09-09
  #define CONFIGURE_FILE
  #define CONFIGURE_FILE_USE_EUID
  #define CONFIGURE_FILE_USE_NODE
+ #define CONFIGURE_GROUP
+ #define CONFIGURE_OWNER
 --- a/src/globals.c
 +++ b/src/globals.c
-@@ -116,10 +116,14 @@ tls_support tls_out = {
+@@ -116,14 +116,18 @@ tls_support tls_out = {
+ #endif
+ 
  uschar *dsn_envid              = NULL;
  int     dsn_ret                = 0;
  const pcre2_code  *regex_DSN         = NULL;
@@ -68,9 +78,13 @@ Last-Update: 2023-09-09
  BOOL    gnutls_allow_auto_pkcs11 = FALSE;
  uschar *hosts_require_alpn     = NULL;
  uschar *openssl_options        = NULL;
+ const pcre2_code *regex_STARTTLS     = NULL;
+ uschar *tls_advertise_hosts    = US"*";
 --- a/src/globals.h
 +++ b/src/globals.h
-@@ -155,10 +155,14 @@ extern uschar *tls_advertise_hosts;    /
+@@ -162,14 +162,18 @@ extern time_t  tls_watch_trigger_time; /
+ extern uschar *tls_advertise_hosts;    /* host for which TLS is advertised */
+ 
  extern uschar  *dsn_envid;             /* DSN envid string */
  extern int      dsn_ret;               /* DSN ret type*/
  extern const pcre2_code  *regex_DSN;         /* For recognizing DSN settings */
@@ -85,9 +99,13 @@ Last-Update: 2023-09-09
  
  extern int (*lwr_receive_getc)(unsigned);
  extern uschar * (*lwr_receive_getbuf)(unsigned *);
+ extern BOOL (*lwr_receive_hasc)(void);
+ extern int (*lwr_receive_ungetc)(int);
 --- a/src/local_scan.c
 +++ b/src/local_scan.c
-@@ -6,60 +6,136 @@
+@@ -4,62 +4,138 @@
+ 
+ /* Copyright (c) University of Cambridge 1995 - 2009 */
  /* Copyright (c) The Exim Maintainers 2021 */
  /* See the file NOTICE for conditions of use and distribution. */
  /* SPDX-License-Identifier: GPL-2.0-or-later */
@@ -268,7 +286,9 @@ Last-Update: 2023-09-09
  /* End of local_scan.c */
 --- a/src/local_scan.h
 +++ b/src/local_scan.h
-@@ -26,10 +26,11 @@ store.c
+@@ -26,14 +26,15 @@ store.c
+ #define LOCAL_SCAN_H
+ 
  /* Some basic types that make some things easier, the Exim configuration
  settings, and the store functions. */
  
@@ -280,7 +300,11 @@ Last-Update: 2023-09-09
  #include "store.h"
  
  
-@@ -175,10 +176,13 @@ extern const uschar *headers_charset;  /
+ /* Some people (Marc Merlin et al) are maintaining a patch that allows for
+ dynamic local_scan() libraries. This code is not yet in Exim proper, but it
+@@ -175,14 +176,17 @@ extern int     body_zerocount;         /
+ extern uschar *expand_string_message;  /* Error info for failing expansion */
+ extern const uschar *headers_charset;  /* Charset for RFC 2047 decoding */
  extern header_line *header_last;       /* Final header */
  extern header_line *header_list;       /* First header */
  extern BOOL    host_checking;          /* Set when checking a host */
@@ -294,17 +318,26 @@ Last-Update: 2023-09-09
  extern int     recipients_count;       /* Number of recipients */
  extern recipient_item *recipients_list;/* List of recipient addresses */
  extern const unsigned char *sender_address;	/* Sender address */
-@@ -253,5 +253,7 @@ extern pid_t    child_open_exim2_functio
+ extern uschar *sender_host_address;    /* IP address of sender, as chars */
+ extern uschar *sender_host_authenticated; /* Name of authentication mechanism */
+@@ -245,9 +249,12 @@ extern uschar * string_copy_function(con
+ extern uschar * string_copyn_function(const uschar *, int n);
+ extern uschar * string_copy_taint_function(const uschar *, const void * proto_mem);
+ extern pid_t    child_open_exim_function(int *, const uschar *);
+ extern pid_t    child_open_exim2_function(int *, uschar *, uschar *, const uschar *);
  extern pid_t    child_open_function(uschar **, uschar **, int, int *, int *, BOOL, const uschar *);
  #endif
  
 +#pragma GCC visibility pop
 +
  #endif	/* whole file */
++
  /* End of local_scan.h */
 --- a/src/readconf.c
 +++ b/src/readconf.c
-@@ -214,10 +214,13 @@ static optionlist optionlist_config[] =
+@@ -214,14 +214,17 @@ static optionlist optionlist_config[] =
+ #ifndef DISABLE_ESMTP_LIMITS
+   { "limits_advertise_hosts", opt_stringptr, {&limits_advertise_hosts} },
  #endif
    { "local_from_check",         opt_bool,        {&local_from_check} },
    { "local_from_prefix",        opt_stringptr,   {&local_from_prefix} },
@@ -318,9 +351,13 @@ Last-Update: 2023-09-09
  #endif
    { "local_sender_retain",      opt_bool,        {&local_sender_retain} },
    { "localhost_number",         opt_stringptr,   {&host_number_string} },
+   { "log_file_path",            opt_stringptr,   {&log_file_path} },
+   { "log_ports",		opt_stringptr,	 {&log_ports} },
 --- a/src/string.c
 +++ b/src/string.c
-@@ -435,10 +435,11 @@ return ss;
+@@ -455,14 +455,15 @@ return ss;
+ }
+ 
  
  
  
@@ -332,7 +369,11 @@ Last-Update: 2023-09-09
  *************************************************/
  
  /*
-@@ -480,10 +481,11 @@ Returns:    copy of string in new store
+ Argument: string to copy
+ Returns:  copy of string in new store with the same taint status
+@@ -500,14 +501,15 @@ Returns:    copy of string in new store
+ */
+ 
  uschar *
  string_copyn_function(const uschar * s, int n)
  {
@@ -344,3 +385,5 @@ Last-Update: 2023-09-09
  
  /*************************************************
  *     Copy and save string in malloc'd store     *
+ *************************************************/
+ 

@@ -82,9 +82,9 @@
 -# LOOKUP_DSEARCH=yes
 +LOOKUP_CDB=yes
 +LOOKUP_DSEARCH=yes
- # LOOKUP_IBASE=yes
  # LOOKUP_JSON=yes
  # LOOKUP_LDAP=yes
+ # LOOKUP_LMDB=yes
 @@ -417,7 +418,7 @@ LOOKUP_DNSDB=yes
  # LOOKUP_NIS=yes
  # LOOKUP_NISPLUS=yes
@@ -92,8 +92,8 @@
 -# LOOKUP_PASSWD=yes
 +LOOKUP_PASSWD=yes
  # LOOKUP_PGSQL=yes
+ # LOOKUP_PSL=yes
  # LOOKUP_REDIS=yes
- # LOOKUP_SQLITE=yes
 @@ -500,7 +500,7 @@ SUPPORT_DANE=yes
  # files are defaulted in the OS/Makefile-Default file, but can be overridden in
  # local OS-specific make files.
@@ -231,15 +231,6 @@
  
  #------------------------------------------------------------------------------
  # Proxying.
-@@ -1079,7 +1095,7 @@ ZCAT_COMMAND=/usr/bin/zcat
- # /var/pwcheck) and chown it to Exim's user and group. Once you have installed
- # pwcheck, you should arrange for it to be started by root at boot time.
- 
--# CYRUS_PWCHECK_SOCKET=/var/pwcheck/pwcheck
-+CYRUS_PWCHECK_SOCKET=/var/lib/sasl/mux
- 
- 
- #------------------------------------------------------------------------------
 @@ -1096,7 +1112,7 @@ ZCAT_COMMAND=/usr/bin/zcat
  # group. Once you have installed saslauthd, you should arrange for it to be
  # started by root at boot time.
