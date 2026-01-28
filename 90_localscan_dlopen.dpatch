@@ -287,12 +287,12 @@ Last-Update: 2023-09-09
 --- a/src/local_scan.h
 +++ b/src/local_scan.h
 @@ -26,14 +26,15 @@ store.c
- #define LOCAL_SCAN_H
  
  /* Some basic types that make some things easier, the Exim configuration
  settings, and the store functions. */
  
  #include <stdarg.h>
+ #include <stdint.h>
  #include <sys/types.h>
 +#pragma GCC visibility push(default)
  #include "config.h"

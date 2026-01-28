@@ -12,6 +12,7 @@ repo=$package.git
 filter() {
     filterdiff \
         -x '*/Readme.pod' \
+	-x '*/README.md' \
         -x '*/test/*' \
         -x '*/doc/*' \
         -x '*/release-process/*'
