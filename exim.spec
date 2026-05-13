@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.99.3
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -98,6 +98,7 @@ Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires:	findutils
 Requires:	pam >= 0.79.0
+Requires:	publicsuffix-list
 Requires:	rc-scripts
 Requires:	which
 Provides:	group(exim)
