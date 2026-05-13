@@ -9,7 +9,7 @@
 %bcond_without	spf	# without spf support
 %bcond_with	dynamic # dynamic modules
 %bcond_without	hiredis # without redis
-%bcond_without	dmarc	# DMARC support
+%bcond_without	dmarc	# DMARC support (Exim-native)
 %bcond_without	lmdb	# LMDB support
 
 %if "%{pld_release}" == "ac"
@@ -22,7 +22,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.99.3
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -67,7 +67,6 @@ BuildRequires:	libidn2-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
 %{?with_lmdb:BuildRequires:	lmdb-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_dmarc:BuildRequires:	libopendmarc-devel}
 %{?with_ldap:BuildRequires:	openldap-devel >= 2.3.0}
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	pam-devel
@@ -213,8 +212,7 @@ SUPPORT_I18N_2008_PC=libidn2
 SUPPORT_MOVE_FROZEN_MESSAGES=yes
 SUPPORT_PROXY=yes
 %if %{with dmarc}
-SUPPORT_DMARC=yes
-LOOKUP_LIBS+=-lopendmarc
+EXPERIMENTAL_DMARC_NATIVE=yes
 %endif
 %if %{with spf}
 SUPPORT_SPF=yes
