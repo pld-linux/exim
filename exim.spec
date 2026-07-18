@@ -1,14 +1,14 @@
 #
 # Conditional build:
-%bcond_without	pgsql	# without PostgreSQL support
-%bcond_without	mysql	# without MySQL support
-%bcond_without	sqlite	# without sqlite
-%bcond_with	whoson	# without whoson support
-%bcond_without	sasl	# without SASL
-%bcond_without	ldap	# without LDAP support
-%bcond_without	spf	# without spf support
+%bcond_without	pgsql	# PostgreSQL support
+%bcond_without	mysql	# MySQL support
+%bcond_without	sqlite	# SQLite support
+%bcond_with	whoson	# whoson support
+%bcond_without	sasl	# SASL support
+%bcond_without	ldap	# LDAP support
+%bcond_without	spf	# spf support
 %bcond_with	dynamic # dynamic modules
-%bcond_without	hiredis # without redis
+%bcond_without	hiredis # redis support
 %bcond_without	dmarc	# DMARC support (Exim-native)
 %bcond_without	lmdb	# LMDB support
 
@@ -297,7 +297,9 @@ install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 	$RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon $RPM_BUILD_ROOT%{_bindir}
-%{?with_dynamic:install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules}
+%if %{with dynamic}
+install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
+%endif
 
 install %{SOURCE5} .
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/cron.daily
@@ -401,10 +403,18 @@ fi
 %if %{with dynamic}
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/modules
-%{?with_mysql:%attr(755,root,root) %{_libdir}/%{name}/modules/mysql.so}
-%{?with_pgsql:%attr(755,root,root) %{_libdir}/%{name}/modules/pgsql.so}
-%{?with_sqlite:%attr(755,root,root) %{_libdir}/%{name}/modules/sqlite.so}
-%{?with_whoson:%attr(755,root,root) %{_libdir}/%{name}/modules/whoson.so}
+%if %{with mysql}
+%{_libdir}/%{name}/modules/mysql.so
+%endif
+%if %{with pgsql}
+%{_libdir}/%{name}/modules/pgsql.so
+%endif
+%if %{with sqlite}
+%{_libdir}/%{name}/modules/sqlite.so
+%endif
+%if %{with whoson}
+%{_libdir}/%{name}/modules/whoson.so
+%endif
 %endif
 %{_mandir}/man8/exicyclog.8*
 %{_mandir}/man8/exigrep.8*
