@@ -11,6 +11,7 @@
 %bcond_without	hiredis # redis support
 %bcond_without	dmarc	# DMARC support (Exim-native)
 %bcond_without	lmdb	# LMDB support
+%bcond_without	json	# JSON lookup support
 
 %if "%{pld_release}" == "ac"
 # hiredis build segfaults on ac-alpha
@@ -21,15 +22,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.99.5
-Release:	2
+Version:	4.100
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
 Source0:	https://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	3aabd1ad2e6d24dbfe40c308298f63b5
+# Source0-md5:	31ea12d91c798df00809310914f01359
 Source1:	https://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	823d50902e4bc4ba7f0f18e475e6fae5
+# Source1-md5:	67ec7ec15a69f8e0ea5893cc3e86cabc
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -47,8 +48,8 @@ Source14:	ftp://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
 # sh branch.sh
-Patch100:	%{name}-git.patch
-# Patch100-md5:	fe575d6725ea2f58a423f51d20c33f71
+#Patch100:	%{name}-git.patch
+## Patch100-md5:	fe575d6725ea2f58a423f51d20c33f71
 Patch0:		%{name}4-EDITME.patch
 Patch1:		%{name}4-monitor-EDITME.patch
 Patch2:		%{name}4-cflags.patch
@@ -62,6 +63,7 @@ URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
 %{?with_hiredis:BuildRequires:	hiredis-devel}
+%{?with_json:BuildRequires:	jansson-devel}
 BuildRequires:	libidn-devel
 BuildRequires:	libidn2-devel
 %{?with_spf:BuildRequires:	libspf2-devel >= 1.2.5-2}
@@ -171,7 +173,7 @@ Pliki nagłówkowe dla Exima.
 
 %prep
 %setup -q -a1 -a7
-%patch -P100 -p2
+#%%patch -P100 -p2
 %patch -P0 -p1
 %patch -P1 -p1
 %patch -P2 -p1
@@ -192,6 +194,8 @@ cat << 'EOF' >> Local/Makefile-Linux
 CC=%{__cc}
 CUSTOM_CFLAGS=%{rpmcppflags} %{rpmcflags}
 CFLAGS_DYNAMIC=-shared -rdynamic -fPIC %{rpmldflags}
+# exim links via LFLAGS; its LDFLAGS is for libraries only
+LFLAGS=%{rpmldflags}
 LOOKUP_CDB=yes
 LOOKUP_PSL=yes
 XLFLAGS=-L%{_prefix}/X11R6/%{_lib}
@@ -205,6 +209,7 @@ EXPERIMENTAL_QUEUEFILE=yes
 #EXPERIMENTAL_SPF_PERL=yes
 EXPERIMENTAL_XCLIENT=yes
 SUPPORT_DANE=yes
+SUPPORT_DSCP=yes
 SUPPORT_I18N=yes
 SUPPORT_I18N_PC=libidn
 SUPPORT_I18N_2008=yes
@@ -268,7 +273,17 @@ LOOKUP_LIBS+=-lldap -llber
 %endif
 %if %{with lmdb}
 LOOKUP_LMDB=%{dynamic_type}
+# for dynamic
+LOOKUP_LMDB_LIBS=-llmdb
+# for static
 LOOKUP_LIBS+=-llmdb
+%endif
+%if %{with json}
+LOOKUP_JSON=%{dynamic_type}
+# for dynamic
+LOOKUP_JSON_LIBS=-ljansson
+# for static
+LOOKUP_LIBS+=-ljansson
 %endif
 DLOPEN_LOCAL_SCAN=yes
 EOF
@@ -298,7 +313,7 @@ install build-Linux-*/exim{,_fixdb,_tidydb,_dbmbuild,on.bin,_dumpdb,_lock} \
 install build-Linux-*/eximon.bin $RPM_BUILD_ROOT%{_bindir}
 install build-Linux-*/eximon $RPM_BUILD_ROOT%{_bindir}
 %if %{with dynamic}
-install build-Linux-*/*/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
+install build-Linux-*/dynmodules/*.so $RPM_BUILD_ROOT%{_libdir}/%{name}/modules
 %endif
 
 install %{SOURCE5} .
@@ -362,7 +377,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,Exim*.upgrade,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
+%doc README* NOTICE LICENCE analyse-log-errors doc/{ChangeLog,NewStuff,dbm.discuss.txt,filter.txt,spec.txt,OptionLists.txt,experimental-spec.txt} build-Linux-*/transport-filter.pl
 %doc exim-html-*/exim-html-current/doc/html
 %dir %{_sysconfdir}/exim
 %attr(640,root,exim) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/exim/trusted_configs
@@ -404,16 +419,25 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/modules
 %if %{with mysql}
-%{_libdir}/%{name}/modules/mysql.so
+%{_libdir}/%{name}/modules/mysql_lookup.so
 %endif
 %if %{with pgsql}
-%{_libdir}/%{name}/modules/pgsql.so
+%{_libdir}/%{name}/modules/pgsql_lookup.so
 %endif
 %if %{with sqlite}
-%{_libdir}/%{name}/modules/sqlite.so
+%{_libdir}/%{name}/modules/sqlite_lookup.so
 %endif
 %if %{with whoson}
-%{_libdir}/%{name}/modules/whoson.so
+%{_libdir}/%{name}/modules/whoson_lookup.so
+%endif
+%if %{with json}
+%{_libdir}/%{name}/modules/json_lookup.so
+%endif
+%if %{with ldap}
+%{_libdir}/%{name}/modules/ldap_lookup.so
+%endif
+%if %{with lmdb}
+%{_libdir}/%{name}/modules/lmdb_lookup.so
 %endif
 %endif
 %{_mandir}/man8/exicyclog.8*
