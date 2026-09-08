@@ -23,7 +23,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.100
-Release:	1
+Release:	2
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -98,6 +98,8 @@ Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires:	findutils
+# unversioned: another package may provide this instead
+Requires:	%{name}-sendmail
 Requires:	pam >= 0.79.0
 Requires:	publicsuffix-list
 Requires:	rc-scripts
@@ -135,6 +137,23 @@ conectados a Internet. Similar em estilo ao smail 3, suas facilidades
 são mais extensivas e em particular ele tem opções para verificação do
 remetente e destinatário, para recusar mensagens de máquinas, redes ou
 remetentes específicos.
+
+%package sendmail
+Summary:	Sendmail compatibility interface for Exim
+Summary(pl.UTF-8):	Interfejs zgodności z sendmailem dla Exima
+Group:		Networking/Daemons/SMTP
+# loop with the main package is intentional; rpm breaks it during ordering
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+%description sendmail
+The sendmail compatibility links, /usr/sbin/sendmail and
+/usr/lib/sendmail. Split into their own package so another package can
+provide them instead.
+
+%description sendmail -l pl.UTF-8
+Dowiązania zgodności z sendmailem: /usr/sbin/sendmail i
+/usr/lib/sendmail. Wydzielone do osobnego pakietu, aby mógł ich
+dostarczyć inny pakiet.
 
 %package X11
 Summary:	X11 based Exim administration tool
@@ -356,6 +375,13 @@ rm -rf $RPM_BUILD_ROOT
 %post
 umask 022
 /sbin/chkconfig --add %{name}
+# %config(noreplace) leaves a locally modified file with its old group
+if [ -L /etc/mail/exim.conf ]; then
+	echo "warning: /etc/mail/exim.conf is a symlink, its group left alone;" >&2
+	echo "         exim needs the target readable by group exim (0640 root:exim)." >&2
+else
+	chgrp exim /etc/mail/exim.conf
+fi
 %service %{name} restart "exim daemon"
 
 if [ ! -f /etc/mail/mailname ]; then
@@ -382,7 +408,8 @@ fi
 %dir %{_sysconfdir}/exim
 %attr(640,root,exim) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/exim/trusted_configs
 %dir %{_sysconfdir}/mail
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
+# group exim so a binary setuid to that user can read it; the group has no members
+%attr(640,root,exim) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/exim.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mail/aliases
 %attr(754,root,root) /etc/cron.daily/exim.cron.db
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/exim
@@ -406,8 +433,6 @@ fi
 %attr(755,root,root) %{_sbindir}/rmail
 %attr(755,root,root) %{_sbindir}/rsmtp
 %attr(755,root,root) %{_sbindir}/runq
-%attr(755,root,root) %{_sbindir}/sendmail
-%attr(755,root,root) /usr/lib/sendmail
 %attr(750,exim,root) %dir %{_var}/log/exim
 %attr(750,exim,root) %dir %{_var}/log/archive/exim
 %attr(640,exim,root) %ghost %{_var}/log/exim/*
@@ -448,6 +473,11 @@ fi
 %{_mandir}/man8/exinext.8*
 %{_mandir}/man8/exiqsumm.8*
 %{_mandir}/man8/exiwhat.8*
+
+%files sendmail
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/sendmail
+%attr(755,root,root) /usr/lib/sendmail
 
 %files X11
 %defattr(644,root,root,755)
