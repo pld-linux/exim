@@ -22,15 +22,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.100
-Release:	2
+Version:	4.100.1
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
 Source0:	https://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	31ea12d91c798df00809310914f01359
+# Source0-md5:	925a55dba4269090520636711e451c47
 Source1:	https://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	67ec7ec15a69f8e0ea5893cc3e86cabc
+# Source1-md5:	3b81fdbe565503485eb6700f5a5d4464
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -43,7 +43,7 @@ Source9:	%{name}.aliases
 Source10:	newaliases
 Source11:	%{name}.logrotate
 Source12:	%{name}.sysconfig
-Source14:	ftp://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
+Source14:	https://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
