@@ -63,9 +63,21 @@ checkconfig() {
 }
 
 start() {
+	local exim_path
+
 	# Start daemons.
 	if [ -f /var/lock/subsys/exim ]; then
 		msg_already_running "Exim"
+		return
+	fi
+
+	# a config naming another binary belongs to another instance (its own init script, spool and pid)
+	exim_path=$(exim -bP -C "$EXIM_CONFIG" exim_path 2>/dev/null)
+	exim_path=${exim_path#exim_path = }
+	if [ -n "$exim_path" ] && [ "$exim_path" != /usr/bin/exim ]; then
+		msg_starting "Exim"; fail
+		nls '%s sets exim_path = %s; start that instance instead' "$EXIM_CONFIG" "$exim_path"
+		RETVAL=6
 		return
 	fi
 
