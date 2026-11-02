@@ -87,15 +87,16 @@ start() {
 		$( is_yes "$ALLOW_TCP_CONNECTIONS" && echo -bd ) \
 		$( [ -n "$QUEUE" ] && echo -q$QUEUE ) \
 		-C "$EXIM_CONFIG"
+	RETVAL=$?
+	# the lock follows the main daemon: stop has to reach it even if an extra instance failed
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/exim
 	for CONFIG in $EXIM_EXTRA_CONFIGS; do
 			msg_starting "Exim ($CONFIG)"
 			daemon exim \
 				$( is_yes "$ALLOW_TCP_CONNECTIONS" && echo -bd ) \
 				$( [ -n "$QUEUE" ] && echo -q$QUEUE ) \
-				-C $CONFIG
+				-C $CONFIG || RETVAL=$?
 	done
-	RETVAL=$?
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/exim
 }
 
 stop() {
