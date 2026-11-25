@@ -1,27 +1,30 @@
-Expansions: fix crash in forall_json/forany_json on an unwrappable list
+From: Jeremy Harris <jgh146exb@wizmail.org>
+Subject: Expansions: harden forall (etc.)
 
-dewrap() returns NULL for a list without its [ ], and json_nextinlist()
-then dereferences it.  An empty list, e.g. $h_ of a missing header, or
-any skipped condition, ${if or{{true}{forany_json{[1]}{...}}}}, hit this.
-Treat an empty list as having no items, like the non-json forms, and
-fail the expansion for a malformed one.
+dewrap() returns NULL for an empty or unbracketed list, which
+forall_json/forany_json then dereferenced (segfault).
+
+Upstream: https://code.exim.org/exim/exim/commit/26ce72dd5b4b78659629abbbe6013e8b6b7bb8f6
 ---
 diff --git a/src/expand.c b/src/expand.c
-index 266b664..8b8d2e8 100644
+index 266b664..da3eed0 100644
 --- a/src/expand.c
 +++ b/src/expand.c
-@@ -3549,7 +3549,13 @@ switch(cond_type = identify_operator(&s, &opname))
- 
+@@ -3550,7 +3550,7 @@ switch(cond_type = identify_operator(&s, &opname))
      if (yield) *yield = !testfor;
      list = sub[0];
--    if (is_json) list = dewrap(string_copy(list), US"[]");
-+    /* An empty list (also what a skipped condition expands to) has no items */
-+    if (is_json && yield && *list && !(list = dewrap(string_copy(list), US"[]")))
-+      {
-+      expand_string_message = string_sprintf("%s wrapping list for %s",
-+	expand_string_message, opname);
-+      goto failout;
-+      }
-     while ((iterate_item = is_json
+     if (is_json) list = dewrap(string_copy(list), US"[]");
+-    while ((iterate_item = is_json
++    if (list) while ((iterate_item = is_json
        ? json_nextinlist(&list) : string_nextinlist(&list, &sep, NULL, 0)))
        {
+       if (is_jsons)
+@@ -3572,7 +3572,7 @@ switch(cond_type = identify_operator(&s, &opname))
+         goto failout;
+         }
+       DEBUG(expand) debug_printf_indent("%s: condition evaluated to %s\n", opname,
+-        tempcond? "true":"false");
++        tempcond ? "true":"false");
+ 
+       if (yield) *yield = (tempcond == testfor);
+       if (tempcond == is_forany) break;

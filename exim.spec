@@ -12,6 +12,7 @@
 %bcond_without	dmarc	# DMARC support (Exim-native)
 %bcond_without	lmdb	# LMDB support
 %bcond_without	json	# JSON lookup support
+%bcond_without	tests	# smoke test of the built binary
 
 %if "%{pld_release}" == "ac"
 # hiredis build segfaults on ac-alpha
@@ -23,7 +24,7 @@ Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
 Version:	4.100.2
-Release:	2
+Release:	3
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
@@ -47,6 +48,7 @@ Source14:	https://ftp.exim.org/pub/exim/exim4/old/config.samples.tar.bz2
 # Source14-md5:	4b93321938a800caa6127c48ad60a42b
 Source15:	%{name}4-smtp.pamd
 Source16:	%{name}on.png
+Source17:	%{name}-smoke-test.sh
 # sh branch.sh
 #Patch100:	%{name}-git.patch
 ## Patch100-md5:	fe575d6725ea2f58a423f51d20c33f71
@@ -323,6 +325,10 @@ cp -f exim_monitor/EDITME Local/eximon.conf
 %build
 %{__make} -e \
 	FULLECHO=''
+
+%if %{with tests}
+sh %{SOURCE17} build-Linux-*/exim %{version}
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
