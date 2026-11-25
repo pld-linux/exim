@@ -22,15 +22,15 @@ Summary:	University of Cambridge Mail Transfer Agent
 Summary(pl.UTF-8):	Agent Transferu Poczty Uniwersytetu w Cambridge
 Summary(pt_BR.UTF-8):	Servidor de correio eletrônico exim
 Name:		exim
-Version:	4.100.1
-Release:	3
+Version:	4.100.2
+Release:	1
 Epoch:		2
 License:	GPL v2+
 Group:		Networking/Daemons/SMTP
 Source0:	https://ftp.exim.org/pub/exim/exim4/%{name}-%{version}.tar.bz2
-# Source0-md5:	925a55dba4269090520636711e451c47
+# Source0-md5:	7ed18227f8426a080f60e14f26f91ff2
 Source1:	https://ftp.exim.org/pub/exim/exim4/%{name}-html-%{version}.tar.bz2
-# Source1-md5:	3b81fdbe565503485eb6700f5a5d4464
+# Source1-md5:	9f42c57d05aaeb23ff1098168adf2a2a
 Source2:	%{name}.init
 Source3:	%{name}.cron.db
 Source4:	%{name}4.conf
@@ -59,6 +59,11 @@ Patch4:		%{name}4-Makefile-Default.patch
 Patch5:		90_localscan_dlopen.dpatch
 Patch6:		%{name}-spam-timeout.patch
 Patch7:		autoreply-return-path.patch
+Patch8:		%{name}-extract-leading-digits.patch
+# Patch8 widens the field number; this bounds it before the int conversion
+Patch9:		%{name}-extract-field-bounds.patch
+Patch10:	%{name}-eval-overflow-check.patch
+Patch11:	%{name}-forall-json-unwrap.patch
 URL:		http://www.exim.org/
 %{?with_sasl:BuildRequires:	cyrus-sasl-devel >= 2.1.0}
 BuildRequires:	db-devel
@@ -201,6 +206,10 @@ Pliki nagłówkowe dla Exima.
 %patch -P5 -p1
 %patch -P6 -p1
 %patch -P7 -p2
+%patch -P8 -p1
+%patch -P9 -p1
+%patch -P10 -p1
+%patch -P11 -p1
 
 # fixup version
 sed -i 's/^[[:space:]]*#define[[:space:]]\+EXIM_RELEASE_VERSION[[:space:]]\+".*"/#define EXIM_RELEASE_VERSION "%{version}"/' src/version.h

@@ -1,0 +1,84 @@
+From: Jeremy Harris <jgh146exb@wizmail.org>
+Subject: Expansions: harden extract, listextract
+
+Upstream: https://code.exim.org/exim/exim/commit/521d8624fcd59762148a4e9023724abc56c79f60
+---
+diff --git a/src/expand.c b/src/expand.c
+index a9d4cb9..bc56821 100644
+--- a/src/expand.c
++++ b/src/expand.c
+@@ -1288,7 +1288,7 @@ static uschar *
+ expand_gettokened (int field, const uschar * separators, uschar * s)
+ {
+ int sep = 1, count;
+-uschar * ss = s, * fieldtext = NULL;
++uschar * fieldtext = NULL;
+ 
+ if (field == 0) return s;
+ 
+@@ -1298,7 +1298,7 @@ the string, counting the number of fields. */
+ 
+ count = field > 0 ? field : INT_MAX;
+ 
+-while (count-- > 0)
++for (uschar * ss = s; count-- > 0; )
+   {
+   size_t len;
+ 
+@@ -1320,12 +1320,12 @@ while (count-- > 0)
+     }
+ 
+   /* Previous field was not last in the string; save its start and put a
+-  zero at its end. */
++  NUL at its end. */
+ 
+   fieldtext = ss;
+   len = Ustrcspn(ss, separators);
+   sep = ss[len];
+-  ss[len] = 0;
++  ss[len] = '\0';
+   ss += len + 1;
+   }
+ 
+@@ -6453,7 +6453,7 @@ while (*s)	/* known to be untainted */
+ 	    field_number = Ustrtol(p, &p, 10);
+ 	    if (!*p)
+ 	      {
+-	      if (field_number > 10000)
++	      if (field_number > 10000 || field_number < -10000)
+ 		{
+ 		expand_string_message = US"extract: field number too large";
+ 		goto EXPAND_FAILED;
+@@ -6631,9 +6631,8 @@ while (*s)	/* known to be untainted */
+ 
+ 	if (i == 0)
+ 	  {
+-	  int len;
+-	  int x = 0;
+-	  uschar *p = sub[0];
++	  int x = 0, len;
++	  uschar * p = sub[0];
+ 
+ 	  Uskip_whitespace(&p);
+ 	  sub[0] = p;
+@@ -6654,13 +6653,19 @@ while (*s)	/* known to be untainted */
+ 	    field_number = -1;
+ 	    p++;
+ 	    }
+-	  while (*p && isdigit(*p)) x = x * 10 + *p++ - '0';
++	  while (*p && isdigit(*p))
++	    if ((x = x * 10 + *p++ - '0') > 10000)
++	      {
++	      expand_string_message = US"listextract: field number too large";
++	      goto EXPAND_FAILED;
++	      }
+ 	  if (*p)
+ 	    {
+ 	    expand_string_message = US"first argument of \"listextract\" must "
+ 	      "be numeric";
+ 	    goto EXPAND_FAILED;
+ 	    }
++
+ 	  field_number *= x;
+ 	  }
+         }

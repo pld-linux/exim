@@ -1,0 +1,32 @@
+Expansions: detect overflow in ${eval} sum and difference exactly
+
+The check compared x with itself, so a sum or difference with x >= 2^62
+failed even for 1.  Upstream 274bc85d fixed the typo, but the check stays
+heuristic: MAX + 1 then wraps silently, and differences were never caught.
+
+Based-on: https://code.exim.org/exim/exim/commit/274bc85d924dcb682dbdd7a870ca5dcdb5056dbf
+---
+diff --git a/src/expand.c b/src/expand.c
+index bc56821..266b664 100644
+--- a/src/expand.c
++++ b/src/expand.c
+@@ -4436,14 +4436,15 @@ if (!*error)
+       {
+       int_eximarith_t y = eval_op_mult(&s, decimal, error);
+       if (*error) break;
+-      if (  (x >=   EXIM_ARITH_MAX/2  && x >=   EXIM_ARITH_MAX/2)
+-	 || (x <= -(EXIM_ARITH_MAX/2) && y <= -(EXIM_ARITH_MAX/2)))
+-	{			/* over-conservative check */
++      int_eximarith_t r;
++      if (isplus ? __builtin_add_overflow(x, y, &r)
++		 : __builtin_sub_overflow(x, y, &r))
++	{
+ 	*error = isplus ? US"overflow in sum" : US"overflow in difference";
+ 	break;
+ 	}
+       eval_dbg_op_2(isplus ? US"plus" : US"minus", x, y);
+-      if (isplus) x += y; else x -= y;
++      x = r;
+       eval_dbg_res(x);
+       }
+     expand_level--;

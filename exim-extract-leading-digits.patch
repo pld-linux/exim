@@ -1,0 +1,113 @@
+From: Jeremy Harris <jgh146exb@wizmail.org>
+Subject: Fix ${extract } for field name-with-leading-digits.  Bug 3245
+
+Broken-by: 7fcacbc7cd
+Upstream: https://code.exim.org/exim/exim/commit/7e3fe40280f9a7b133345d6485ae0e3443942ce9
+---
+diff --git a/src/expand.c b/src/expand.c
+index 01c69a0..a9d4cb9 100644
+--- a/src/expand.c
++++ b/src/expand.c
+@@ -1287,10 +1287,8 @@ Returns:      NULL if the field was not found,
+ static uschar *
+ expand_gettokened (int field, const uschar * separators, uschar * s)
+ {
+-int sep = 1;
+-int count;
+-uschar *ss = s;
+-uschar *fieldtext = NULL;
++int sep = 1, count;
++uschar * ss = s, * fieldtext = NULL;
+ 
+ if (field == 0) return s;
+ 
+@@ -1298,7 +1296,7 @@ if (field == 0) return s;
+ done the number of fields we want. For field < 0 we continue till the end of
+ the string, counting the number of fields. */
+ 
+-count = (field > 0)? field : INT_MAX;
++count = field > 0 ? field : INT_MAX;
+ 
+ while (count-- > 0)
+   {
+@@ -1315,7 +1313,7 @@ while (count-- > 0)
+     while (field++ < 0)
+       {
+       ss--;
+-      while (ss[-1] != 0) ss--;
++      while (ss[-1]) ss--;
+       }
+     fieldtext = ss;
+     break;
+@@ -6359,7 +6357,7 @@ while (*s)	/* known to be untainted */
+ 
+     case EITEM_EXTRACT:
+       {
+-      int field_number = 1;
++      long field_number = 1;
+       BOOL field_number_set = FALSE;
+       uschar * save_lookup_value = lookup_value, * sub[3];
+       int save_expand_nmax =
+@@ -6368,7 +6366,7 @@ while (*s)	/* known to be untainted */
+       /* On reflection the original behaviour of extract-json for a string
+       result, leaving it quoted, was a mistake.  But it was already published,
+       hence the addition of jsons.  In a future major version, make json
+-      work like josons, and withdraw jsons. */
++      work like jsons, and withdraw jsons. */
+ 
+       enum {extract_basic, extract_json, extract_jsons} fmt = extract_basic;
+ 
+@@ -6413,7 +6411,8 @@ while (*s)	/* known to be untainted */
+ 	  }
+ 	}
+ 
+-      else for (int i = 0, j = 2; i < j; i++) /* Read the proper number of arguments */
++      else /* Read the proper number of arguments: key, ?separators, subject */
++	for (int i = 0, j = 2; i < j; i++)
+         {
+ 	if (Uskip_whitespace(&s) == '{') 				/*'}'*/
+           {
+@@ -6435,7 +6434,6 @@ while (*s)	/* known to be untainted */
+           if (i == 0)
+             {
+             int len;
+-            int x = 0;
+             uschar * p = sub[0];
+ 
+             Uskip_whitespace(&p);
+@@ -6452,23 +6450,14 @@ while (*s)	/* known to be untainted */
+ 	      goto EXPAND_FAILED;
+ 	      }
+ 
+-	    if (*p == '-')
++	    field_number = Ustrtol(p, &p, 10);
++	    if (!*p)
+ 	      {
+-	      field_number = -1;
+-	      p++;
+-	      }
+-	    for (int digits = 0; isdigit(*p); digits++)
+-	      if (digits > 5)
++	      if (field_number > 10000)
+ 		{
+ 		expand_string_message = US"extract: field number too large";
+ 		goto EXPAND_FAILED;
+ 		}
+-	      else
+-		x = x * 10 + *p++ - '0';
+-
+-	    if (!*p)
+-	      {
+-	      field_number *= x;
+ 	      if (fmt == extract_basic) j = 3;               /* Need 3 args */
+ 	      field_number_set = TRUE;
+ 	      }
+@@ -6492,7 +6481,7 @@ while (*s)	/* known to be untainted */
+ 	{
+ 	case extract_basic:
+ 	  lookup_value = field_number_set
+-			? expand_gettokened(field_number, sub[1], sub[2])
++			? expand_gettokened((int)field_number, sub[1], sub[2])
+ 			: expand_getkeyed(sub[0], sub[1]);
+ 	  break;
+ 

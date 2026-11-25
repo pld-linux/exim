@@ -1,0 +1,25 @@
+Expansions: fix crash in forall_json/forany_json on an unwrappable list
+
+dewrap() returns NULL for a list without its [ ], and json_nextinlist()
+then dereferences it.  A skipped condition always hits this, as its list
+expands to an empty string, e.g. ${if or{{true}{forany_json{[1]}{...}}}}.
+---
+diff --git a/src/expand.c b/src/expand.c
+index 266b664..69cab30 100644
+--- a/src/expand.c
++++ b/src/expand.c
+@@ -3549,7 +3549,13 @@ switch(cond_type = identify_operator(&s, &opname))
+ 
+     if (yield) *yield = !testfor;
+     list = sub[0];
+-    if (is_json) list = dewrap(string_copy(list), US"[]");
++    /* When skipping, sub[0] is empty and must not be unwrapped */
++    if (is_json && yield && !(list = dewrap(string_copy(list), US"[]")))
++      {
++      expand_string_message = string_sprintf("%s wrapping list for %s",
++	expand_string_message, opname);
++      goto failout;
++      }
+     while ((iterate_item = is_json
+       ? json_nextinlist(&list) : string_nextinlist(&list, &sep, NULL, 0)))
+       {
